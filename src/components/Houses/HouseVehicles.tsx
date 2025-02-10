@@ -34,7 +34,7 @@ const HouseVehicles = () => {
         </TableHeader>
         <TableBody>
           {dummyVehicles.map((data) => (
-            <TableRow>
+            <TableRow key={data.plateNumber}>
               <TableCell className="font-medium">{data.name}</TableCell>
               <TableCell>{data.color}</TableCell>
               <TableCell>{data.plateNumber}</TableCell>
@@ -43,7 +43,7 @@ const HouseVehicles = () => {
           ))}
         </TableBody>
       </Table>
-    )
-  }
+    );
+  };
   
-  export default HouseVehicles
+  export default HouseVehicles;

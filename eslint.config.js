@@ -8,7 +8,7 @@ import typescript from "@typescript-eslint/parser";
 
 export default [
   {
-    ignores: ["dist", ".husky","src/types/supabase.ts"], // Avoid including specific files in ignores.
+    ignores: ["dist", ".husky","src/types/database.ts","src/components/ui/**"], // Avoid including specific files in ignores.
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
       ecmaVersion: 2020,
