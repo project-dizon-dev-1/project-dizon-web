@@ -48,7 +48,7 @@ const HouseResidents = () => {
       </TableHeader>
       <TableBody>
         {dummyEmployees.map((data) => (
-          <TableRow>
+          <TableRow key={data.name}>
             <TableCell className="font-medium">{data.name}</TableCell>
             <TableCell>{data.contact}</TableCell>
             <TableCell>{data.createdAt}</TableCell>

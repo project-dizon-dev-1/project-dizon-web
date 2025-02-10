@@ -7,7 +7,7 @@ const HouseDetails = ({
   address: string;
   phase: string;
   mainContact: string;
-  latestPayment: string;
+  latestPayment: string | null;
 }) => {
   return (
     <div className=" flex justify-between">
