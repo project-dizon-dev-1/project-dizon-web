@@ -28,22 +28,54 @@ const api = axios.create({
 });
 
 // Axios request interceptor to always use the latest token
-api.interceptors.request.use(async (config) => {
-  if (!accessToken) {
-    await updateAccessToken();
+api.interceptors.request.use(
+  async (config) => {
+    if (!accessToken) {
+      await updateAccessToken();
+    }
+    if (accessToken) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error: unknown) => {
+    // Narrowing type of `error` to `AxiosError`
+    if (axios.isAxiosError(error)) {
+      console.error("Request error:", error.response?.data?.message || error.message || "Unknown error");
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    return Promise.reject(error);
   }
-  if (accessToken) {
-    config.headers["Authorization"] = `Bearer ${accessToken}`;
-  }
-  return config;
-});
+);
 
+// Axios response interceptor to handle errors globally
+api.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    // Narrowing type of `error` to `AxiosError`
+    if (axios.isAxiosError(error)) {
+      const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred";
+      console.error("Response error:", errorMessage);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Update error handling for axios functions
 export const axiosPost = async <T>(endpoint: string, data: any): Promise<T | null> => {
   try {
     const response = await api.post<T>(endpoint, data);
     return response.data;
-  } catch (error) {
-    console.error("Error creating:", error);
+  } catch (error: unknown) {
+    // Narrowing type of `error` to `AxiosError`
+    if (axios.isAxiosError(error)) {
+      console.error("Error during POST request:", error.response?.data?.message || error.message || "Unknown error");
+    } else {
+      console.error("Unexpected error during POST request:", error);
+    }
     throw error;
   }
 };
@@ -52,30 +84,43 @@ export const axiosGet = async <T>(endpoint: string): Promise<T> => {
   try {
     const response = await api.get<T>(endpoint);
     return response.data;
-  } catch (error) {
-    console.error('Error during GET request:', error);
-    throw error; // or return a default value or handle the error accordingly
+  } catch (error: unknown) {
+    // Narrowing type of `error` to `AxiosError`
+    if (axios.isAxiosError(error)) {
+      console.error("Error during GET request:", error.response?.data?.message || error.message || "Unknown error");
+    } else {
+      console.error("Unexpected error during GET request:", error);
+    }
+    throw error;
   }
 };
-
 
 export const axiosPut = async <T>(endpoint: string, data: T): Promise<T | null> => {
   try {
     const response = await api.put<T>(endpoint, data);
     return response.data;
-  } catch (error) {
-    console.error('Error during PUT request:', error);
-    throw error; 
+  } catch (error: unknown) {
+    // Narrowing type of `error` to `AxiosError`
+    if (axios.isAxiosError(error)) {
+      console.error("Error during PUT request:", error.response?.data?.message || error.message || "Unknown error");
+    } else {
+      console.error("Unexpected error during PUT request:", error);
+    }
+    throw error;
   }
 };
-
 
 export const axiosDelete = async <T>(endpoint: string): Promise<T | null> => {
   try {
     const response = await api.delete<T>(endpoint);
     return response.data;
-  } catch (error) {
-    console.error("Error deleting:", error);
+  } catch (error: unknown) {
+    // Narrowing type of `error` to `AxiosError`
+    if (axios.isAxiosError(error)) {
+      console.error("Error during DELETE request:", error.response?.data?.message || error.message || "Unknown error");
+    } else {
+      console.error("Unexpected error during DELETE request:", error);
+    }
     throw error;
   }
 };
