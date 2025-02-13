@@ -9,6 +9,8 @@ import Residents from "@/pages/Residents";
 import Dashboard from "./pages/Dashboard";
 import Collection from "./pages/Collection";
 import Dues from "./pages/Dues";
+import FinanceDashboard from "./pages/FinanceDashboard";
+import PaymentHistory from "./pages/PaymentHistory";
 
 const App = () => {
 return (
@@ -21,12 +23,14 @@ return (
         <Route element={<CheckAuth />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/collection" element={<Collection />} />
+            <Route path="/finance/collection" element={<Collection />} />
+            <Route path="/finance/payment-history" element={<PaymentHistory />} />
+            <Route path="/finance" element={<FinanceDashboard />} />
             <Route path="/residents" element={<Residents />} />
-            <Route path="/dues" element={<Dues />} />
+            <Route path="/finance/dues" element={<Dues />} />
              {/* Catch-all route for 404 Not Found */}
             <Route path="*" element={<NotFound />} />
-          </Route>
+        </Route>
         </Route>
           {/* Catch-all route for 404 Not Found */}
           <Route path="*" element={<NotFound />} />

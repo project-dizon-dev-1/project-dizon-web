@@ -26,12 +26,13 @@ const CheckAuth = () => {
 
   });
 
-
   
   useEffect(() => {
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+
+        console.log(session?.user);
   
         if (session?.user) {
           setUser(data);

@@ -19,36 +19,6 @@ const HouseEmployees = () => {
       role: "Family Driveer",
       employmentDate: "December 11, 2023",
     },
-    {
-      name: "Katarina Gomez",
-      role: "House Maid",
-      employmentDate: "June 15, 2024",
-    },
-    {
-      name: "Darius Mozgus",
-      role: "Family Driveer",
-      employmentDate: "December 11, 2023",
-    },
-    {
-      name: "Katarina Gomez",
-      role: "House Maid",
-      employmentDate: "June 15, 2024",
-    },
-    {
-      name: "Darius Mozgus",
-      role: "Family Driveer",
-      employmentDate: "December 11, 2023",
-    },
-    {
-      name: "Katarina Gomez",
-      role: "House Maid",
-      employmentDate: "June 15, 2024",
-    },
-    {
-      name: "Darius Mozgus",
-      role: "Family Driveer",
-      employmentDate: "December 11, 2023",
-    },
   ];
   return (
 

@@ -1,14 +1,24 @@
-import { axiosGet } from "@/lib/axios";
-import { Database } from "@/types/database";
+import { axiosGet, axiosPut } from "@/lib/axios";
+import { House, HouseSummary } from "@/types/HouseTypes";
+import { CollectionType } from "@/validations/collectionSchema";
 
 
 
-type House = Database["public"]["Tables"]["house-list"]["Row"];
+
 
 const getHouses = async():Promise<House[]> => {
     return axiosGet("/houses");
 };
+const getHousesSummary = async():Promise<HouseSummary[]> => {
+    return axiosGet("/houses/summary");
+};
+
+const updateHousePayment = async({houseId,data}:{houseId:string,data:CollectionType}) => {
+     axiosPut(`/houses/update/payment/${houseId}`,data);
+};
 
 export {
-    getHouses
+    getHouses,
+    getHousesSummary,
+    updateHousePayment
 };

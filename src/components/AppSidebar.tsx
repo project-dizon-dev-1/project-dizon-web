@@ -32,7 +32,6 @@ export const AppSidebar=() => {
   const { user } = useUserContext();
   const navigate = useNavigate();
 
-  console.log("user", user);
 
   return (
     <Sidebar variant="sidebar" collapsible="none">
