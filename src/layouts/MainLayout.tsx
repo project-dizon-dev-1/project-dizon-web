@@ -11,7 +11,7 @@ const MainLayout = () => {
   
       <SidebarInset>
       {/* <SidebarTrigger /> */}
-      <main className=" flex-1 flex">
+      <main className=" w-full h-full ">
       <Outlet />
       </main>
       </SidebarInset>
