@@ -18,8 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import DuesForm from "@/components/Dues/DuesForm";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteDues, fetchDues, fetchTotalDue } from "@/services/DuesServices";
+
 import { Skeleton } from "@/components/ui/skeleton";
 
 import {
@@ -31,63 +30,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Loading from "@/components/Loading";
-import { toast } from "@/hooks/use-toast";
+import useDues from "@/hooks/useDues";
 
 const Dues = () => {
-  // State to manage dialog visibility
 
-  const {
-    data: dues,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["dues"],
-    queryFn: async () => fetchDues(),
-  });
+  const { duesData, totalDueData, deactivateMutation, deleteDuesMutation } =
+    useDues(null);
 
-  const queryClient = useQueryClient();
-
-  const { data: totalDueData, isLoading: totalIsLoading } = useQuery({
-    queryKey: ["totalDue"],
-    queryFn: async () => fetchTotalDue(),
-  });
-
-  const { mutate } = useMutation({
-    mutationFn: deleteDues,
-    onSuccess: () => {
-      toast({
-        title: "Due Deleted Successfully",
-      });
-    },
-    onMutate: () => {
-      toast({
-        title: "Deleting Dues...",
-      });
-    },
-    onError: () => {
-      toast({
-        title: "Error Deleting Dues",
-      });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["dues"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["totalDue"],
-      });
-    },
-  });
-
-  if (isError) {
+  if (duesData.isError) {
     return <p>error fetching dues</p>;
   }
 
   return (
-    <div className="relative p-4 w-full">
+    <div className="relative p-4 w-full h-full">
       <h1 className="font-bold text-3xl mb-5">Dues</h1>
 
-      {isLoading ? (
+      {duesData.isLoading ? (
         <Loading />
       ) : (
         <Table>
@@ -102,8 +60,8 @@ const Dues = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {dues && dues?.length > 0 ? (
-              dues.map((due) => (
+            {duesData.data && duesData.data.length > 0 ? (
+              duesData.data.map((due) => (
                 <TableRow key={due.id}>
                   <TableCell className="font-medium">{due.due_name}</TableCell>
                   <TableCell>{due.due_description}</TableCell>
@@ -113,7 +71,7 @@ const Dues = () => {
                   </TableCell>
                   <TableCell>
                     <DropdownMenu modal={false}>
-                      <DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild>
                         <Button variant={"ghost"} className="">
                           ...
                         </Button>
@@ -121,7 +79,16 @@ const Dues = () => {
                       <DropdownMenuContent>
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Deactivate</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            deactivateMutation.mutate({
+                              dueId: due.id,
+                              dueIsActive: !due.due_is_active,
+                            })
+                          }
+                        >
+                          {due.due_is_active ? `Deactivate` : `Activate`}
+                        </DropdownMenuItem>
                         {/* Prevents the dialog from closing */}
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                           <Dialog>
@@ -155,7 +122,9 @@ const Dues = () => {
                               <div className=" flex justify-end">
                                 <DialogClose>
                                   <Button
-                                    onClick={() => mutate(due.id)}
+                                    onClick={() =>
+                                      deleteDuesMutation.mutate(due.id)
+                                    }
                                     variant={"destructive"}
                                   >
                                     Delete
@@ -182,10 +151,10 @@ const Dues = () => {
                 Total Due Amount:
               </TableCell>
               <TableCell colSpan={4}>
-                {totalIsLoading ? (
+                {totalDueData.isLoading ? (
                   <Skeleton className="h-4 w-10" />
                 ) : (
-                  totalDueData?.total_due
+                  totalDueData?.data?.total_due
                 )}
               </TableCell>
             </TableRow>

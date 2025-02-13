@@ -27,6 +27,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { getHouses } from "@/services/houseServices";
+import CollectionForm from "@/components/Collection/CollectionForm";
+import Loading from "@/components/Loading";
 
 const Collection = () => {
   const {
@@ -38,9 +40,6 @@ const Collection = () => {
     queryFn: getHouses,
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   if (isError) {
     return <div>Error fetching data.</div>;
@@ -83,12 +82,14 @@ const Collection = () => {
         </Select>
       </div>
 
-      <Table className=" rounded-2xl">
+      {isLoading ? <Loading/>:<Table className=" rounded-2xl">
         <TableHeader>
           <TableRow>
             <TableHead>Family Name</TableHead>
             <TableHead>Address</TableHead>
             <TableHead>Main Contact</TableHead>
+            <TableHead>Latest Payment Amount</TableHead>
+            <TableHead>Arrear</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Action</TableHead>
           </TableRow>
@@ -100,6 +101,9 @@ const Collection = () => {
                 <TableCell>{data.house_family_name}</TableCell>
                 <TableCell>{`${data.house_phase}, ${data.house_street} Street, ${data.house_block}, ${data.house_lot}`}</TableCell>
                 <TableCell>{data.house_main_poc}</TableCell>
+                <TableCell>{data.house_latest_payment_amount ?? 0}</TableCell>
+                <TableCell>{data.arrears ?? 0}</TableCell>
+                
                 <TableCell>
                   {data.house_latest_payment &&
                   new Date(data.house_latest_payment).getMonth ===
@@ -107,10 +111,12 @@ const Collection = () => {
                     ? "Paid"
                     : "Unpaid"}
                 </TableCell>
+
                 <TableCell>
-                  {
-                     (data?.house_latest_payment && new Date(data?.house_latest_payment).getMonth !==
-                      new Date().getMonth) || !data?.house_latest_payment && (
+                  {(data?.house_latest_payment &&
+                    new Date(data?.house_latest_payment).getMonth !==
+                      new Date().getMonth) ||
+                    (!data?.house_latest_payment && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button>Add Payment</Button>
@@ -118,12 +124,15 @@ const Collection = () => {
                         <DialogContent>
                           <DialogHeader>
                             <DialogTitle>
-                              {data.house_family_name} Family Details
+                              {data.house_family_name} Family Payment
+                              <CollectionForm houseId={data?.id}/>
                             </DialogTitle>
                           </DialogHeader>
+                          
                         </DialogContent>
+                        
                       </Dialog>
-                    )}
+                    ))}
                 </TableCell>
               </TableRow>
             ))
@@ -135,7 +144,7 @@ const Collection = () => {
             </TableRow>
           )}
         </TableBody>
-      </Table>
+      </Table>}
     </div>
   );
 };
