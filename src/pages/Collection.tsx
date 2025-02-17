@@ -25,126 +25,235 @@ import {
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getHouses } from "@/services/houseServices";
 import CollectionForm from "@/components/Collection/CollectionForm";
 import Loading from "@/components/Loading";
+import { PaginatedDataType } from "@/types/paginatedType";
+import { House } from "@/types/HouseTypes";
+import { useSearchParams } from "react-router";
 
 const Collection = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Get selected values from URL
+  const selectedPhase = searchParams.get("phase");
+  const selectedBlock = searchParams.get("block");
+  const selectedStreet = searchParams.get("street");
+  const selectedLot = searchParams.get("lot");
+
   const {
-    data: houses,
-    isLoading,
+    data,
     isError,
-  } = useQuery({
-    queryKey: ["houses"],
-    queryFn: getHouses,
+    isLoading,
+    // fetchNextPage,
+    // hasNextPage,
+    // isFetchingNextPage,
+  } = useInfiniteQuery<PaginatedDataType<House>, Error>({
+    queryKey: [
+      "collection",
+      selectedPhase,
+      selectedBlock,
+      selectedStreet,
+      selectedLot,
+      searchParams,
+    ],
+    queryFn: async ({ pageParam }) => {
+      const page = pageParam as string;
+      return await getHouses({
+        page,
+        lot: selectedLot,
+        phase: selectedPhase,
+        block: selectedBlock,
+        street: selectedStreet,
+      });
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined,
   });
 
+  const clearFilters = () => {
+    setSearchParams({});
+  };
+
+  const updateParams = (key: string, value: string) => {
+    searchParams.set(key, value);
+    setSearchParams(searchParams);
+  };
 
   if (isError) {
     return <div>Error fetching data.</div>;
   }
 
   return (
-    <div className="p-4 w-full">
+    <div className="flex flex-col p-4 overflow-x-scroll no-scrollbar flex-1">
       <h1 className="font-bold text-3xl mb-5">Collection</h1>
-      <div className="flex gap-4 mb-4">
-        <Input className="w-96" placeholder="Filter by family name..." />
-        <Select>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <Input className="w-56" placeholder="Filter by family name..." />
+        <Select
+          value={selectedPhase || ""}
+          onValueChange={(value) => updateParams("phase", value)}
+        >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Phases" />
+            <SelectValue placeholder={selectedPhase || "All Phases"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Phase 1</SelectItem>
-            <SelectItem value="dark">Phase 2</SelectItem>
-            <SelectItem value="system">Phase 3</SelectItem>
+            <SelectItem value="Phase 1">Phase 1</SelectItem>
+            <SelectItem value="Phase 2">Phase 2</SelectItem>
+            <SelectItem value="Phase 3">Phase 3</SelectItem>
+            <SelectItem value="Phase 4">Phase 4</SelectItem>
+            <SelectItem value="Phase 5">Phase 5</SelectItem>
+            <SelectItem value="Phase 6">Phase 6</SelectItem>
           </SelectContent>
         </Select>
-        <Select>
+        <Select
+          value={selectedBlock || ""}
+          onValueChange={(value) => updateParams("block", value)}
+        >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Blocks" />
+            <SelectValue
+              placeholder={
+                selectedBlock ? `Block ${selectedBlock}` : "All Blocks"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Block 1</SelectItem>
-            <SelectItem value="dark">Block 2</SelectItem>
-            <SelectItem value="system">Block 3</SelectItem>
+            <SelectItem value="1">Block 1</SelectItem>
+            <SelectItem value="2">Block 2</SelectItem>
+            <SelectItem value="3">Block 3</SelectItem>
+            <SelectItem value="4">Block 4</SelectItem>
+            <SelectItem value="5">Block 5</SelectItem>
+            <SelectItem value="6">Block 6</SelectItem>
           </SelectContent>
         </Select>
-        <Select>
+        <Select
+          value={selectedStreet || ""}
+          onValueChange={(value) => updateParams("street", value)}
+        >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Lots" />
+            <SelectValue placeholder={selectedStreet || "All Streets"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Lot 1</SelectItem>
-            <SelectItem value="dark">Lot 2</SelectItem>
-            <SelectItem value="system">Lot 3</SelectItem>
+            <SelectItem value="Mangga">Mangga</SelectItem>
+            <SelectItem value="Papaya">Papaya</SelectItem>
+            <SelectItem value="Duhat">Duhat</SelectItem>
+            <SelectItem value="Avocado">Avocado</SelectItem>
           </SelectContent>
         </Select>
+        <Select
+          value={selectedLot || ""}
+          onValueChange={(value) => updateParams("lot", value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue
+              placeholder={selectedLot ? `Lot ${selectedLot}` : "All Lots"}
+            />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">Lot 1</SelectItem>
+            <SelectItem value="2">Lot 2</SelectItem>
+            <SelectItem value="3">Lot 3</SelectItem>
+            <SelectItem value="4">Lot 4</SelectItem>
+            <SelectItem value="5">Lot 5</SelectItem>
+            <SelectItem value="6">Lot 6</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button onClick={clearFilters} variant={"ghost"}>
+          Clear Filters
+        </Button>
       </div>
 
-      {isLoading ? <Loading/>:<Table className=" rounded-2xl">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Family Name</TableHead>
-            <TableHead>Address</TableHead>
-            <TableHead>Main Contact</TableHead>
-            <TableHead>Latest Payment Amount</TableHead>
-            <TableHead>Arrear</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {houses && houses?.length > 0 ? (
-            houses?.map((data, i) => (
-              <TableRow key={i}>
-                <TableCell>{data.house_family_name}</TableCell>
-                <TableCell>{`${data.house_phase}, ${data.house_street} Street, ${data.house_block}, ${data.house_lot}`}</TableCell>
-                <TableCell>{data.house_main_poc}</TableCell>
-                <TableCell>{data.house_latest_payment_amount ?? 0}</TableCell>
-                <TableCell>{data.arrears ?? 0}</TableCell>
-                
-                <TableCell>
-                  {data.house_latest_payment &&
-                  new Date(data.house_latest_payment).getMonth ===
-                    new Date().getMonth
-                    ? "Paid"
-                    : "Unpaid"}
-                </TableCell>
-
-                <TableCell>
-                  {(data?.house_latest_payment &&
-                    new Date(data?.house_latest_payment).getMonth !==
-                      new Date().getMonth) ||
-                    (!data?.house_latest_payment && (
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button>Add Payment</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              {data.house_family_name} Family Payment
-                              <CollectionForm houseId={data?.id}/>
-                            </DialogTitle>
-                          </DialogHeader>
-                          
-                        </DialogContent>
-                        
-                      </Dialog>
-                    ))}
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Table className="rounded-2xl">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Family Name</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Main Contact</TableHead>
+              <TableHead>Latest Payment Date</TableHead>
+              <TableHead>Latest Payment Amount</TableHead>
+              <TableHead>Arrear</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data?.pages && data?.pages.flatMap((page) => page).length > 0 ? (
+              data.pages
+                .flatMap((page) => page.items)
+                .map((house, i) => (
+                  <TableRow className="h-14" key={i}>
+                    <TableCell className=" w-[300px]">
+                      {house.house_family_name}
+                    </TableCell>
+                    <TableCell className=" w-[300px]">{`${house.house_phase}, ${house.house_street} Street, ${house.house_block}, ${house.house_lot}`}</TableCell>
+                    <TableCell className=" w-[300px]">
+                      {house.house_main_poc}
+                    </TableCell>
+                    <TableCell className=" w-[300px]">
+                      {house.house_latest_payment
+                        ? new Date(house.house_latest_payment).toLocaleString(
+                            "en-PH",
+                            {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                            }
+                          )
+                        : "No Payment Yet"}
+                    </TableCell>
+                    <TableCell className=" w-[300px]">
+                      {house.house_latest_payment_amount?.toLocaleString(
+                        "en-PH"
+                      ) ?? 0}{" "}
+                      ₱
+                    </TableCell>
+                    <TableCell className=" w-[300px]">
+                      {house.house_arrears?.toLocaleString("en-PH") ?? 0} ₱
+                    </TableCell>
+                    <TableCell className=" w-[300px]">
+                      {house.house_latest_payment &&
+                      (new Date(house.house_latest_payment).getMonth() ===
+                        new Date().getMonth() ||
+                        new Date(house.house_latest_payment).getMonth() >
+                          new Date().getMonth())
+                        ? "Paid"
+                        : "Unpaid"}
+                    </TableCell>
+                    <TableCell className=" w-[300px]">
+                      {(!house.house_latest_payment ||
+                        new Date(house.house_latest_payment).getMonth() <
+                          new Date().getMonth()) && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button>Add Payment</Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>
+                                {house.house_family_name} Family Payment
+                                <CollectionForm houseId={house.id} />
+                              </DialogTitle>
+                            </DialogHeader>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  No houses available
                 </TableCell>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center">
-                No houses available
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>}
+            )}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 };

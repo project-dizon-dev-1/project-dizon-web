@@ -56,19 +56,19 @@ const FinanceDashboard = () => {
                     </div> */}
                     <div className="flex justify-between">
                       <p>Due Amount</p>
-                      <p>{phase.dueAmountPerResident}</p>
+                      <p>{phase.dueAmountPerResident.toLocaleString("en-PH")} ₱</p>
                     </div>
                     <div className="flex justify-between">
                       <p>Total Paid Dues</p>
-                      <p>{phase.totalPaidAmount}</p>
+                      <p>{phase.totalPaidAmount.toLocaleString("en-PH")} ₱</p>
                     </div>
                     <div className="flex justify-between">
                       <p>Total Unpaid Dues</p>
-                      <p>{phase.totalUnpaidAmount}</p>
+                      <p>{phase.totalUnpaidAmount.toLocaleString("en-PH")} ₱</p>
                     </div>
                     <div className="flex justify-between">
                       <p>Expected Amount</p>
-                      <p>{phase.totalExpectedAmount}</p>
+                      <p>{phase.totalExpectedAmount.toLocaleString("en-PH")} ₱</p>
                     </div>
                   </div>
                 </CardContent>

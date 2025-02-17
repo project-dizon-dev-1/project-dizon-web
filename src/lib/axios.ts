@@ -67,7 +67,7 @@ api.interceptors.response.use(
 // Update error handling for axios functions
 export const axiosPost = async <T>(endpoint: string, data: any): Promise<T | null> => {
   try {
-    const response = await api.post<T>(endpoint, data);
+    const response = await api.post<T>(endpoint, data); // Pass `config` with `params` if needed
     return response.data;
   } catch (error: unknown) {
     // Narrowing type of `error` to `AxiosError`
@@ -80,9 +80,9 @@ export const axiosPost = async <T>(endpoint: string, data: any): Promise<T | nul
   }
 };
 
-export const axiosGet = async <T>(endpoint: string): Promise<T> => {
+export const axiosGet = async <T>(endpoint: string, config?: { params?: Record<string, string | undefined | null> }): Promise<T> => {
   try {
-    const response = await api.get<T>(endpoint);
+    const response = await api.get<T>(endpoint, config); // Pass `config` which includes `params`
     return response.data;
   } catch (error: unknown) {
     // Narrowing type of `error` to `AxiosError`
@@ -95,9 +95,9 @@ export const axiosGet = async <T>(endpoint: string): Promise<T> => {
   }
 };
 
-export const axiosPut = async <T>(endpoint: string, data: T): Promise<T | null> => {
+export const axiosPut = async <T>(endpoint: string, data: T,): Promise<T | null> => {
   try {
-    const response = await api.put<T>(endpoint, data);
+    const response = await api.put<T>(endpoint, data, ); 
     return response.data;
   } catch (error: unknown) {
     // Narrowing type of `error` to `AxiosError`
@@ -110,9 +110,9 @@ export const axiosPut = async <T>(endpoint: string, data: T): Promise<T | null> 
   }
 };
 
-export const axiosDelete = async <T>(endpoint: string): Promise<T | null> => {
+export const axiosDelete = async <T>(endpoint: string, config?: { params?: Record<string, string | undefined| null> }): Promise<T | null> => {
   try {
-    const response = await api.delete<T>(endpoint);
+    const response = await api.delete<T>(endpoint, config); // Pass `config` with `params` if needed
     return response.data;
   } catch (error: unknown) {
     // Narrowing type of `error` to `AxiosError`
@@ -124,3 +124,4 @@ export const axiosDelete = async <T>(endpoint: string): Promise<T | null> => {
     throw error;
   }
 };
+

@@ -6,12 +6,12 @@ const MainLayout = () => {
 
   return (
     <SidebarProvider>
-    <div className=" w-full flex h-dvh">
+    <div className=" flex h-dvh w-full">
     <AppSidebar />
   
-      <SidebarInset>
+      <SidebarInset className=" flex-1 overflow-x-scroll no-scrollbar">
       {/* <SidebarTrigger /> */}
-      <main className=" w-full h-full ">
+      <main className="h-full">
       <Outlet />
       </main>
       </SidebarInset>
