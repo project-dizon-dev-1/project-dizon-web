@@ -26,4 +26,13 @@ type DueLog = {
   } | null;
 };
 
-export type { totalDue, Due, EditDue, DueLog };
+type FetchHouseCollectionQueryParams = {
+  page:string
+  query?: string
+  phase?:string
+  street?:string
+  block?:string
+  lot?:string
+}
+
+export type { totalDue, Due, EditDue, DueLog,FetchHouseCollectionQueryParams };

@@ -42,7 +42,7 @@ const Dues = () => {
   }
 
   return (
-    <div className="relative p-4 w-full h-full">
+    <div className="relative p-4 h-full w-full">
       <h1 className="font-bold text-3xl mb-5">Dues</h1>
 
       {duesData.isLoading ? (
@@ -65,7 +65,7 @@ const Dues = () => {
                 <TableRow key={due.id}>
                   <TableCell className="font-medium">{due.due_name}</TableCell>
                   <TableCell>{due.due_description}</TableCell>
-                  <TableCell>{due.due_cost}</TableCell>
+                  <TableCell>{due.due_cost.toLocaleString("en-PH") } ₱</TableCell>
                   <TableCell>
                     {due.due_is_active ? "Active" : "Inactive"}
                   </TableCell>
@@ -154,8 +154,8 @@ const Dues = () => {
                 {totalDueData.isLoading ? (
                   <Skeleton className="h-4 w-10" />
                 ) : (
-                  totalDueData?.data?.total_due
-                )}
+                  totalDueData?.data?.total_due.toLocaleString("en-PH") 
+                )} ₱
               </TableCell>
             </TableRow>
           </TableBody>
