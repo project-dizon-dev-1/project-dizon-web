@@ -22,17 +22,9 @@ type DueLog = {
     house_block: string;
     house_street: string;
     house_lot: string;
-
   } | null;
 };
 
-type FetchHouseCollectionQueryParams = {
-  page:string
-  query?: string
-  phase?:string
-  street?:string
-  block?:string
-  lot?:string
-}
 
-export type { totalDue, Due, EditDue, DueLog,FetchHouseCollectionQueryParams };
+
+export type { totalDue, Due, EditDue, DueLog };

@@ -13,6 +13,12 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		backgroundColor: {
+  			default: 'hsl(var(--background))'
+  		},
+  		textColor: {
+  			default: 'hsl(var(--text--primary))'
+  		},
   		colors: {
   			sidebar: {
   				DEFAULT: 'hsl(var(--sidebar-background))',
@@ -24,6 +30,12 @@ export default {
   				border: 'hsl(var(--sidebar-border))',
   				ring: 'hsl(var(--sidebar-ring))'
   			}
+  		},
+  		fontFamily: {
+  			sans: [
+  				'Inter',
+  				'sans-serif'
+  			]
   		}
   	}
   },

@@ -31,16 +31,18 @@ import CollectionForm from "@/components/Collection/CollectionForm";
 import Loading from "@/components/Loading";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { House } from "@/types/HouseTypes";
-import { useSearchParams } from "react-router";
+import useHouseSearchParams from "@/hooks/useHouseSearchParams";
 
 const Collection = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  // Get selected values from URL
-  const selectedPhase = searchParams.get("phase");
-  const selectedBlock = searchParams.get("block");
-  const selectedStreet = searchParams.get("street");
-  const selectedLot = searchParams.get("lot");
+  const {
+    clearFilters,
+    updateParams,
+    selectedBlock,
+    selectedStreet,
+    selectedPhase,
+    selectedLot,
+    
+  } = useHouseSearchParams();
 
   const {
     data,
@@ -56,7 +58,6 @@ const Collection = () => {
       selectedBlock,
       selectedStreet,
       selectedLot,
-      searchParams,
     ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
@@ -72,15 +73,6 @@ const Collection = () => {
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined,
   });
-
-  const clearFilters = () => {
-    setSearchParams({});
-  };
-
-  const updateParams = (key: string, value: string) => {
-    searchParams.set(key, value);
-    setSearchParams(searchParams);
-  };
 
   if (isError) {
     return <div>Error fetching data.</div>;

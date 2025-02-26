@@ -1,15 +1,16 @@
 type PaginatedDataType<T> = {
-  items: T[]; // List of due items
-  totalCount: number; // Total number of dues
-  currentPage: number; // Current page number
+  items: T[]; 
+  totalCount: number;
+  currentPage: number;
   hasNextPage: boolean;
-  pageSize: number; // Number of items per page
-  totalPages: number; // Total pages available
-  prevPage: number | null; // Previous page number
-  nextPage: number | null; // Next page number
+  pageSize: number;
+  totalPages: number;
+  prevPage: number | null;
+  nextPage: number | null; 
 };
 type paginatedParams ={
     page:string,
     pageSize:string
 }
-export type { PaginatedDataType, paginatedParams};
+
+export type { PaginatedDataType, paginatedParams,};
