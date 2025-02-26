@@ -77,7 +77,6 @@ const PieChartComponent = ({
       <CardHeader className="items-center p-0">
         <CardTitle>Residents Payment Status</CardTitle>
         <CardDescription>
-          {" "}
           {new Date().toLocaleString("en-US", { month: "long" })}
         </CardDescription>
       </CardHeader>
