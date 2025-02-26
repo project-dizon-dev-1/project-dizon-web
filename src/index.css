@@ -1,10 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
+    --text-primary: 229, 13%, 31%;
+    --background: 216, 71%, 97%;
     --radius: 0.5rem;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -38,19 +41,31 @@
   }
 }
 
+/* Prevent the entire HTML document from being scrollable */
+html,
+body {
+  overflow: hidden;
+}
 
- /* Prevent the entire HTML document from being scrollable */
- html,
- body {
-   overflow: hidden;
- }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
- .no-scrollbar::-webkit-scrollbar {
-   display: none;
- }
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
 
- .no-scrollbar {
-   -ms-overflow-style: none; /* IE and Edge */
-   scrollbar-width: none; /* Firefox */
- }
+
+
+/* @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+} */
+
+
 

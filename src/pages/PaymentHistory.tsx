@@ -23,7 +23,7 @@ const PaymentHistory = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedDataType<DueLog>, Error>({
+  } = useInfiniteQuery<PaginatedDataType<DueLog>>({
     queryKey: ["paymentHistory"],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
@@ -45,9 +45,8 @@ const PaymentHistory = () => {
     return <p>Error fetching dues</p>;
   }
 
-
   return (
-    <div className="p-4 w-full h-full ">
+    <div className="p-4  h-full overflow-y-scroll no-scrollbar">
       <h1 className="font-bold text-3xl mb-5">Payment History</h1>
       {isLoading ? (
         <Loading />
@@ -62,7 +61,7 @@ const PaymentHistory = () => {
               <TableHead>Payment for the month of</TableHead>
               <TableHead>Details</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Payment Confirmed by</TableHead>
+              <TableHead>Confirmed by</TableHead>
               <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
