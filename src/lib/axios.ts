@@ -39,7 +39,6 @@ api.interceptors.request.use(
     return config;
   },
   (error: unknown) => {
-    // Narrowing type of `error` to `AxiosError`
     if (axios.isAxiosError(error)) {
       console.error("Request error:", error.response?.data?.message || error.message || "Unknown error");
     } else {
@@ -53,10 +52,17 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    // Narrowing type of `error` to `AxiosError`
     if (axios.isAxiosError(error)) {
-      const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred";
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message || "Unknown error occurred";
+      const errorDetails = responseData?.errors ? JSON.stringify(responseData.errors, null, 2) : null;
+
       console.error("Response error:", errorMessage);
+      if (errorDetails) {
+        console.error("Error details:", errorDetails);
+      }
+
+      throw new Error(errorDetails ? `${errorMessage} - Details: ${errorDetails}` : errorMessage);
     } else {
       console.error("Unexpected error:", error);
     }
@@ -64,15 +70,29 @@ api.interceptors.response.use(
   }
 );
 
-// Update error handling for axios functions
-export const axiosPost = async <T>(endpoint: string, data: any): Promise<T | null> => {
+// POST Request
+export const axiosPost = async <T>(endpoint: string, data: T): Promise<T | null> => {
   try {
-    const response = await api.post<T>(endpoint, data);
+    const isFormData = data instanceof FormData;
+    const response = await api.post<T>(endpoint, data, {
+      headers: {
+        ...(isFormData ? { "Content-Type": "multipart/form-data" } : {}),
+      },
+    });
+
     return response.data;
   } catch (error: unknown) {
-    // Narrowing type of `error` to `AxiosError`
     if (axios.isAxiosError(error)) {
-      console.error("Error during POST request:", error.response?.data?.message || error.message || "Unknown error");
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message || "Unknown error";
+      const errorDetails = responseData?.errors ? JSON.stringify(responseData.errors, null, 2) : null;
+
+      console.error("Error during POST request:", errorMessage);
+      if (errorDetails) {
+        console.error("Error details:", errorDetails);
+      }
+
+      throw new Error(errorDetails ? `${errorMessage} - Details: ${errorDetails}` : errorMessage);
     } else {
       console.error("Unexpected error during POST request:", error);
     }
@@ -80,14 +100,23 @@ export const axiosPost = async <T>(endpoint: string, data: any): Promise<T | nul
   }
 };
 
-export const axiosGet = async <T>(endpoint: string): Promise<T> => {
+// GET Request
+export const axiosGet = async <T>(endpoint: string, config?: { params?: Record<string, string | undefined | null> }): Promise<T> => {
   try {
-    const response = await api.get<T>(endpoint);
+    const response = await api.get<T>(endpoint, config);
     return response.data;
   } catch (error: unknown) {
-    // Narrowing type of `error` to `AxiosError`
     if (axios.isAxiosError(error)) {
-      console.error("Error during GET request:", error.response?.data?.message || error.message || "Unknown error");
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message || "Unknown error";
+      const errorDetails = responseData?.errors ? JSON.stringify(responseData.errors, null, 2) : null;
+
+      console.error("Error during GET request:", errorMessage);
+      if (errorDetails) {
+        console.error("Error details:", errorDetails);
+      }
+
+      throw new Error(errorDetails ? `${errorMessage} - Details: ${errorDetails}` : errorMessage);
     } else {
       console.error("Unexpected error during GET request:", error);
     }
@@ -95,14 +124,29 @@ export const axiosGet = async <T>(endpoint: string): Promise<T> => {
   }
 };
 
+// PUT Request
 export const axiosPut = async <T>(endpoint: string, data: T): Promise<T | null> => {
   try {
-    const response = await api.put<T>(endpoint, data);
+    const isFormData = data instanceof FormData;
+
+    const response = await api.put<T>(endpoint, data, {
+      headers: {
+        ...(isFormData ? { "Content-Type": "multipart/form-data" } : {}),
+      },
+    });
     return response.data;
   } catch (error: unknown) {
-    // Narrowing type of `error` to `AxiosError`
     if (axios.isAxiosError(error)) {
-      console.error("Error during PUT request:", error.response?.data?.message || error.message || "Unknown error");
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message || "Unknown error";
+      const errorDetails = responseData?.errors ? JSON.stringify(responseData.errors, null, 2) : null;
+
+      console.error("Error during PUT request:", errorMessage);
+      if (errorDetails) {
+        console.error("Error details:", errorDetails);
+      }
+
+      throw new Error(errorDetails ? `${errorMessage} - Details: ${errorDetails}` : errorMessage);
     } else {
       console.error("Unexpected error during PUT request:", error);
     }
@@ -110,14 +154,23 @@ export const axiosPut = async <T>(endpoint: string, data: T): Promise<T | null> 
   }
 };
 
-export const axiosDelete = async <T>(endpoint: string): Promise<T | null> => {
+// DELETE Request
+export const axiosDelete = async <T>(endpoint: string, config?: { params?: Record<string, string | undefined | null> }): Promise<T | null> => {
   try {
-    const response = await api.delete<T>(endpoint);
+    const response = await api.delete<T>(endpoint, config);
     return response.data;
   } catch (error: unknown) {
-    // Narrowing type of `error` to `AxiosError`
     if (axios.isAxiosError(error)) {
-      console.error("Error during DELETE request:", error.response?.data?.message || error.message || "Unknown error");
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message || "Unknown error";
+      const errorDetails = responseData?.errors ? JSON.stringify(responseData.errors, null, 2) : null;
+
+      console.error("Error during DELETE request:", errorMessage);
+      if (errorDetails) {
+        console.error("Error details:", errorDetails);
+      }
+
+      throw new Error(errorDetails ? `${errorMessage} - Details: ${errorDetails}` : errorMessage);
     } else {
       console.error("Unexpected error during DELETE request:", error);
     }

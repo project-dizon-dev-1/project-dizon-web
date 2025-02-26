@@ -2,40 +2,43 @@ const COMMON_LINKS = {
   dashboard: {
     label: "Dashboard",
     link: "/",
-    //   icon: "mingcute:announcement-line",
+      icon: "mingcute:chart-pie-2-line",
   },
   announcements: {
     label: "Announcements",
     link: "/announcements",
-    //   icon: "mingcute:calendar-time-add-line",
+    icon: "mingcute:black-board-2-line",
   },
   collection: {
     label: "Collection",
     link: "/finance/collection",
-    //   icon: "mingcute:calendar-time-add-line",
+    icon: "mingcute:task-line",
   },
   residents: {
     label: "Residents",
     link: "/residents",
-    //   icon: "mingcute:group-3-line",
+      icon: "mingcute:house-line",
   },
   dues: {
     label: "Dues",
     link: "/finance/dues",
-    //   icon: "mingcute:group-3-line",
+      icon: "mingcute:calendar-time-add-line",
   },
   financeDashboard: {
     label: "Dashboard",
     link: "/finance",
+    icon: "mingcute:presentation-1-line"
   },
   paymenthistory: {
     label: "Payment History",
     link: "/finance/payment-history",
+    icon:"mingcute:history-line"
   },
+  
 };
 
 export const SIDEBAR_LINKS = Object.freeze({
-  admin: [COMMON_LINKS.dashboard, COMMON_LINKS.residents],
+  admin: [COMMON_LINKS.dashboard, COMMON_LINKS.residents,COMMON_LINKS.announcements],
   finance: [
     COMMON_LINKS.financeDashboard,
     COMMON_LINKS.dues,

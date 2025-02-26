@@ -1,21 +1,28 @@
 import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import { Due, DueLog, totalDue } from "@/types/DueTypes";
+import { PaginatedDataType, paginatedParams } from "@/types/paginatedType";
 import { CollectionType } from "@/validations/collectionSchema";
 import { dueType } from "@/validations/duesSchema";
 
 const fetchDues = async (): Promise<Due[]> => {
-  return axiosGet("/dues/");
+  return await axiosGet(`/dues`);
 };
 
 const fetchTotalDue = async (): Promise<totalDue> => {
-  return axiosGet("/dues/total");
+  return await axiosGet("/dues/total");
 };
-const fetchDueLogs = async (): Promise<DueLog[]> => {
-  return axiosGet("/dues/logs");
+
+const fetchDueLogs = async ({
+  page,
+  pageSize,
+}: paginatedParams): Promise<PaginatedDataType<DueLog>> => {
+  return await axiosGet("/dues/logs", {
+    params: { page, pageSize },
+  });
 };
 
 const fetchFixedDue = async (): Promise<totalDue> => {
-  return axiosGet("/dues/fixed-due");
+  return await axiosGet(`/dues/fixed-due`);
 };
 
 const addMultipleDues = async ({
@@ -25,20 +32,23 @@ const addMultipleDues = async ({
   houseId: string;
   data: CollectionType;
 }) => {
-  return axiosPost(`/dues/add/logs/${houseId}`, data);
+  return await axiosPost(`/dues/add/logs/${houseId}`, data);
 };
 
 const addDues = async (data: dueType) => {
-  return axiosPost("/dues/add", data);
+  return await axiosPost("/dues/add", data);
 };
+
 const updateDues = async (dueId: string | undefined, payload: dueType) => {
-  return axiosPut(`/dues/update/${dueId}`, payload);
+  return await axiosPut(`/dues/update/${dueId}`, payload);
 };
+
 const ToggleDueActivation = async (dueId: string, dueIsActive: boolean) => {
-  axiosPut(`/dues/activation/${dueId}`, { dueIsActive });
+  await axiosPut(`/dues/activation/${dueId}`, { dueIsActive });
 };
+
 const deleteDues = async (dueId: string) => {
-  return axiosDelete(`/dues/delete/${dueId}`);
+  return await axiosDelete(`/dues/delete/${dueId}`);
 };
 
 export {

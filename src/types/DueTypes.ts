@@ -22,8 +22,9 @@ type DueLog = {
     house_block: string;
     house_street: string;
     house_lot: string;
-
   } | null;
 };
+
+
 
 export type { totalDue, Due, EditDue, DueLog };
