@@ -19,6 +19,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -29,14 +30,34 @@ import { Button } from "@/components/ui/button";
 import HouseResidents from "@/components/Houses/HouseResidents";
 import HouseEmployees from "@/components/Houses/HouseEmployees";
 import HouseVehicles from "@/components/Houses/HouseVehicles";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { getHouses } from "@/services/houseServices";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { addHouse, getHouses } from "@/services/houseServices";
 import { House } from "@/types/HouseTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import useHouseSearchParams from "@/hooks/useHouseSearchParams";
 import Loading from "@/components/Loading";
 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { houseSchema, HouseSchemaType } from "@/validations/HouseSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
+
 const Residents = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
   const {
     clearFilters,
     updateParams,
@@ -75,13 +96,201 @@ const Residents = () => {
       lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined,
   });
 
+  const addHouseMutation = useMutation({
+    mutationFn: addHouse,
+    onError: (error) => {
+      toast({
+        title: "Error Adding House",
+        description: error.message,
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "House Added",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          "houses",
+          selectedPhase,
+          selectedBlock,
+          selectedStreet,
+          selectedLot,
+        ],
+      });
+      form.reset();
+      setDialogOpen(false);
+    },
+  });
+
+  const handleSubmit = (values: HouseSchemaType) => {
+    addHouseMutation.mutate(values);
+  };
+
+  const form = useForm<HouseSchemaType>({
+    resolver: zodResolver(houseSchema),
+    defaultValues: {
+      familyName: "",
+      phase: "",
+      street: "",
+      block: "",
+      lot: "",
+      mainContact: undefined,
+    },
+  });
+
   if (isError) {
     return <div>Error fetching data.</div>;
-  } 
+  }
 
   return (
-    <div className="p-4 w-full">
-      <h1 className="font-bold text-3xl mb-5">Houses</h1>
+    <div className="p-4 w-full overflow-y-scroll">
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogTrigger asChild className=" absolute z-50 right-3 bottom-3">
+          <Button className="">Add House Unit</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create House Unit</DialogTitle>
+            <DialogDescription>Create House Unit</DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
+              <FormField
+                control={form.control}
+                name="familyName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Family Surname</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Family Surname" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mainContact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Main Point of Contact</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Main Point of Contact" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phase"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phase</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select a phase" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Phase 1">Phase 1</SelectItem>
+                          <SelectItem value="Phase 2">Phase 2</SelectItem>
+                          <SelectItem value="Phase 3">Phase 3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="street"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Street</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select a Street" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Mangga">Mangga</SelectItem>
+                          <SelectItem value="Avocado">Avocado</SelectItem>
+                          <SelectItem value="Payaya">Payaya</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lot"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lot</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select a Lot" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="block"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Block</FormLabel>
+                    <FormControl>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select a Lot" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Submit</Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <h1 className="font-bold text-3xl mb-5 text-default">Houses</h1>
       <div className="flex gap-4 mb-4">
         <Input className="w-96" placeholder="Filter by family name..." />
         <Select
@@ -140,8 +349,9 @@ const Residents = () => {
               <TableHead>Details</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {data?.pages && data.pages.flatMap((page) => page)[0].items.length > 0 ? (
+          <TableBody className=" ">
+            {data?.pages &&
+            data.pages.flatMap((page) => page)[0].items.length > 0 ? (
               data.pages
                 .flatMap((page) => page.items)
                 .map((data, i) => (
@@ -184,7 +394,7 @@ const Residents = () => {
                           address={data.house_address}
                           phase={data.house_phase}
                           mainContact={data.house_main_poc}
-                          latestPayment={data.house_latest_payment}
+                          latestPayment={data.house_latest_paymentP}
                         /> */}
                           </TabsContent>
                           <TabsContent value="residents">
