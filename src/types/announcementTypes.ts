@@ -17,15 +17,26 @@ type Announcement = {
   };
 };
 
-// type AnnouncementProps = {
-//     id:string,
-//     title:string,
-//     create
-// }
+type AnnouncementHeaderProps = {
+  image?: string;
+  first_name?: string;
+};
+
+type LikeDislikeParams = {
+  comment_id?: string;
+  user_id?: string;
+  className?: string;
+  announcement_id?: string;
+};
 
 type paginatedAnnouncementQueryParams = {
   page: string;
   pageSize: string;
   phase: string | null;
 };
-export type { Announcement, paginatedAnnouncementQueryParams };
+export type {
+  Announcement,
+  paginatedAnnouncementQueryParams,
+  AnnouncementHeaderProps,
+  LikeDislikeParams,
+};

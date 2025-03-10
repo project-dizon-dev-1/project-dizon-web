@@ -1,6 +1,6 @@
 type PaginatedDataType<T> = {
   items: T[]; 
-  totalCount: number;
+  totalItems: number;
   currentPage: number;
   hasNextPage: boolean;
   pageSize: number;

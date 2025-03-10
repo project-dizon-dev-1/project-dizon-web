@@ -1,4 +1,4 @@
-import { axiosGet, axiosPut } from "@/lib/axios";
+import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import {
   FetchHouseCollectionQueryParams,
   House,
@@ -6,6 +6,7 @@ import {
 } from "@/types/HouseTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { CollectionType } from "@/validations/collectionSchema";
+import { HouseSchemaType } from "@/validations/HouseSchema";
 
 const getHouses = async ({
   page,
@@ -40,6 +41,10 @@ const getHousesSummary = async (): Promise<HouseSummary[]> => {
   return await axiosGet("/houses/summary");
 };
 
+const addHouse = async (data: HouseSchemaType) => {
+  return await axiosPost("/houses/add", data);
+};
+
 const updateHousePayment = async ({
   houseId,
   data,
@@ -50,4 +55,4 @@ const updateHousePayment = async ({
   return await axiosPut(`/houses/update/payment/${houseId}`, data);
 };
 
-export { getHouses, getHousesSummary, updateHousePayment };
+export { getHouses, getHousesSummary, updateHousePayment, addHouse };

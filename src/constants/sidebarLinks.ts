@@ -35,6 +35,7 @@ const COMMON_LINKS = {
     icon:"mingcute:history-line"
   },
   
+  
 };
 
 export const SIDEBAR_LINKS = Object.freeze({

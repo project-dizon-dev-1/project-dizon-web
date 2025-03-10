@@ -10,12 +10,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "../ui/button";
-import { DialogClose } from "../ui/dialog";
 import useDues from "@/hooks/useDues";
 import { EditDue } from "@/types/DueTypes";
 
 const DuesForm = ({ data }: { data: EditDue }) => {
-    
   const { onSubmit, form } = useDues(data);
 
   return (
@@ -70,9 +68,7 @@ const DuesForm = ({ data }: { data: EditDue }) => {
             )}
           />
           <div className="flex justify-end">
-            <DialogClose>
-              <Button type="submit">Submit</Button>
-            </DialogClose>
+            <Button type="submit">Submit</Button>
           </div>
         </form>
       </Form>
