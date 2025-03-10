@@ -135,8 +135,8 @@ export const AppSidebar = () => {
                         to={item.link}
                       >
                         <div className=" flex gap-3 justify-center items-center">
-                        <Icon className="w-5 h-5" icon={item.icon} />
-                        <span
+                          <Icon className="w-5 h-5" icon={item.icon} />
+                          <span
                             className={cn(
                               " text-[14px] font-medium text-default",
                               {
@@ -174,20 +174,24 @@ export const AppSidebar = () => {
         <SidebarFooter className="p-0">
           <SidebarMenu className="bg-white/[0.24] border-t border-[#CDD1E9] ">
             <SidebarMenuItem className=" py-[18px] px-6 hover:bg-white/[0.24]">
-              <DropdownMenu >
-                <DropdownMenuTrigger className="  bg-white/[0.24] hover:bg-white/[0.24]" asChild>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="  bg-white/[0.24] hover:bg-white/[0.24]"
+                  asChild
+                >
                   <SidebarMenuButton className="py-[18px]  hover:bg-white/[0.24]">
-                  <Avatar className="bg-blue-50 roun h-8 w-8 rounded-lg border-accent">
-                    <AvatarImage
-                      src={""}
-                      alt="profile picture"
-                    />
-                    <AvatarFallback>T</AvatarFallback>
-                  </Avatar> 
-                  <div>
-                    <p className="text-[14px] font-semibold">{user?.user_first_name} {user?.user_last_name}</p>
-                    <p className=" text-xs text-[#1C1D21]/[.75]">{user?.role?.toLocaleUpperCase()}</p>
-                  </div>
+                    <Avatar className="bg-blue-100 roun h-8 w-8 rounded-lg border-accent">
+                      <AvatarImage src={""} alt="profile picture" />
+                      <AvatarFallback>T</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-[14px] font-semibold">
+                        {user?.user_first_name} {user?.user_last_name}
+                      </p>
+                      <p className=" text-xs text-[#1C1D21]/[.75]">
+                        {user?.role?.toLocaleUpperCase()}
+                      </p>
+                    </div>
                     <ChevronUp className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>

@@ -1,9 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-
 import { Button } from "../ui/button";
-import ReactSelect from "react-select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import {
   Form,
@@ -20,7 +26,7 @@ import {
   announcementSchema,
   AnnouncementSchemaType,
 } from "@/validations/announcementSchema";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchSubdivisionPhases } from "@/services/subdivisionServices";
 import useUserContext from "@/hooks/useUserContext";
@@ -31,15 +37,17 @@ import {
 } from "@/services/announcementServices";
 import { toast } from "@/hooks/use-toast";
 import { Announcement } from "@/types/announcementTypes";
+import CustomReactSelect from "../CustomReactSelect";
 
 const AnnouncementForm = ({
   announcement,
-  setDialogOpen,
+  children,
 }: {
-  id?: string;
   announcement?: Announcement["announcements"];
-  setDialogOpen: Dispatch<SetStateAction<boolean>>;
+  children: React.ReactNode;
 }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const queryClient = useQueryClient();
   const { user } = useUserContext();
@@ -55,7 +63,6 @@ const AnnouncementForm = ({
     defaultValues: {
       title: announcement?.title ?? "",
       content: announcement?.content ?? "",
-      //   visibility: "public",
       phases: formPhases ?? [],
       files: [],
     },
@@ -117,22 +124,20 @@ const AnnouncementForm = ({
     label: `Phase ${phase}`,
     value: phase,
   }));
-  
+
   useEffect(() => {
     if (formPhases) {
       form.setValue("phases", formPhases);
     }
   }, [formPhases, form]);
-  
 
-  useEffect(() => {
-  const files = form.getValues("files") || [];
-  const urls = files.map((file: File) => URL.createObjectURL(file));
-  setFilePreviews(urls);
+  // useEffect(() => {
+  //   const files = form.getValues("files") || [];
+  //   const urls = files.map((file: File) => URL.createObjectURL(file));
+  //   setFilePreviews(urls);
 
-  return () => urls.forEach((url) => URL.revokeObjectURL(url)); // Cleanup URLs
-}, [form.watch("files")]);
-
+  //   return () => urls.forEach((url) => URL.revokeObjectURL(url)); // Cleanup URLs
+  // }, [form.watch("files")]);
 
   useEffect(() => {
     const urlToFile = async (url: string, filename: string): Promise<File> => {
@@ -140,7 +145,7 @@ const AnnouncementForm = ({
       const blob = await response.blob();
       return new File([blob], filename, { type: blob.type });
     };
-  
+
     const fetchFiles = async () => {
       if (announcement) {
         const files = await Promise.all(
@@ -149,25 +154,25 @@ const AnnouncementForm = ({
           )
         );
         form.setValue("files", files);
+        setCurrentFiles(files);
         setFilePreviews(files.map((file) => URL.createObjectURL(file)));
       }
     };
-  
-    fetchFiles();
-  }, [announcement]);
-  
 
+    fetchFiles();
+  }, []);
 
   const handleRemoveFile = (index: number) => {
-    const updatedFiles = form.getValues("files")?.filter((_, i) => i !== index) || [];
-    
+    const updatedFiles =
+      form.getValues("files")?.filter((_, i) => i !== index) || [];
+
     // Update files in the form state
     form.setValue("files", updatedFiles);
-  
+    setCurrentFiles(updatedFiles);
+
     // Update filePreviews state
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
   };
-  
 
   const onSubmit = (values: AnnouncementSchemaType) => {
     const formData = new FormData();
@@ -183,95 +188,124 @@ const AnnouncementForm = ({
       formData.append("files", file);
     });
 
-   
-    
-    if(announcement){
-        editAnnouncementMutation.mutate({announcementId: announcement?.id, data: formData});
-    }else{
-        addAnnouncementMutation.mutate({ userId: user?.id, data: formData });
+    if (announcement) {
+      editAnnouncementMutation.mutate({
+        announcementId: announcement?.id,
+        data: formData,
+      });
+    } else {
+      addAnnouncementMutation.mutate({ userId: user?.id, data: formData });
     }
-
- 
   };
 
-
-
-
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Announcement Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Dialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (!open) {
+          setCurrentFiles([]);
+          form.reset();
+        }
+      }}
+    >
+      <DialogTrigger className="w-full">{children}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create Announcement</DialogTitle>
+          <DialogDescription>
+            create an announcement to your phases.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Announcement Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="content"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Content</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Content" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Content</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Content" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {/* File Upload Section */}
-        <FormField
-          control={form.control}
-          name="files"
-          render={({ field: { onChange } }) => (
-            <FormItem>
-              <FormLabel>Upload Files</FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  multiple
-                  onChange={(e) => {
-                    const files = e.target.files
-                      ? Array.from(e.target.files)
-                      : [];
-                    onChange(files);
-                  }}
-         
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            {/* File Upload Section */}
+            <FormField
+              control={form.control}
+              name="files"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Upload Files</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={(e) => {
+                        const files = e.target.files;
 
-        <div className="flex gap-2 overflow-x-scroll">
-          {filePreviews.map((preview, index) => (
-            <div key={index} className="relative">
-              <p
-                onClick={() => handleRemoveFile(index)}
-                className="absolute top-0 right-0  text-red-400 px-2 rounded-full cursor-pointer"
-              >
-                x
-              </p>
-              <img
-                src={preview}
-                alt={`Preview ${index}`}
-                className="w-20 h-20 object-cover rounded"
-              />
+                        if (files && files.length > 0) {
+                          field.onChange([
+                            ...currentFiles,
+                            ...Array.from(files), // Convert FileList to array
+                          ]);
+                          setCurrentFiles((prevState) => [
+                            ...prevState,
+                            ...Array.from(files), // Convert FileList to array
+                          ]);
+
+                          const fileArray = Array.from(files); // Convert FileList to array
+                          setFilePreviews((prevState) => [
+                            ...prevState,
+                            ...fileArray.map((item) =>
+                              URL.createObjectURL(item)
+                            ),
+                          ]);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex gap-2 overflow-x-scroll">
+              {filePreviews.map((preview, index) => (
+                <div key={index} className="relative">
+                  <p
+                    onClick={() => handleRemoveFile(index)}
+                    className="absolute top-0 right-0  text-red-400 px-2 rounded-full cursor-pointer"
+                  >
+                    x
+                  </p>
+                  <img
+                    src={preview}
+                    alt={`Preview ${index}`}
+                    className="w-20 h-20 object-cover rounded"
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* <FormField
+            {/* <FormField
           control={form.control}
           name="visibility"
           render={({ field }) => (
@@ -295,43 +329,44 @@ const AnnouncementForm = ({
           )}
         /> */}
 
-        <FormField
-          control={form.control}
-          name="phases"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phases</FormLabel>
-              <FormControl>
-                <ReactSelect
-                  isMulti
-                  options={phaseOptions}
-                  isLoading={isLoading}
-                  value={phaseOptions?.filter((option) =>
-                    field.value?.includes(option.value)
-                  )}
-                  onChange={(selectedOptions) =>
-                    field.onChange(
-                      selectedOptions?.map((option) => option.value) || []
-                    )
-                  }
-                  placeholder={
-                    isError ? "Failed to load phases" : "Select Phase..."
-                  }
-                />
-              </FormControl>
-              <FormDescription>
-                {isError && "There was an error fetching phases."}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="phases"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phases</FormLabel>
+                  <FormControl>
+                    <CustomReactSelect
+                      options={phaseOptions}
+                      isLoading={isLoading}
+                      value={phaseOptions?.filter((option) =>
+                        field.value?.includes(option.value)
+                      )}
+                      onChange={(selectedOptions) =>
+                        field.onChange(
+                          selectedOptions?.map((option) => option.value) || []
+                        )
+                      }
+                      placeholder={
+                        isError ? "Failed to load phases" : "Select Phase..."
+                      }
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {isError && "There was an error fetching phases."}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <div className="flex justify-end">
-          <Button type="submit">Submit</Button>
-        </div>
-      </form>
-    </Form>
+            <div className="flex justify-end">
+              <Button type="submit">Submit</Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

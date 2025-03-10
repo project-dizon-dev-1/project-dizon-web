@@ -1,10 +1,5 @@
 import PieChartComponent from "@/components/PieChartComponent";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getHousesSummary } from "@/services/houseServices";
 import { useQuery } from "@tanstack/react-query";
 
@@ -27,7 +22,8 @@ const FinanceDashboard = () => {
       <h1 className="font-bold text-3xl mb-5">Finance Dashboard</h1>
 
       <div className="flex flex-wrap justify-start gap-5 w-full">
-        {data && data.length > 0 &&
+        {data &&
+          data.length > 0 &&
           data.map((phase) => {
             // Calculate the paid dues percentage dynamically
             // const paidDuesPercentage = (
@@ -38,10 +34,14 @@ const FinanceDashboard = () => {
               <Card key={phase.phase}>
                 <CardHeader>
                   <CardTitle>{phase.phase}</CardTitle>
-                  <PieChartComponent paidResidentsCount={phase.paidResidentsCount} unpaidResidentsCount={phase.unpaidResidentsCount} totalResidents={phase.totalResidents}/>
+                  <PieChartComponent
+                    paidResidentsCount={phase.paidResidentsCount}
+                    unpaidResidentsCount={phase.unpaidResidentsCount}
+                    totalResidents={phase.totalResidents}
+                  />
                 </CardHeader>
                 <CardContent>
-                  <div >
+                  <div>
                     {/* <div className="flex justify-between">
                       <p>Residents</p>
                       <p>{phase.totalResidents}</p>
@@ -56,7 +56,9 @@ const FinanceDashboard = () => {
                     </div> */}
                     <div className="flex justify-between">
                       <p>Due Amount</p>
-                      <p>{phase.dueAmountPerResident.toLocaleString("en-PH")} ₱</p>
+                      <p>
+                        {phase.dueAmountPerResident.toLocaleString("en-PH")} ₱
+                      </p>
                     </div>
                     <div className="flex justify-between">
                       <p>Total Paid Dues</p>
@@ -68,7 +70,9 @@ const FinanceDashboard = () => {
                     </div>
                     <div className="flex justify-between">
                       <p>Expected Amount</p>
-                      <p>{phase.totalExpectedAmount.toLocaleString("en-PH")} ₱</p>
+                      <p>
+                        {phase.totalExpectedAmount.toLocaleString("en-PH")} ₱
+                      </p>
                     </div>
                   </div>
                 </CardContent>

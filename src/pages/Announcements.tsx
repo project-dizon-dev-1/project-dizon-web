@@ -1,25 +1,19 @@
-import AnnouncementComponent from "@/components/Announcements/Announcement";
+import AnnouncementComponent from "@/components/Announcements/AnnouncementComponent";
 import AnnouncementFilters from "@/components/Announcements/AnnouncementFilters";
-import AnnouncementForm from "@/components/Announcements/AnnouncementForm";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import AnnouncementHeader from "@/components/Announcements/AnnouncementHeader";
+import { Skeleton } from "@/components/ui/skeleton";
+
+import useUserContext from "@/hooks/useUserContext";
 import { fetchAnnouncements } from "@/services/announcementServices";
 import { Announcement } from "@/types/announcementTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { useSearchParams } from "react-router";
 
 const Announcements = () => {
   const [searchParams] = useSearchParams();
-  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const { user } = useUserContext();
 
   const {
     data,
@@ -50,59 +44,46 @@ const Announcements = () => {
   }
 
   return (
-    <div className="flex flex-col max-h-full p-4 ">
-      {/* Header */}
-      <div className="flex w-3/4 justify-between">
-        <h1 className="font-bold text-3xl mb-5">Announcements</h1>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>Create Announcement</Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Announcement</DialogTitle>
-              <DialogDescription>Create a new announcement</DialogDescription>
-            </DialogHeader>
-            <AnnouncementForm setDialogOpen={setDialogOpen} />
-          </DialogContent>
-        </Dialog>
-      </div>
-
+    <div className="flex justify-center max-h-full h-full gap-12 p-9">
       {/* Main Content */}
-      <div className=" gap-2 grow flex overflow-hidden">
+      <div className="  grow flex flex-col overflow-y-scroll max-w-[530px] no-scrollbar">
+        <AnnouncementHeader first_name={user?.user_first_name} />
         {/* Announcements List */}
-        <div className="w-3/4 border border-black rounded-md p-4 overflow-y-scroll no-scrollbar">
-          {!isLoading && data?.pages[0]?.items?.length === 0 ? (
-            <p>No announcement yet</p>
-          ) : null}
+        {!isLoading && data?.pages[0]?.items?.length === 0 ? (
+          <p>No announcement yet</p>
+        ) : null}
 
-          {isLoading ? (
-            <p>Loading...</p>
-          ) : (
-            data?.pages.map((page) =>
+        {isLoading
+          ? Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="w-full">
+                <Skeleton className="mb-2 h-5 w-44" />
+                <Skeleton className="mb-2 h-5 w-80" />
+                <Skeleton className="mb-2 h-44 w-full" />
+              </div>
+            ))
+          : data?.pages.map((page) =>
               page.items.map(({ announcements }) => (
-                <AnnouncementComponent key={announcements.id}  announcements={announcements} />
+                <AnnouncementComponent
+                  key={announcements.id}
+                  announcements={announcements}
+                />
               ))
-            )
-          )}
+            )}
 
-          {/* Load More Button */}
-          {hasNextPage && (
-            <button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className="mt-4 px-4 py-2 text-white rounded"
-            >
-              {isFetchingNextPage ? "Loading..." : "Load More"}
-            </button>
-          )}
-        </div>
+        {/* Load More Button */}
+        {hasNextPage && (
+          <button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="mt-4 px-4 py-2 text-white rounded"
+          >
+            {isFetchingNextPage ? "Loading..." : "Load More"}
+          </button>
+        )}
 
         {/* Filters Sidebar */}
-        <div className="w-1/4 border rounded-md p-5 border-black">
-          <AnnouncementFilters />
-        </div>
       </div>
+      <AnnouncementFilters />
     </div>
   );
 };
