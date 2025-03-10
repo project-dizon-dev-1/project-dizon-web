@@ -14,7 +14,7 @@ const MainLayout = () => {
         <div className="flex h-full overflow-y-hidden">
           <AppSidebar />
 
-          <SidebarInset className=" min-h-0 h-full border-l border-[#D1CDE9] bg-default">
+          <SidebarInset className=" min-h-0 h-full border-l border-[#D1CDE9] bg-default py-9 px-12">
             <Outlet />
           </SidebarInset>
         </div>

@@ -106,7 +106,7 @@ const AnnouncementFilters = () => {
               ))}
         </div>
       </div>
-      <Button className=" rounded-xl w-full py-4 h-fit hover:bg-[#DEEDFF] bg-white shadow-none">
+      <Button className=" rounded-xl w-full py-4 h-fit text-default hover:bg-[#DEEDFF] bg-white shadow-none">
         Scroll Up
       </Button>
     </div>

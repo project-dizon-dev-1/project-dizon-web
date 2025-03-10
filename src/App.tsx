@@ -32,7 +32,7 @@ const App = () => {
               element={<PaymentHistory />}
             />
             <Route path="/finance" element={<FinanceDashboard />} />
-            <Route path="/finance/dues" element={<Dues />} />
+            <Route path="/finance/expenses" element={<Dues />} />
             {/* Catch-all route for 404 Not Found */}
             <Route path="*" element={<NotFound />} />
           </Route>

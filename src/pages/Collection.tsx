@@ -41,7 +41,6 @@ const Collection = () => {
     selectedStreet,
     selectedPhase,
     selectedLot,
-    
   } = useHouseSearchParams();
 
   const {
@@ -79,7 +78,7 @@ const Collection = () => {
   }
 
   return (
-    <div className="flex flex-col p-4 overflow-x-scroll no-scrollbar flex-1">
+    <div className="flex flex-col  overflow-x-scroll no-scrollbar flex-1">
       <h1 className="font-bold text-3xl mb-5">Collection</h1>
       <div className="flex flex-wrap gap-4 mb-4">
         <Input className="w-56" placeholder="Filter by family name..." />

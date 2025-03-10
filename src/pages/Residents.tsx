@@ -145,7 +145,7 @@ const Residents = () => {
   }
 
   return (
-    <div className="p-4 w-full overflow-y-scroll">
+    <div className=" w-full overflow-y-scroll no-scrollbar">
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild className=" absolute z-50 right-3 bottom-3">
           <Button className="">Add House Unit</Button>
@@ -290,9 +290,11 @@ const Residents = () => {
         </DialogContent>
       </Dialog>
 
-      <h1 className="font-bold text-3xl mb-5 text-default">Houses</h1>
       <div className="flex gap-4 mb-4">
-        <Input className="w-96" placeholder="Filter by family name..." />
+        <Input
+          className="w-[400px] rounded-xl bg-white h-[42px]"
+          placeholder="Search Household Units"
+        />
         <Select
           value={selectedPhase || ""}
           onValueChange={(value) => updateParams("phase", value)}
@@ -343,10 +345,14 @@ const Residents = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Family Name</TableHead>
+              <TableHead className=" py-3 px-6 rounded-l-xl text-sm text-nowrap font-bold">
+                Family Name
+              </TableHead>
               <TableHead>Address</TableHead>
               <TableHead>Main Contact</TableHead>
-              <TableHead>Details</TableHead>
+              <TableHead className="px-6 rounded-r-lg  font-bold">
+                Details
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className=" ">
