@@ -1,4 +1,8 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  // SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { Outlet } from "react-router";
 import { AppSidebar } from "@/components/AppSidebar";
 
@@ -8,7 +12,8 @@ const MainLayout = () => {
       <div className="flex flex-col w-full max-h-dvh">
         {/* Main content wrapper: Sidebar + Content */}
         <div className="flex h-full overflow-y-hidden">
-          <AppSidebar   />
+          <AppSidebar />
+
           <SidebarInset className=" min-h-0 h-full border-l border-[#D1CDE9] bg-default">
             <Outlet />
           </SidebarInset>
@@ -23,7 +28,5 @@ const MainLayout = () => {
     </SidebarProvider>
   );
 };
-
-
 
 export default MainLayout;
