@@ -14,12 +14,12 @@ import { loginSchema, loginType } from "@/validations/authSchema";
 import { login } from "@/services/authServices";
 import { useNavigate } from "react-router";
 import useUserContext from "@/hooks/useUserContext";
-import { useState } from "react"; 
+import { useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
   const { setUser } = useUserContext();
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm({
@@ -41,15 +41,15 @@ const Login = () => {
         user_email: userData?.user_email,
         user_first_name: userData?.user_first_name,
         user_last_name: userData?.user_last_name,
+        role: userData?.role,
       });
-  
 
       navigate("/", { replace: true });
     } catch (error) {
       console.error("Login Failed", error);
       setErrorMessage("Login failed. Please check your credentials.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -59,7 +59,7 @@ const Login = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <h1>Login</h1>
-         
+
             <FormField
               control={form.control}
               name="userEmail"
