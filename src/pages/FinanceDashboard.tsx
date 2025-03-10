@@ -18,7 +18,7 @@ const FinanceDashboard = () => {
   }
 
   return (
-    <div className="p-4 w-full h-full overflow-y-auto no-scrollbar">
+    <div className=" w-full h-full overflow-y-auto no-scrollbar">
       <h1 className="font-bold text-3xl mb-5">Finance Dashboard</h1>
 
       <div className="flex flex-wrap justify-start gap-5 w-full">
