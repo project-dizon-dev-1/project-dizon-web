@@ -10,7 +10,7 @@ const updateAccessToken = async () => {
 };
 
 // Initialize token on app startup
-await updateAccessToken();
+updateAccessToken();
 
 // Listen for token refresh events and update in memory
 supabase.auth.onAuthStateChange((event, session) => {
