@@ -12,6 +12,7 @@ import Dues from "./pages/Dues";
 import FinanceDashboard from "./pages/FinanceDashboard";
 import PaymentHistory from "./pages/PaymentHistory";
 import Announcements from "./pages/Announcements";
+import ResidentDetails from "./pages/ResidentDetails";
 
 const App = () => {
   return (
@@ -26,6 +27,8 @@ const App = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/finance/collection" element={<Collection />} />
             <Route path="/residents" element={<Residents />} />
+            <Route path="/residents" element={<Residents />} />
+            <Route path ="residents/:houseId" element={<ResidentDetails />} />
             <Route path="/announcements" element={<Announcements />} />
             <Route
               path="/finance/payment-history"

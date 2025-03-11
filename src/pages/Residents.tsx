@@ -25,11 +25,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import HouseResidents from "@/components/Houses/HouseResidents";
-import HouseEmployees from "@/components/Houses/HouseEmployees";
-import HouseVehicles from "@/components/Houses/HouseVehicles";
+
 import {
   useInfiniteQuery,
   useMutation,
@@ -54,6 +51,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { Link } from "react-router";
 
 const Residents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -361,60 +360,27 @@ const Residents = () => {
               data.pages
                 .flatMap((page) => page.items)
                 .map((data, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{data.house_family_name}</TableCell>
+                  <TableRow
+                    className={cn(
+                      "h-[45px]",
+                      i % 2 === 0 ? "   rounded-xl" : "bg-white/60"
+                    )}
+                    key={i}
+                  >
+                    <TableCell
+                      className={cn(i % 2 === 0 ? "" : "rounded-l-xl")}
+                    >
+                      {data.house_family_name}
+                    </TableCell>
                     <TableCell>{`${data.house_phase}, ${data.house_street}, ${data.house_block}, ${data.house_lot}`}</TableCell>
                     <TableCell>{data.house_main_poc}</TableCell>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <TableCell>
-                          <Button>View Details</Button>
-                        </TableCell>
-                      </DialogTrigger>
-                      <DialogContent className="flex flex-col h-[50%] max-h-[50%]">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {data.house_family_name} Family Details
-                          </DialogTitle>
-                        </DialogHeader>
-                        <Tabs
-                          defaultValue="details"
-                          className="w-full max-h-full overflow-scroll no-scrollbar"
-                        >
-                          <TabsList className="w-full flex justify-between">
-                            <TabsTrigger className="flex-1" value="details">
-                              Details
-                            </TabsTrigger>
-                            <TabsTrigger className="flex-1" value="residents">
-                              Residents
-                            </TabsTrigger>
-                            <TabsTrigger className="flex-1" value="employees">
-                              Employees
-                            </TabsTrigger>
-                            <TabsTrigger className="flex-1" value="vehicles">
-                              Vehicles
-                            </TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="details">
-                            {/* <HouseDetails
-                          address={data.house_address}
-                          phase={data.house_phase}
-                          mainContact={data.house_main_poc}
-                          latestPayment={data.house_latest_paymentP}
-                        /> */}
-                          </TabsContent>
-                          <TabsContent value="residents">
-                            <HouseResidents />
-                          </TabsContent>
-                          <TabsContent value="employees">
-                            <HouseEmployees />
-                          </TabsContent>
-                          <TabsContent value="vehicles">
-                            <HouseVehicles />
-                          </TabsContent>
-                        </Tabs>
-                      </DialogContent>
-                    </Dialog>
+                    <TableCell
+                      className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
+                    >
+                        <Link to={`/residents/${data.id}`}>
+                          <Button variant={"ghost"}>View</Button>
+                        </Link>
+                    </TableCell>
                   </TableRow>
                 ))
             ) : (

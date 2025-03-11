@@ -111,7 +111,7 @@
 html,
 body {
   overflow: hidden;
-  @apply text-default;
+  /* @apply text-default; */
 }
 
 .no-scrollbar::-webkit-scrollbar {

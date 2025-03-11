@@ -56,7 +56,7 @@ const AnnouncementFilters = () => {
           >
             <h3
               className={cn(" font-bold text-sm py-[2px] px-2 w-fit ", {
-                "text-[#5B8DCF] bg-[#DEEDFF]":
+                "text-[#5B8DCF] rounded-sm bg-[#DEEDFF]":
                   searchParams.get("phase") === null,
               })}
             >
@@ -88,7 +88,7 @@ const AnnouncementFilters = () => {
                 >
                   <h3
                     className={cn(" font-bold text-sm py-[2px] px-2 w-fit ", {
-                      "text-[#5B8DCF] bg-[#DEEDFF]":
+                      "text-[#5B8DCF] rounded-sm bg-[#DEEDFF]":
                         searchParams.get("phase") === phase.toString(),
                     })}
                   >

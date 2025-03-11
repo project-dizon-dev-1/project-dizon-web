@@ -30,7 +30,7 @@ import { getHouses } from "@/services/houseServices";
 import CollectionForm from "@/components/Collection/CollectionForm";
 import Loading from "@/components/Loading";
 import { PaginatedDataType } from "@/types/paginatedType";
-import { House } from "@/types/HouseTypes";
+import {  HouseDetails } from "@/types/HouseTypes";
 import useHouseSearchParams from "@/hooks/useHouseSearchParams";
 
 const Collection = () => {
@@ -50,7 +50,7 @@ const Collection = () => {
     // fetchNextPage,
     // hasNextPage,
     // isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedDataType<House>, Error>({
+  } = useInfiniteQuery<PaginatedDataType<HouseDetails>, Error>({
     queryKey: [
       "collection",
       selectedPhase,
@@ -220,7 +220,7 @@ const Collection = () => {
                           new Date().getMonth()) && (
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button>Add Payment</Button>
+                            <Button variant={"outline"}>Add Payment</Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>

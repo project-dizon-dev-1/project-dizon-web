@@ -1,6 +1,27 @@
 import { Database } from "./database";
 
-type House = Database["public"]["Tables"]["house-list"]["Row"];
+
+type House = {
+  id:string,
+  house_family_name: string;
+  house_phase: string;
+  house_street: string;
+  house_block: string;
+  house_lot: string;
+  house_main_poc: string | null;
+}
+
+type HouseDetails = Database["public"]["Tables"]["house-list"]["Row"]
+
+type VehicleDetails = {
+  created_at: Date;
+  vehicle_name: string;
+  vehicle_color: string;
+  vehicle_plate_number: string;
+  vehicle_sticker_expiration: Date | null;
+  house_id: string;
+  id: string;
+}
 
 type HouseSummary = {
   phase: string;
@@ -24,4 +45,4 @@ type FetchHouseCollectionQueryParams = {
   lot?: string | null;
 };
 
-export type { House, HouseSummary, FetchHouseCollectionQueryParams };
+export type { House, HouseDetails, HouseSummary, FetchHouseCollectionQueryParams,VehicleDetails };
