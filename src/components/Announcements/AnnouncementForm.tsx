@@ -3,13 +3,16 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "../ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogBody,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogFooter,
+  AlertDialogCancel, // Import from your shadcn/ui component
+} from "@/components/ui/alert-dialog";
 
 import {
   Form,
@@ -38,6 +41,10 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { Announcement } from "@/types/announcementTypes";
 import CustomReactSelect from "../CustomReactSelect";
+import { Separator } from "../ui/separator";
+import { cn } from "@/lib/utils";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { Label } from "../ui/label";
 
 const AnnouncementForm = ({
   announcement,
@@ -49,8 +56,21 @@ const AnnouncementForm = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
+  const [selectedPDF, setSelectedPDF] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedFileType, setSelectedFileType] = useState(
+    announcement?.announcement_files ? "Image(s)" : "None"
+  );
   const queryClient = useQueryClient();
   const { user } = useUserContext();
+  
+  // Add missing fileTypes definition
+  const fileTypes = [
+    { icon: "minus-circle-fill", value: "None" },
+    { icon: "photo-album-fill", value: "Image(s)" },
+    { icon: "video-fill", value: "Video" },
+    { icon: "file-fill", value: "PDF Document" }
+  ];
 
   const { data: formPhases } = useQuery({
     queryKey: ["announcementphases", announcement?.id],
@@ -131,14 +151,6 @@ const AnnouncementForm = ({
     }
   }, [formPhases, form]);
 
-  // useEffect(() => {
-  //   const files = form.getValues("files") || [];
-  //   const urls = files.map((file: File) => URL.createObjectURL(file));
-  //   setFilePreviews(urls);
-
-  //   return () => urls.forEach((url) => URL.revokeObjectURL(url)); // Cleanup URLs
-  // }, [form.watch("files")]);
-
   useEffect(() => {
     const urlToFile = async (url: string, filename: string): Promise<File> => {
       const response = await fetch(url);
@@ -199,7 +211,7 @@ const AnnouncementForm = ({
   };
 
   return (
-    <Dialog
+    <AlertDialog
       open={dialogOpen}
       onOpenChange={(open) => {
         setDialogOpen(open);
@@ -209,164 +221,294 @@ const AnnouncementForm = ({
         }
       }}
     >
-      <DialogTrigger className="w-full">{children}</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create Announcement</DialogTitle>
-          <DialogDescription>
-            create an announcement to your phases.
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Announcement Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Title" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+      <AlertDialogTrigger className="w-full">{children}</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create Announcement</AlertDialogTitle>
+          <AlertDialogDescription>
+            Create an announcement to be displayed to the residents.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogBody>
+          <Form {...form}>
+            <form
+              id="form"
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-2"
+            >
+              <div className="rounded-xl border border-primary-outline bg-[#DFF0FF6B] p-6 py-[18px]">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          className="rounded-none shadow-none border-none bg-transparent p-0 font-bold text-accent placeholder:text-[16px] placeholder:text-accent/75"
+                          placeholder="Announcement Title"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Separator />
 
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Content" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                {/* Content Field */}
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Textarea
+                          className="no-scrollbar shadow-none resize-none rounded-none border-none bg-transparent p-0 text-accent placeholder:text-sm placeholder:text-accent/85"
+                          placeholder="Announcement body..."
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            {/* File Upload Section */}
-            <FormField
-              control={form.control}
-              name="files"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Upload Files</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      multiple
-                      onChange={(e) => {
-                        const files = e.target.files;
-
-                        if (files && files.length > 0) {
-                          field.onChange([
-                            ...currentFiles,
-                            ...Array.from(files), // Convert FileList to array
-                          ]);
-                          setCurrentFiles((prevState) => [
-                            ...prevState,
-                            ...Array.from(files), // Convert FileList to array
-                          ]);
-
-                          const fileArray = Array.from(files); // Convert FileList to array
-                          setFilePreviews((prevState) => [
-                            ...prevState,
-                            ...fileArray.map((item) =>
-                              URL.createObjectURL(item)
-                            ),
-                          ]);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex gap-2 overflow-x-scroll">
-              {filePreviews.map((preview, index) => (
-                <div key={index} className="relative">
-                  <p
-                    onClick={() => handleRemoveFile(index)}
-                    className="absolute top-0 right-0  text-red-400 px-2 rounded-full cursor-pointer"
-                  >
-                    x
+              <div>
+                {form.formState.errors.title && (
+                  <p className="text-sm font-medium text-red-500">
+                    {form.formState.errors.title.message}
                   </p>
-                  <img
-                    src={preview}
-                    alt={`Preview ${index}`}
-                    className="w-20 h-20 object-cover rounded"
-                  />
-                </div>
-              ))}
-            </div>
+                )}
+                {form.formState.errors.content && (
+                  <p className="text-sm font-medium text-red-500">
+                    {form.formState.errors.content.message}
+                  </p>
+                )}
+              </div>
 
-            {/* <FormField
-          control={form.control}
-          name="visibility"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Visibility</FormLabel>
-              <FormControl>
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select visibility" />
-                  </SelectTrigger>
-                  <SelectContent className="">
-                    <SelectGroup>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="private">Private</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+              {/* File Upload Section */}
+              <FormField
+                control={form.control}
+                name="files"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <>
+                        <Input
+                          id="file-input"
+                          type="file"
+                          className="hidden"
+                          accept={
+                            selectedFileType === "Image(s)"
+                              ? "image/*"
+                              : selectedFileType === "Video"
+                              ? "video/*"
+                              : "application/pdf"
+                          }
+                          multiple={selectedFileType === "Image(s)"}
+                          onChange={(e) => {
+                            const files = e.target.files;
 
-            <FormField
-              control={form.control}
-              name="phases"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phases</FormLabel>
-                  <FormControl>
-                    <CustomReactSelect
-                      options={phaseOptions}
-                      isLoading={isLoading}
-                      value={phaseOptions?.filter((option) =>
-                        field.value?.includes(option.value)
-                      )}
-                      onChange={(selectedOptions) =>
-                        field.onChange(
-                          selectedOptions?.map((option) => option.value) || []
-                        )
-                      }
-                      placeholder={
-                        isError ? "Failed to load phases" : "Select Phase..."
-                      }
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    {isError && "There was an error fetching phases."}
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                            if (files && files.length > 0) {
+                              if (selectedFileType === "Image(s)") {
+                                field.onChange([
+                                  ...currentFiles,
+                                  ...Array.from(files), // Convert FileList to array
+                                ]);
+                                setCurrentFiles((prevState) => [
+                                  ...prevState,
+                                  ...Array.from(files), // Convert FileList to array
+                                ]);
 
-            <div className="flex justify-end">
-              <Button type="submit">Submit</Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                                const fileArray = Array.from(files); // Convert FileList to array
+                                setFilePreviews((prevState) => [
+                                  ...prevState,
+                                  ...fileArray.map((item) =>
+                                    URL.createObjectURL(item)
+                                  ),
+                                ]);
+                              } else {
+                                const file = files[0]; // Only one file for PDF or Video
+                                const url = URL.createObjectURL(file);
+
+                                if (file.type === "application/pdf") {
+                                  setSelectedPDF(url);
+                                } else {
+                                  setSelectedVideo(url);
+                                }
+
+                                form.setValue("files", [file]);
+                              }
+                            }
+                          }}
+                        />
+                        
+                        <div className="max-w-full space-y-2 rounded-xl border border-primary-outline bg-[#DFF0FF6B] px-6 pb-[12px] pt-[16px]">
+                          <p className="text-[12px] text-accent">
+                            <span className="font-bold">Attachment:</span>{" "}
+                            {selectedFileType}
+                          </p>
+                          <div className="flex gap-2">
+                            {fileTypes.map(({ icon, value }, index) => (
+                              <div
+                                key={index}
+                                onClick={() => {
+                                  setFilePreviews([]);
+                                  setSelectedFileType(value);
+                                  setCurrentFiles([]);
+                                  setSelectedVideo("");
+                                  setSelectedPDF("");
+                                  form.setValue("files", []);
+                                }}
+                                className={cn(
+                                  "rounded-xl bg-[#DEEDFF] px-[14px] py-[6px] hover:cursor-pointer",
+                                  { "bg-white": selectedFileType === value }
+                                )}
+                              >
+                                <Icon
+                                  className={cn("h-5 w-5 text-accent", {
+                                    "": selectedFileType === value,
+                                  })}
+                                  icon={`mingcute:${icon}`}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          <Separator />
+
+                          {selectedFileType === "Image(s)" && (
+                            <div className="flex max-h-[110px] w-full max-w-[420px] gap-3 overflow-x-scroll">
+                              {filePreviews.map((url, index) => (
+                                <div
+                                  key={index}
+                                  className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
+                                >
+                                  <img
+                                    className="object-cover object-center"
+                                    src={url}
+                                    alt="an image"
+                                  />
+                                  <Icon
+                                    onClick={() => handleRemoveFile(index)}
+                                    className="absolute right-1 top-1 text-xl text-accent hover:cursor-pointer"
+                                    icon={"mingcute:close-circle-fill"}
+                                  />
+                                </div>
+                              ))}
+                              <Label htmlFor="file-input">
+                                <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
+                                  <Icon
+                                    className="h-9 w-9 text-accent"
+                                    icon={"mingcute:add-line"}
+                                  />
+                                </div>
+                              </Label>
+                            </div>
+                          )}
+
+                          {selectedFileType === "Video" &&
+                            (selectedVideo ? (
+                              <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
+                                <div className="relative flex h-[100px] w-[100px] flex-shrink-0 rounded-md">
+                                  <video
+                                    // className="object-cover"
+                                    controls={true}
+                                    src={selectedVideo}
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <Label htmlFor="file-input">
+                                <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
+                                  <div className="flex flex-shrink-0 items-center justify-center rounded-md">
+                                    <Icon
+                                      className="h-11 w-11 text-[#DEEDFF]"
+                                      icon={"mingcute:video-fill"}
+                                    />
+                                  </div>
+                                  <p className="text-[12px] font-semibold text-[#DEEDFF] ">
+                                    Upload Video
+                                  </p>
+                                </div>
+                              </Label>
+                            ))}
+                          {selectedFileType === "PDF Document" &&
+                            (selectedPDF ? (
+                              <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
+                                <div className="flex  items-center flex-col relative h-[100px] w-[100px] flex-shrink-0 rounded-md">
+                                  <Icon
+                                    className="h-11 w-11 text-[#DEEDFF]"
+                                    icon={"mingcute:pdf-fill"}
+                                  />
+                                  <p className="text-2xs text-[#DEEDFF]">
+                                    {form.getValues("files")?.[0]?.name}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <Label htmlFor="file-input">
+                                <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
+                                  <div className="flex flex-shrink-0 items-center justify-center rounded-md">
+                                    <Icon
+                                      className="h-11 w-11 text-[#DEEDFF]"
+                                      icon={"mingcute:pdf-fill"}
+                                    />
+                                  </div>
+                                  <p className="text-[12px] font-semibold text-[#DEEDFF]">
+                                    Upload PDF
+                                  </p>
+                                </div>
+                              </Label>
+                            ))}
+          
+                        </div>
+                      </>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+
+              <FormField
+                control={form.control}
+                name="phases"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phases</FormLabel>
+                    <FormControl>
+                      <CustomReactSelect
+                      showSelectAll={true}
+                        options={phaseOptions}
+                        isLoading={isLoading}
+                        value={phaseOptions?.filter((option) =>
+                          field.value?.includes(option.value)
+                        )}
+                        onChange={(selectedOptions) =>
+                          field.onChange(
+                            selectedOptions?.map((option) => option.value) || []
+                          )
+                        }
+                        placeholder={
+                          isError ? "Failed to load phases" : "Select Phase..."
+                        }
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {isError && "There was an error fetching phases."}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </form>
+          </Form>
+        </AlertDialogBody>
+        <AlertDialogFooter className="flex justify-end space-x-2">
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <Button className="flex-1" form="form" type="submit">Submit</Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
