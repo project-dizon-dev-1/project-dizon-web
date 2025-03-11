@@ -123,7 +123,12 @@ const getDislikeCount = async (commentId: string) => {
   return await axiosGet(`/comments/dislike-count/${commentId}`);
 };
 
+const toggleComment = async () => {
+  return await axiosPost(`/announcements/toggleComment/`);
+};
+
 export {
+  toggleComment,
   fetchComments,
   addComment,
   deleteComment,

@@ -44,7 +44,7 @@ const Announcements = () => {
   }
 
   return (
-    <div className="flex justify-center max-h-full h-full gap-12 p-9">
+    <div className="flex justify-center max-h-full h-full gap-12 ">
       {/* Main Content */}
       <div className="  grow flex flex-col overflow-y-scroll max-w-[530px] no-scrollbar">
         <AnnouncementHeader first_name={user?.user_first_name} />

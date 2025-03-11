@@ -125,12 +125,12 @@ const PaymentHistory = () => {
           </SelectContent>
         </Select>
       </div>
-      <Separator className="mb-8 mt-3 bg-[#BAC1D6]/40" />
-      <h1 className=" font-bold">Household Units</h1>
+      <Separator className="mb-8 mt-3 " />
+      <h1 className=" font-bold mb-3">Payment History</h1>
       {isLoading ? (
         <Loading />
       ) : (
-        <Table>
+        <Table className=" font-medium">
           <TableCaption>A list of your history of payments.</TableCaption>
           <TableHeader>
             <TableRow>
@@ -165,8 +165,8 @@ const PaymentHistory = () => {
               data?.pages.flatMap((page) =>
                 page.items.map((due, i) => (
                   <TableRow
-                    className={cn(
-                      i % 2 === 0 ? "  h-[45px] rounded-xl" : "bg-white/60"
+                    className={cn("h-[45px]",
+                      i % 2 === 0 ? "   rounded-xl" : "bg-white/60"
                     )}
                     key={due.id}
                   >
@@ -199,7 +199,7 @@ const PaymentHistory = () => {
                     <TableCell
                       className={cn(
                         i % 2 === 0
-                          ? " bg-opacity-35  font-medium"
+                          ? " font-medium"
                           : " rounded-r-xl"
                       )}
                     >

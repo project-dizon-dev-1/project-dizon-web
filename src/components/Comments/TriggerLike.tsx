@@ -39,13 +39,13 @@ const TriggerLike = ({
     >
       <div
         className={cn(
-          "flex items-center justify-center rounded-3xl bg-primary",
+          "flex items-center justify-center rounded-3xl ",
           { "bg-[#2394FE]": commentStatus?.isLiked }
         )}
       >
         <Icon
           icon={"mingcute:thumb-up-fill"}
-          className={cn("h-4 w-4 text-accent opacity-70", {
+          className={cn("h-4 w-4 text-default opacity-70", {
             "text-white opacity-100": commentStatus?.isLiked,
           })}
         />
@@ -53,7 +53,7 @@ const TriggerLike = ({
           <Skeleton className="w-3 h-4" />
         ) : (
           <p
-            className={cn("text-sm text-accent opacity-70", {
+            className={cn("text-sm text-default opacity-70", {
               "text-white opacity-100": commentStatus?.isLiked,
             })}
           >

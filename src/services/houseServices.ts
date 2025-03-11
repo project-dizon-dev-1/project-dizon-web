@@ -1,8 +1,9 @@
 import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import {
   FetchHouseCollectionQueryParams,
-  House,
+  HouseDetails,
   HouseSummary,
+  VehicleDetails,
 } from "@/types/HouseTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { CollectionType } from "@/validations/collectionSchema";
@@ -15,7 +16,7 @@ const getHouses = async ({
   street,
   block,
   lot,
-}: FetchHouseCollectionQueryParams): Promise<PaginatedDataType<House>> => {
+}: FetchHouseCollectionQueryParams): Promise<PaginatedDataType<HouseDetails>> => {
   try {
     const params: Record<string, string | undefined | null> = {
       page,
@@ -37,8 +38,15 @@ const getHouses = async ({
   }
 };
 
-const getHousesSummary = async (): Promise<HouseSummary[]> => {
+const getHousesSummary = async (): Promise<HouseSummary> => {
   return await axiosGet("/houses/summary");
+};
+
+const getHouse = async (houseId:string |undefined): Promise<HouseDetails> => {
+  return await axiosGet(`/houses/house/${houseId}`);
+};
+const getHouseVehicle = async (houseId:string |undefined): Promise<VehicleDetails[]> => {
+  return await axiosGet(`/houses/${houseId}/vehicles/`);
 };
 
 const addHouse = async (data: HouseSchemaType) => {
@@ -55,4 +63,4 @@ const updateHousePayment = async ({
   return await axiosPut(`/houses/update/payment/${houseId}`, data);
 };
 
-export { getHouses, getHousesSummary, updateHousePayment, addHouse };
+export { getHouses,getHouseVehicle,getHouse, getHousesSummary, updateHousePayment, addHouse };

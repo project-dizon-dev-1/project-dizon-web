@@ -30,8 +30,7 @@ const announcementSchema = z.object({
   content: z.string().min(1, "Content is required"),
 //   visibility: z.string().min(1,"visibility is required!"),
   phases: z
-    .array(z.number().min(0, "number must be greater than 0"))
-    .optional(),
+    .array(z.number().min(0, "number must be greater than 0")).min(1, "At least 1 phase is required"),  
   files: z
     .array(z.any()).max(3, "maximum of 3 files")
     .optional()

@@ -14,6 +14,7 @@ type Announcement = {
     created_at: Date;
     title: string;
     content: string;
+    comment_enabled:boolean;
   };
 };
 
