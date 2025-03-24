@@ -1,6 +1,5 @@
 import { fetchTransactions } from "@/services/transactionServices";
 import { PaginatedDataType } from "@/types/paginatedType";
-import { TransactionDataType } from "@/types/transactionTypes";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import useInterObserver from "@/hooks/useIntersectObserver";
 import {
@@ -28,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { TransactionDataType } from "@/types/TransactionTypes";
 
 const FinancialLogs = () => {
   // Simplified query without filters
