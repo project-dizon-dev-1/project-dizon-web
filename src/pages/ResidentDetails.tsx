@@ -60,7 +60,6 @@ const ResidentDetails = () => {
         </h1>
       </div>
       <Separator className="mt-3 mb-8 bg-[#45495A]/[.12]" />
-      <h1 className="font-bold mb-3">Details</h1>
       {/* House details table */}
       <h1 className=" font-bold mb-3">Details</h1>
       <Table>
@@ -121,9 +120,9 @@ const ResidentDetails = () => {
             vehicles.map((vehicle, index) => (
               <TableRow
                 key={vehicle.id || index}
-                className={cn("h-[45]",{
-                   "bg-white/60 h-[45px]" : index+1 % 2 === 0 }
-            )}
+                className={cn("h-[45]", {
+                  "bg-white/60 h-[45px]": index + (1 % 2) === 0,
+                })}
               >
                 <TableCell className="text-sm font-medium">
                   {vehicle.vehicle_name || "N/A"}

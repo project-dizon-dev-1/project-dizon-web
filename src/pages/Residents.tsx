@@ -49,14 +49,19 @@ import {
 import { houseSchema, HouseSchemaType } from "@/validations/HouseSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const Residents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("query") || ""
+  );
   const {
     clearFilters,
     updateParams,
@@ -64,7 +69,7 @@ const Residents = () => {
     selectedStreet,
     selectedPhase,
     selectedLot,
-  } = useHouseSearchParams();
+  } = useHouseSearchParams(setSearchInput);
   const {
     data,
     isError,
@@ -75,6 +80,7 @@ const Residents = () => {
   } = useInfiniteQuery<PaginatedDataType<House>, Error>({
     queryKey: [
       "houses",
+      searchParams.get("query"),
       selectedPhase,
       selectedBlock,
       selectedStreet,
@@ -87,6 +93,7 @@ const Residents = () => {
         lot: selectedLot,
         phase: selectedPhase,
         block: selectedBlock,
+        query: searchParams.get("query"),
         street: selectedStreet,
       });
     },
@@ -94,6 +101,21 @@ const Residents = () => {
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined,
   });
+
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      searchParams.set("query", debouncedSearch);
+    } else {
+      searchParams.delete("query");
+    }
+    setSearchParams(searchParams);
+  }, [debouncedSearch]);
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  };
 
   const addHouseMutation = useMutation({
     mutationFn: addHouse,
@@ -198,9 +220,9 @@ const Residents = () => {
                           <SelectValue placeholder="Select a phase" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Phase 1">Phase 1</SelectItem>
-                          <SelectItem value="Phase 2">Phase 2</SelectItem>
-                          <SelectItem value="Phase 3">Phase 3</SelectItem>
+                          <SelectItem value="1">Phase 1</SelectItem>
+                          <SelectItem value="2">Phase 2</SelectItem>
+                          <SelectItem value="3">Phase 3</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -293,6 +315,8 @@ const Residents = () => {
         <Input
           className="w-[400px] rounded-xl bg-white h-[42px]"
           placeholder="Search Household Units"
+          value={searchInput}
+          onChange={handleSearchChange}
         />
         <Select
           value={selectedPhase || ""}
@@ -302,9 +326,9 @@ const Residents = () => {
             <SelectValue placeholder="All Phases" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Phase 1">Phase 1</SelectItem>
-            <SelectItem value="Phase 2">Phase 2</SelectItem>
-            <SelectItem value="Phase 3">Phase 3</SelectItem>
+            <SelectItem value="1">Phase 1</SelectItem>
+            <SelectItem value="2">Phase 2</SelectItem>
+            <SelectItem value="3">Phase 3</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -377,9 +401,9 @@ const Residents = () => {
                     <TableCell
                       className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
                     >
-                        <Link to={`/residents/${data.id}`}>
-                          <Button variant={"ghost"}>View</Button>
-                        </Link>
+                      <Link to={`/residents/${data.id}`}>
+                        <Button variant={"ghost"}>View</Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))

@@ -21,7 +21,7 @@ const MainLayout = () => {
         {/* Footer remains at the bottom */}
         <div className=" flex items-center w-full min-h-[34px]">
           <p className="text-xs text-[#1C1D2180] leading-none ml-6">
-            Developed by A2K Group Corporation
+            Developed by A2K Group Corporation © {new Date().getFullYear()}
           </p>
         </div>
       </div>

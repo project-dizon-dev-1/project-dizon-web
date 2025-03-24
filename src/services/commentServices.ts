@@ -123,8 +123,8 @@ const getDislikeCount = async (commentId: string) => {
   return await axiosGet(`/comments/dislike-count/${commentId}`);
 };
 
-const toggleComment = async () => {
-  return await axiosPost(`/announcements/toggleComment/`);
+const toggleComment = async (announcementId: string) => {
+  return await axiosPost(`/comments/toggle-comment/${announcementId}`);
 };
 
 export {

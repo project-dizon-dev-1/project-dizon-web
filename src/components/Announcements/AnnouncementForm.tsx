@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
   AlertDialogFooter,
-  AlertDialogCancel, // Import from your shadcn/ui component
+  AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 
 import {
@@ -63,13 +63,12 @@ const AnnouncementForm = ({
   );
   const queryClient = useQueryClient();
   const { user } = useUserContext();
-  
-  // Add missing fileTypes definition
+
   const fileTypes = [
     { icon: "minus-circle-fill", value: "None" },
     { icon: "photo-album-fill", value: "Image(s)" },
     { icon: "video-fill", value: "Video" },
-    { icon: "file-fill", value: "PDF Document" }
+    { icon: "file-fill", value: "PDF Document" },
   ];
 
   const { data: formPhases } = useQuery({
@@ -83,7 +82,7 @@ const AnnouncementForm = ({
     defaultValues: {
       title: announcement?.title ?? "",
       content: announcement?.content ?? "",
-      phases: formPhases ?? [],
+      phases: [],
       files: [],
     },
   });
@@ -124,7 +123,7 @@ const AnnouncementForm = ({
     onError: () => {
       toast({
         title: "Error",
-        description: "Error editting announcement",
+        description: "Error editing announcement",
       });
     },
     onSuccess: () => {
@@ -140,17 +139,20 @@ const AnnouncementForm = ({
       });
     },
   });
+
   const phaseOptions = phases?.map((phase) => ({
-    label: `Phase ${phase}`,
-    value: phase,
+    label: `Phase ${phase.phase_number}`,
+    value: phase.phase_number.toString(),
   }));
 
+  // Set phases once formPhases are loaded
   useEffect(() => {
-    if (formPhases) {
+    if (formPhases && formPhases.length > 0) {
       form.setValue("phases", formPhases);
     }
   }, [formPhases, form]);
 
+  // Load files for editing
   useEffect(() => {
     const urlToFile = async (url: string, filename: string): Promise<File> => {
       const response = await fetch(url);
@@ -159,7 +161,7 @@ const AnnouncementForm = ({
     };
 
     const fetchFiles = async () => {
-      if (announcement) {
+      if (announcement?.announcement_files?.length) {
         const files = await Promise.all(
           announcement.announcement_files.map((file) =>
             urlToFile(file.url, file.name)
@@ -172,7 +174,7 @@ const AnnouncementForm = ({
     };
 
     fetchFiles();
-  }, []);
+  }, [announcement, form]);
 
   const handleRemoveFile = (index: number) => {
     const updatedFiles =
@@ -190,11 +192,10 @@ const AnnouncementForm = ({
     const formData = new FormData();
 
     formData.append("title", values.title);
-    // formData.append("visibility", values.visibility);
     formData.append("content", values.content);
 
-    // Ensure phases is always an array
-    formData.append("phases", JSON.stringify(values.phases || []));
+    const phasesToSubmit = Array.isArray(values.phases) ? values.phases : [];
+    formData.append("phases", JSON.stringify(phasesToSubmit));
 
     values?.files?.map((file) => {
       formData.append("files", file);
@@ -222,7 +223,7 @@ const AnnouncementForm = ({
       }}
     >
       <AlertDialogTrigger className="w-full">{children}</AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="max-h-[80%] w-full overflow-y-scroll no-scrollbar">
         <AlertDialogHeader>
           <AlertDialogTitle>Create Announcement</AlertDialogTitle>
           <AlertDialogDescription>
@@ -244,11 +245,12 @@ const AnnouncementForm = ({
                     <FormItem>
                       <FormControl>
                         <Input
-                          className="rounded-none shadow-none border-none bg-transparent p-0 font-bold text-accent placeholder:text-[16px] placeholder:text-accent/75"
+                          className="rounded-none shadow-none border-none bg-transparent p-0 font-bold placeholder:text-[16px]"
                           placeholder="Announcement Title"
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -262,11 +264,12 @@ const AnnouncementForm = ({
                     <FormItem>
                       <FormControl>
                         <Textarea
-                          className="no-scrollbar shadow-none resize-none rounded-none border-none bg-transparent p-0 text-accent placeholder:text-sm placeholder:text-accent/85"
+                          className="no-scrollbar shadow-none resize-none rounded-none border-none bg-transparent p-0 placeholder:text-sm"
                           placeholder="Announcement body..."
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -312,14 +315,14 @@ const AnnouncementForm = ({
                               if (selectedFileType === "Image(s)") {
                                 field.onChange([
                                   ...currentFiles,
-                                  ...Array.from(files), // Convert FileList to array
+                                  ...Array.from(files),
                                 ]);
                                 setCurrentFiles((prevState) => [
                                   ...prevState,
-                                  ...Array.from(files), // Convert FileList to array
+                                  ...Array.from(files),
                                 ]);
 
-                                const fileArray = Array.from(files); // Convert FileList to array
+                                const fileArray = Array.from(files);
                                 setFilePreviews((prevState) => [
                                   ...prevState,
                                   ...fileArray.map((item) =>
@@ -327,7 +330,7 @@ const AnnouncementForm = ({
                                   ),
                                 ]);
                               } else {
-                                const file = files[0]; // Only one file for PDF or Video
+                                const file = files[0];
                                 const url = URL.createObjectURL(file);
 
                                 if (file.type === "application/pdf") {
@@ -341,9 +344,9 @@ const AnnouncementForm = ({
                             }
                           }}
                         />
-                        
+
                         <div className="max-w-full space-y-2 rounded-xl border border-primary-outline bg-[#DFF0FF6B] px-6 pb-[12px] pt-[16px]">
-                          <p className="text-[12px] text-accent">
+                          <p className="text-[12px]">
                             <span className="font-bold">Attachment:</span>{" "}
                             {selectedFileType}
                           </p>
@@ -365,7 +368,7 @@ const AnnouncementForm = ({
                                 )}
                               >
                                 <Icon
-                                  className={cn("h-5 w-5 text-accent", {
+                                  className={cn("h-5 w-5", {
                                     "": selectedFileType === value,
                                   })}
                                   icon={`mingcute:${icon}`}
@@ -389,7 +392,7 @@ const AnnouncementForm = ({
                                   />
                                   <Icon
                                     onClick={() => handleRemoveFile(index)}
-                                    className="absolute right-1 top-1 text-xl text-accent hover:cursor-pointer"
+                                    className="absolute right-1 top-1 text-xl hover:cursor-pointer"
                                     icon={"mingcute:close-circle-fill"}
                                   />
                                 </div>
@@ -397,7 +400,7 @@ const AnnouncementForm = ({
                               <Label htmlFor="file-input">
                                 <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
                                   <Icon
-                                    className="h-9 w-9 text-accent"
+                                    className="h-9 w-9"
                                     icon={"mingcute:add-line"}
                                   />
                                 </div>
@@ -409,11 +412,7 @@ const AnnouncementForm = ({
                             (selectedVideo ? (
                               <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
                                 <div className="relative flex h-[100px] w-[100px] flex-shrink-0 rounded-md">
-                                  <video
-                                    // className="object-cover"
-                                    controls={true}
-                                    src={selectedVideo}
-                                  />
+                                  <video controls={true} src={selectedVideo} />
                                 </div>
                               </div>
                             ) : (
@@ -425,16 +424,17 @@ const AnnouncementForm = ({
                                       icon={"mingcute:video-fill"}
                                     />
                                   </div>
-                                  <p className="text-[12px] font-semibold text-[#DEEDFF] ">
+                                  <p className="text-[12px] font-semibold text-[#DEEDFF]">
                                     Upload Video
                                   </p>
                                 </div>
                               </Label>
                             ))}
+
                           {selectedFileType === "PDF Document" &&
                             (selectedPDF ? (
                               <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
-                                <div className="flex  items-center flex-col relative h-[100px] w-[100px] flex-shrink-0 rounded-md">
+                                <div className="flex items-center flex-col relative h-[100px] w-[100px] flex-shrink-0 rounded-md">
                                   <Icon
                                     className="h-11 w-11 text-[#DEEDFF]"
                                     icon={"mingcute:pdf-fill"}
@@ -459,7 +459,6 @@ const AnnouncementForm = ({
                                 </div>
                               </Label>
                             ))}
-          
                         </div>
                       </>
                     </FormControl>
@@ -467,7 +466,6 @@ const AnnouncementForm = ({
                   </FormItem>
                 )}
               />
-
 
               <FormField
                 control={form.control}
@@ -477,15 +475,24 @@ const AnnouncementForm = ({
                     <FormLabel>Phases</FormLabel>
                     <FormControl>
                       <CustomReactSelect
-                      showSelectAll={true}
+                        showSelectAll={true}
                         options={phaseOptions}
                         isLoading={isLoading}
                         value={phaseOptions?.filter((option) =>
-                          field.value?.includes(option.value)
+                          field.value?.some(
+                            (val) =>
+                              // Ensure we're comparing the same types by converting both to strings for comparison
+                              String(val) === String(option.value)
+                          )
                         )}
                         onChange={(selectedOptions) =>
                           field.onChange(
-                            selectedOptions?.map((option) => option.value) || []
+                            selectedOptions?.map((option) =>
+                              // Ensure the value is converted to a number
+                              typeof option.value === "string"
+                                ? Number(option.value)
+                                : option.value
+                            ) || []
                           )
                         }
                         placeholder={
@@ -505,7 +512,9 @@ const AnnouncementForm = ({
         </AlertDialogBody>
         <AlertDialogFooter className="flex justify-end space-x-2">
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <Button className="flex-1" form="form" type="submit">Submit</Button>
+          <Button className="flex-1" form="form" type="submit">
+            Submit
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
