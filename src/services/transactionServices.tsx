@@ -1,10 +1,10 @@
 import { axiosGet, axiosPost } from "@/lib/axios";
 import { PaginatedDataType } from "@/types/paginatedType";
-import { TransactionDataType } from "@/types/TransactionTypes";
 import {
   CategoryType,
   PaymentMethodType,
 } from "@/validations/transactionSchema";
+import { TransactionDataType } from "./transantionTypes";
 
 const addTransaction = async (data: {
   userId: string;
