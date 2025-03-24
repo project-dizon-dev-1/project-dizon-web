@@ -31,7 +31,7 @@ export const AppSidebar = () => {
   const navigate = useNavigate();
 
   return (
-    <div className=" bg-[#FCFCFC]/[0.76] h-full relative z-1">
+    <div className=" bg-[#FCFCFC]/[0.76] h-full  relative z-1">
       <img
         className="absolute blur-[100px] right-0 bottom-14 -z-10"
         src="/icons/vector1.svg"
@@ -68,11 +68,11 @@ export const AppSidebar = () => {
         alt="an icon"
       />
       <Sidebar
-        className=" bg-transparent w-[265px]"
+        className=" bg-transparent w-[265px] "
         variant="sidebar"
         collapsible="none"
       >
-        <SidebarContent>
+        <SidebarContent className="no-scrollbar">
           <SidebarGroup className=" p-3">
             {/* <SidebarGroupLabel> */}
 
@@ -93,7 +93,11 @@ export const AppSidebar = () => {
                       <Link
                         className={cn(
                           " flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42] ",
-                          { "bg-white/[0.42]": url.pathname === item.link }
+                          {
+                            "bg-white/[0.42]": url.pathname.startsWith(
+                              item.link
+                            ),
+                          }
                         )}
                         to={item.link}
                       >
@@ -102,13 +106,17 @@ export const AppSidebar = () => {
                           <span
                             className={cn(
                               " text-[14px] font-medium text-default",
-                              { " font-semibold": url.pathname === item.link }
+                              {
+                                " font-semibold": url.pathname.startsWith(
+                                  item.link
+                                ),
+                              }
                             )}
                           >
                             {item.label}
                           </span>
                         </div>
-                        {url.pathname === item.link && (
+                        {url.pathname.startsWith(item.link) && (
                           <div className=" h-[6px] w-[6px] rounded-full bg-[#45495A]"></div>
                         )}
                       </Link>
@@ -129,7 +137,9 @@ export const AppSidebar = () => {
                         className={cn(
                           " flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42] ",
                           {
-                            "bg-white/[0.42]": url.pathname === item.link,
+                            "bg-white/[0.42]": url.pathname.startsWith(
+                              item.link
+                            ),
                           }
                         )}
                         to={item.link}
@@ -140,14 +150,17 @@ export const AppSidebar = () => {
                             className={cn(
                               " text-[14px] font-medium text-default",
                               {
-                                " font-semibold": url.pathname === item.link,
+                                " font-semibold": url.pathname.startsWith(
+                                  item.link
+                                ),
                               }
                             )}
                           >
                             {item.label}
                           </span>
                         </div>
-                        {url.pathname === item.link && (
+
+                        {url.pathname.startsWith(item.link) && (
                           <div className=" h-[6px] w-[6px] rounded-full bg-[#45495A]"></div>
                         )}
                       </Link>
@@ -180,9 +193,11 @@ export const AppSidebar = () => {
                   asChild
                 >
                   <SidebarMenuButton className="py-[18px]  hover:bg-white/[0.24]">
-                    <Avatar className="bg-blue-100 roun h-8 w-8 rounded-lg border-accent">
+                    <Avatar className="bg-blue-100 h-8 w-8 rounded-lg border-accent">
                       <AvatarImage src={""} alt="profile picture" />
-                      <AvatarFallback>T</AvatarFallback>
+                      <AvatarFallback className="bg-blue-100 h-8 w-8 rounded-lg border-accent">
+                        T
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-[14px] font-semibold">

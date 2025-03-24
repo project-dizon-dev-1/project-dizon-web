@@ -22,7 +22,7 @@ const Comments = ({ announcement_id }: { announcement_id: string }) => {
 
   return (
     <div className="">
-      <h1 className="text-md mb-2 font-bold text-accent">
+      <h1 className="text-md mb-2 font-bold">
         {commentData?.pages[0]?.totalItems} Comments
       </h1>
       <div className="no-scrollbar max-h-52 overflow-y-scroll">

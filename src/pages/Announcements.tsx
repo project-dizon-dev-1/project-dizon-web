@@ -2,18 +2,19 @@ import AnnouncementComponent from "@/components/Announcements/AnnouncementCompon
 import AnnouncementFilters from "@/components/Announcements/AnnouncementFilters";
 import AnnouncementHeader from "@/components/Announcements/AnnouncementHeader";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import useUserContext from "@/hooks/useUserContext";
 import { fetchAnnouncements } from "@/services/announcementServices";
 import { Announcement } from "@/types/announcementTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 import { useSearchParams } from "react-router";
 
 const Announcements = () => {
   const [searchParams] = useSearchParams();
-
   const { user } = useUserContext();
+  // Create a ref for the announcements container
+  const announcementsContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     data,
@@ -44,9 +45,12 @@ const Announcements = () => {
   }
 
   return (
-    <div className="flex justify-center max-h-full h-full gap-12 p-9">
+    <div className="flex justify-center max-h-full h-full gap-12 ">
       {/* Main Content */}
-      <div className="  grow flex flex-col overflow-y-scroll max-w-[530px] no-scrollbar">
+      <div
+        ref={announcementsContainerRef}
+        className="grow flex flex-col overflow-y-scroll max-w-[530px] no-scrollbar"
+      >
         <AnnouncementHeader first_name={user?.user_first_name} />
         {/* Announcements List */}
         {!isLoading && data?.pages[0]?.items?.length === 0 ? (
@@ -83,7 +87,7 @@ const Announcements = () => {
 
         {/* Filters Sidebar */}
       </div>
-      <AnnouncementFilters />
+      <AnnouncementFilters containerRef={announcementsContainerRef} />
     </div>
   );
 };

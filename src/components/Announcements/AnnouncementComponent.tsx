@@ -20,11 +20,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { cn } from "@/lib/utils";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
+import { Card, CardContent } from "../ui/card";
+import { toggleComment } from "@/services/commentServices";
+import AutoLinkText from "@/lib/AutoLinkText";
 
 const AnnouncementComponent = ({ announcements }: Announcement) => {
   const [searchParams] = useSearchParams();
   const { user } = useUserContext();
-  // const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -60,14 +70,34 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
     deleteAnnouncementMutation.mutate(announcements.id);
   };
 
-  // console.log(announcements.announcement_files)
+  const toggleCommentMutation = useMutation({
+    mutationFn: toggleComment,
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Comment Disabled",
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Error disabling comment",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["announcements", searchParams.get("phase")],
+      });
+    },
+  });
 
   return (
     <div
       key={announcements.id}
-      className="py-6  px-8  h-fit bg-white rounded-lg mb-3"
+      className="py-6 px-8 h-fit bg-white rounded-lg mb-3"
     >
-      <div className=" flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-3">
         <div>
           <h2 className="font-bold text-[16px]">{announcements.title}</h2>
           <div className="flex items-center text-sm text-gray-500 gap-2">
@@ -85,9 +115,9 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                 hour12: true,
               })}
             </p>
-            <div className=" flex items-center">
+            <div className="flex items-center">
               <Icon
-                className=" w-[14px] h-[14px]"
+                className="w-[14px] h-[14px]"
                 icon="mingcute:house-2-fill"
               />
               <p>{searchParams.get("phase")}</p>
@@ -100,6 +130,15 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
               <Icon className="w-5 h-5" icon="mingcute:more-1-line" />
             </PopoverTrigger>
             <PopoverContent className="flex flex-col w-fit p-0">
+              <Button
+                onClick={() => toggleCommentMutation.mutate(announcements.id)}
+                variant={"ghost"}
+                className="w-full"
+              >
+                {announcements.comment_enabled
+                  ? "Disable Comment"
+                  : "Enable Comment"}
+              </Button>
               <AnnouncementForm announcement={announcements}>
                 <Button variant={"ghost"} className="w-full">
                   Edit
@@ -123,10 +162,10 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                       your account and remove your data from our servers.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="flex gap-2 ">
+                  <div className="flex gap-2">
                     <Button
                       onClick={() => setDeleteDialogOpen(false)}
-                      className=" flex-1"
+                      className="flex-1"
                     >
                       Cancel
                     </Button>
@@ -145,20 +184,124 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
         </div>
       </div>
 
-      <p className="mb-4 whitespace-pre-wrap text-start leading-[18.2px] text-sm">
-        {announcements.content}
-      </p>
+      <AutoLinkText
+        text={announcements.content}
+        className="mb-4 whitespace-pre-wrap text-start leading-[18.2px] text-sm"
+      />
 
-      <div className="flex overflow-x-scroll snap-x snap-mandatory">
-        {announcements.announcement_files?.map(({ url }) => (
-          <img
-            key={url}
-            className=" snap-center bg-contain"
-            src={url}
-            alt="an image of announcement"
-          />
-        ))}
-      </div>
+      <Dialog>
+        <DialogTrigger asChild>
+          <div className="flex w-full gap-2 justify-center">
+            {announcements.announcement_files.length > 0 &&
+              announcements.announcement_files[0]?.type?.startsWith(
+                "image"
+              ) && (
+                <div className="flex w-full gap-2">
+                  {announcements.announcement_files
+                    .slice(0, 3)
+                    .map((file, i) => {
+                      const isFirst = i === 0;
+                      const isLast =
+                        i ===
+                        Math.min(
+                          announcements.announcement_files.length - 1,
+                          2
+                        );
+                      const hasMoreImages =
+                        i === 2 && announcements.announcement_files.length > 3;
+
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "flex-1 overflow-hidden rounded-md hover:cursor-pointer",
+                            {
+                              "rounded-l-xl": isFirst,
+                              "rounded-r-xl": isLast,
+                              relative: true,
+                            }
+                          )}
+                        >
+                          <img
+                            className={cn("h-[223px] w-full object-cover", {
+                              "opacity-45": hasMoreImages,
+                            })}
+                            src={file.url}
+                            alt="file"
+                          />
+                          {hasMoreImages && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <p className="text-base font-semibold text-white">
+                                +{announcements.announcement_files.length - 3}{" "}
+                                more
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
+          </div>
+        </DialogTrigger>
+
+        {announcements.announcement_files.length > 0 &&
+          announcements.announcement_files[0]?.type?.startsWith("video") && (
+            <div className="border border-primary-outline">
+              <video
+                className="h-fit w-full"
+                controls
+                src={announcements.announcement_files[0]?.url}
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          )}
+
+        {announcements.announcement_files.length > 0 &&
+          announcements.announcement_files[0]?.type?.startsWith(
+            "application"
+          ) && (
+            <a
+              href={announcements.announcement_files[0]?.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 underline"
+            >
+              {`${announcements.announcement_files[0]?.name}.${
+                announcements.announcement_files[0].type.split("/")[1]
+              }`}
+            </a>
+          )}
+
+        <DialogContent className="flex h-full w-dvw max-w-none items-center justify-center border-0 bg-transparent">
+          <DialogHeader className="sr-only">
+            <DialogTitle className="sr-only"></DialogTitle>
+            <DialogDescription className="sr-only"></DialogDescription>
+          </DialogHeader>
+          <Carousel className="w-full max-w-5xl">
+            <CarouselContent className="-ml-1">
+              {announcements.announcement_files.map((file, index) => (
+                <CarouselItem key={index}>
+                  <div className="p-1">
+                    <Card className="border-none bg-transparent">
+                      <CardContent className="flex aspect-square items-center justify-center bg-transparent bg-contain p-6">
+                        <img
+                          className="h-[100dvh] w-full object-contain"
+                          src={file.url}
+                          alt="an image of announcement"
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex items-end justify-between">
         <div className="relative h-5">
@@ -167,7 +310,15 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
       </div>
       <Separator className="mb-4 mt-6 bg-[#BAC1D6]/40" />
 
-      <Comments announcement_id={announcements?.id} />
+      {announcements.comment_enabled ? (
+        <Comments announcement_id={announcements?.id} />
+      ) : (
+        <div className=" flex items-center justify-center">
+          <p className=" text-xs text-[#45495A]/50 font-medium">
+            Comments are disabled for this announcement.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

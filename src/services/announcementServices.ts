@@ -25,6 +25,9 @@ const fetchAnnouncements = async ({
 const fetchAnnouncementPhases = async (announcemendId:string|undefined):Promise<number[]> => {
     return await axiosGet(`/announcements/announcementPhases/${announcemendId}`);
 };
+const toggleComment = async () => {
+  return await axiosPost(`/announcements/toggleComment/`);
+};
 
 const editAnnouncement = async ({announcementId,data}:{announcementId:string,data:FormData}) => {
 
@@ -36,4 +39,4 @@ const deleteAnnouncements = async (announcementId:string) => {
     return await axiosDelete(`/announcements/delete/${announcementId}`);
 };
 
-export { editAnnouncement,addAnnouncement, fetchAnnouncements,deleteAnnouncements,fetchAnnouncementPhases };
+export { toggleComment,editAnnouncement,addAnnouncement, fetchAnnouncements,deleteAnnouncements,fetchAnnouncementPhases };

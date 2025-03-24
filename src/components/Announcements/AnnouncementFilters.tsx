@@ -6,8 +6,13 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
+import { RefObject, useCallback } from "react";
 
-const AnnouncementFilters = () => {
+interface AnnouncementFiltersProps {
+  containerRef: RefObject<HTMLDivElement>;
+}
+
+const AnnouncementFilters = ({ containerRef }: AnnouncementFiltersProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
@@ -22,11 +27,25 @@ const AnnouncementFilters = () => {
     setSearchParams({ phase });
   };
 
+  const totalPopulation =
+    phases?.reduce((acc, phase) => acc + phase.total_population, 0) || 0; // Added || 0 to handle undefined phases;
+
   const clearPhaseFilter = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete("phase");
     setSearchParams(newParams);
   };
+
+  // Function to handle scrolling up using the containerRef
+  const scrollToTop = useCallback(() => {
+    if (containerRef?.current) {
+      // Scroll the container to the top
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [containerRef]);
 
   if (isError) {
     return <p className="text-red-500">Failed to load phases</p>;
@@ -40,7 +59,7 @@ const AnnouncementFilters = () => {
             <Icon className="w-5 h-5" icon="mingcute:house-2-fill" />
             <h1 className=" font-bold text-sm">Phases</h1>
           </div>
-          <Icon className="w-5 h-5 " icon="mingcute:add-fill"></Icon>
+          {/* <Icon className="w-5 h-5 " icon="mingcute:add-fill"></Icon> */}
         </div>
 
         <Separator className=" bg-[#BAC1D6]/40" />
@@ -56,7 +75,7 @@ const AnnouncementFilters = () => {
           >
             <h3
               className={cn(" font-bold text-sm py-[2px] px-2 w-fit ", {
-                "text-[#5B8DCF] bg-[#DEEDFF]":
+                "text-[#5B8DCF] rounded-sm bg-[#DEEDFF]":
                   searchParams.get("phase") === null,
               })}
             >
@@ -67,7 +86,7 @@ const AnnouncementFilters = () => {
                 "text-[#5B8DCF]": searchParams.get("phase") === null,
               })}
             >
-              Population: 100
+              Population: {totalPopulation}
             </p>
           </div>
           {isLoading
@@ -76,37 +95,43 @@ const AnnouncementFilters = () => {
               ))
             : phases?.map((phase, index) => (
                 <div
-                  onClick={() => setPhaseParams(phase.toString())}
+                  onClick={() => setPhaseParams(phase.phase_number.toString())}
                   key={index}
                   className={cn(
                     "w-full pl-[10px] rounded-md py-2 hover:cursor-pointer",
                     {
                       "bg-[#DFF0FF6B] p-4":
-                        searchParams.get("phase") === phase.toString(),
+                        searchParams.get("phase") ===
+                        phase.phase_number.toString(),
                     }
                   )}
                 >
                   <h3
                     className={cn(" font-bold text-sm py-[2px] px-2 w-fit ", {
-                      "text-[#5B8DCF] bg-[#DEEDFF]":
-                        searchParams.get("phase") === phase.toString(),
+                      "text-[#5B8DCF] rounded-sm bg-[#DEEDFF]":
+                        searchParams.get("phase") ===
+                        phase.phase_number.toString(),
                     })}
                   >
-                    Phase {phase}
+                    Phase {phase.phase_number}
                   </h3>
                   <p
                     className={cn(" font-medium  text-[12px] pl-2", {
                       "text-[#5B8DCF]":
-                        searchParams.get("phase") === phase.toString(),
+                        searchParams.get("phase") ===
+                        phase.phase_number.toString(),
                     })}
                   >
-                    Population: 100
+                    Population: {phase.total_population}
                   </p>
                 </div>
               ))}
         </div>
       </div>
-      <Button className=" rounded-xl w-full py-4 h-fit text-default hover:bg-[#DEEDFF] bg-white shadow-none">
+      <Button
+        className="rounded-xl w-full py-4 h-fit text-default hover:bg-[#DEEDFF] bg-white shadow-none"
+        onClick={scrollToTop}
+      >
         Scroll Up
       </Button>
     </div>

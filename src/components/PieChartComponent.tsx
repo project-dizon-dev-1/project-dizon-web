@@ -1,9 +1,8 @@
-
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
 import {
-
+  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -73,14 +72,14 @@ const PieChartComponent = ({
   ];
 
   return (
-    <div className="flex flex-col">
+    <Card className="flex flex-col border-none shadow-none hover:cursor-pointer">
       <CardHeader className="items-center p-0">
         <CardTitle>Residents Payment Status</CardTitle>
         <CardDescription>
           {new Date().toLocaleString("en-US", { month: "long" })}
         </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 p-0">
+      <CardContent className="flex-1 p-0 ">
         <ChartContainer
           config={chartConfig}
           className="mx-auto aspect-square max-h-[250px]"
@@ -135,13 +134,17 @@ const PieChartComponent = ({
           {paidResidentsCount > unpaidResidentsCount
             ? "More paid residents than unpaid"
             : "More unpaid residents than paid"}
-          { paidResidentsCount > unpaidResidentsCount ?<TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4"/>}
+          {paidResidentsCount > unpaidResidentsCount ? (
+            <TrendingUp className="h-4 w-4" />
+          ) : (
+            <TrendingDown className="h-4 w-4" />
+          )}
         </div>
         <div className="leading-none text-muted-foreground">
           Showing total paid and unpaid residents for this month.
         </div>
       </CardFooter>
-    </div>
+    </Card>
   );
 };
 
