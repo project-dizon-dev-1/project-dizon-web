@@ -1,7 +1,6 @@
 import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import { Due, DueLog, totalDue } from "@/types/DueTypes";
 import { PaginatedDataType, paginatedParams } from "@/types/paginatedType";
-import { CollectionType } from "@/validations/collectionSchema";
 import { dueType } from "@/validations/duesSchema";
 
 const fetchDues = async (): Promise<Due[]> => {
@@ -13,11 +12,15 @@ const fetchTotalDue = async (): Promise<totalDue> => {
 };
 
 const fetchDueLogs = async ({
+  month,
+  status,
+  phase,
+  query,
   page,
   pageSize,
 }: paginatedParams): Promise<PaginatedDataType<DueLog>> => {
   return await axiosGet("/dues/logs", {
-    params: { page, pageSize },
+    params: { phase, month, status, query, page, pageSize },
   });
 };
 
@@ -30,13 +33,19 @@ const addMultipleDues = async ({
   data,
 }: {
   houseId: string;
-  data: CollectionType;
+  data: FormData;
 }) => {
   return await axiosPost(`/dues/add/logs/${houseId}`, data);
 };
 
-const addDues = async (data: dueType) => {
-  return await axiosPost("/dues/add", data);
+const addDues = async ({
+  categoryId,
+  formData,
+}: {
+  categoryId: string;
+  formData: dueType;
+}) => {
+  return await axiosPost(`/dues/add/${categoryId}`, formData);
 };
 
 const updateDues = async (dueId: string | undefined, payload: dueType) => {

@@ -25,11 +25,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import HouseResidents from "@/components/Houses/HouseResidents";
-import HouseEmployees from "@/components/Houses/HouseEmployees";
-import HouseVehicles from "@/components/Houses/HouseVehicles";
+
 import {
   useInfiniteQuery,
   useMutation,
@@ -52,12 +49,19 @@ import {
 import { houseSchema, HouseSchemaType } from "@/validations/HouseSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { Link, useSearchParams } from "react-router";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const Residents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("query") || ""
+  );
   const {
     clearFilters,
     updateParams,
@@ -65,7 +69,7 @@ const Residents = () => {
     selectedStreet,
     selectedPhase,
     selectedLot,
-  } = useHouseSearchParams();
+  } = useHouseSearchParams(setSearchInput);
   const {
     data,
     isError,
@@ -76,6 +80,7 @@ const Residents = () => {
   } = useInfiniteQuery<PaginatedDataType<House>, Error>({
     queryKey: [
       "houses",
+      searchParams.get("query"),
       selectedPhase,
       selectedBlock,
       selectedStreet,
@@ -88,6 +93,7 @@ const Residents = () => {
         lot: selectedLot,
         phase: selectedPhase,
         block: selectedBlock,
+        query: searchParams.get("query"),
         street: selectedStreet,
       });
     },
@@ -95,6 +101,21 @@ const Residents = () => {
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined,
   });
+
+  const debouncedSearch = useDebounce(searchInput, 500);
+
+  useEffect(() => {
+    if (debouncedSearch) {
+      searchParams.set("query", debouncedSearch);
+    } else {
+      searchParams.delete("query");
+    }
+    setSearchParams(searchParams);
+  }, [debouncedSearch]);
+
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchInput(e.target.value);
+  };
 
   const addHouseMutation = useMutation({
     mutationFn: addHouse,
@@ -199,9 +220,9 @@ const Residents = () => {
                           <SelectValue placeholder="Select a phase" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Phase 1">Phase 1</SelectItem>
-                          <SelectItem value="Phase 2">Phase 2</SelectItem>
-                          <SelectItem value="Phase 3">Phase 3</SelectItem>
+                          <SelectItem value="1">Phase 1</SelectItem>
+                          <SelectItem value="2">Phase 2</SelectItem>
+                          <SelectItem value="3">Phase 3</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -294,6 +315,8 @@ const Residents = () => {
         <Input
           className="w-[400px] rounded-xl bg-white h-[42px]"
           placeholder="Search Household Units"
+          value={searchInput}
+          onChange={handleSearchChange}
         />
         <Select
           value={selectedPhase || ""}
@@ -303,9 +326,9 @@ const Residents = () => {
             <SelectValue placeholder="All Phases" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Phase 1">Phase 1</SelectItem>
-            <SelectItem value="Phase 2">Phase 2</SelectItem>
-            <SelectItem value="Phase 3">Phase 3</SelectItem>
+            <SelectItem value="1">Phase 1</SelectItem>
+            <SelectItem value="2">Phase 2</SelectItem>
+            <SelectItem value="3">Phase 3</SelectItem>
           </SelectContent>
         </Select>
         <Select
@@ -361,60 +384,27 @@ const Residents = () => {
               data.pages
                 .flatMap((page) => page.items)
                 .map((data, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{data.house_family_name}</TableCell>
+                  <TableRow
+                    className={cn(
+                      "h-[45px]",
+                      i % 2 === 0 ? "   rounded-xl" : "bg-white/60"
+                    )}
+                    key={i}
+                  >
+                    <TableCell
+                      className={cn(i % 2 === 0 ? "" : "rounded-l-xl")}
+                    >
+                      {data.house_family_name}
+                    </TableCell>
                     <TableCell>{`${data.house_phase}, ${data.house_street}, ${data.house_block}, ${data.house_lot}`}</TableCell>
                     <TableCell>{data.house_main_poc}</TableCell>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <TableCell>
-                          <Button>View Details</Button>
-                        </TableCell>
-                      </DialogTrigger>
-                      <DialogContent className="flex flex-col h-[50%] max-h-[50%]">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {data.house_family_name} Family Details
-                          </DialogTitle>
-                        </DialogHeader>
-                        <Tabs
-                          defaultValue="details"
-                          className="w-full max-h-full overflow-scroll no-scrollbar"
-                        >
-                          <TabsList className="w-full flex justify-between">
-                            <TabsTrigger className="flex-1" value="details">
-                              Details
-                            </TabsTrigger>
-                            <TabsTrigger className="flex-1" value="residents">
-                              Residents
-                            </TabsTrigger>
-                            <TabsTrigger className="flex-1" value="employees">
-                              Employees
-                            </TabsTrigger>
-                            <TabsTrigger className="flex-1" value="vehicles">
-                              Vehicles
-                            </TabsTrigger>
-                          </TabsList>
-                          <TabsContent value="details">
-                            {/* <HouseDetails
-                          address={data.house_address}
-                          phase={data.house_phase}
-                          mainContact={data.house_main_poc}
-                          latestPayment={data.house_latest_paymentP}
-                        /> */}
-                          </TabsContent>
-                          <TabsContent value="residents">
-                            <HouseResidents />
-                          </TabsContent>
-                          <TabsContent value="employees">
-                            <HouseEmployees />
-                          </TabsContent>
-                          <TabsContent value="vehicles">
-                            <HouseVehicles />
-                          </TabsContent>
-                        </Tabs>
-                      </DialogContent>
-                    </Dialog>
+                    <TableCell
+                      className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
+                    >
+                      <Link to={`/residents/${data.id}`}>
+                        <Button variant={"ghost"}>View</Button>
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))
             ) : (

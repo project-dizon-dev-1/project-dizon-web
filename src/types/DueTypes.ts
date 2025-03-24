@@ -6,7 +6,12 @@ type totalDue = {
 
 type Due = Database["public"]["Tables"]["dues-list"]["Row"];
 
-type EditDue = Omit<Due, "created_at" | "updated_at"> | null;
+type EditDue = {
+  dueId: string;
+  dueCost: number;
+  dueDescription?: string | null;
+  dueName: string;
+};
 
 type DueLog = {
   id: string;
@@ -15,6 +20,10 @@ type DueLog = {
   date: Date | null;
   details: string | null;
   amount: number | null;
+  receiver: {
+    user_first_name: string;
+    user_last_name: string;
+  } | null;
   confirmed_by: string | null;
   house_list: {
     house_family_name: string;
@@ -23,8 +32,21 @@ type DueLog = {
     house_street: string;
     house_lot: string;
   } | null;
+  amount_status: "Partially_Paid" | "Fully_Paid" | null;
 };
 
-
-
-export type { totalDue, Due, EditDue, DueLog };
+type DueCategoryType = ({
+  dues_list: {
+    id: string;
+    due_name: string;
+    due_description: string | null;
+    due_cost: number;
+    due_is_active: boolean;
+  }[];
+} & {
+  created_at: Date;
+  name: string;
+  id: string;
+  total_expenses: number;
+})[];
+export type { totalDue, Due, EditDue, DueLog, DueCategoryType };

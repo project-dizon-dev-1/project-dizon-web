@@ -14,10 +14,9 @@ import { getInitial } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 // Define the shape of your option items
-// Change to match your actual options type
 interface OptionType {
   label: string;
-  value: number | string; // Changed to number to match your props
+  value: number | string;
 }
 
 // Custom styles type
@@ -97,6 +96,7 @@ type CustomReactSelectProps = {
     | undefined;
   placeholder?: string;
   isLoading: boolean;
+  showSelectAll?: boolean;
 };
 
 // Main Component
@@ -107,18 +107,46 @@ const CustomReactSelect: React.FC<CustomReactSelectProps> = ({
   isLoading,
   onChange,
   placeholder,
+  showSelectAll = false,
 }) => {
+  // Function to handle "Select All" option
+  const handleSelectAll = () => {
+    if (!options) return;
+
+    const allOptions = options as OptionType[];
+
+    // Always select all options when the button is clicked
+    onChange &&
+      onChange(allOptions, {
+        action: "select-option",
+        option: allOptions[allOptions.length - 1],
+      });
+  };
+
   return (
-    <ReactSelect<OptionType, true>
-      isMulti
-      styles={styles}
-      isLoading={isLoading}
-      components={{ MultiValue: CustomMultiValue }}
-      options={options}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
-    />
+    <div className="relative">
+      {showSelectAll && options && (options as OptionType[]).length > 0 && (
+        <div className="absolute right-20 top-5 z-10">
+          <button
+            type="button"
+            className="text-xs text-primary hover:text-primary/80"
+            onClick={handleSelectAll}
+          >
+            Select All
+          </button>
+        </div>
+      )}
+      <ReactSelect<OptionType, true>
+        isMulti
+        styles={styles}
+        isLoading={isLoading}
+        components={{ MultiValue: CustomMultiValue }}
+        options={options}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+      />
+    </div>
   );
 };
 

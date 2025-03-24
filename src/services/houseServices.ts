@@ -1,8 +1,9 @@
 import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import {
   FetchHouseCollectionQueryParams,
-  House,
+  HouseDetails,
   HouseSummary,
+  VehicleDetails,
 } from "@/types/HouseTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { CollectionType } from "@/validations/collectionSchema";
@@ -15,7 +16,9 @@ const getHouses = async ({
   street,
   block,
   lot,
-}: FetchHouseCollectionQueryParams): Promise<PaginatedDataType<House>> => {
+}: FetchHouseCollectionQueryParams): Promise<
+  PaginatedDataType<HouseDetails>
+> => {
   try {
     const params: Record<string, string | undefined | null> = {
       page,
@@ -41,6 +44,15 @@ const getHousesSummary = async (): Promise<HouseSummary[]> => {
   return await axiosGet("/houses/summary");
 };
 
+const getHouse = async (houseId: string | undefined): Promise<HouseDetails> => {
+  return await axiosGet(`/houses/house/${houseId}`);
+};
+const getHouseVehicle = async (
+  houseId: string | undefined
+): Promise<VehicleDetails[]> => {
+  return await axiosGet(`/houses/${houseId}/vehicles/`);
+};
+
 const addHouse = async (data: HouseSchemaType) => {
   return await axiosPost("/houses/add", data);
 };
@@ -50,9 +62,37 @@ const updateHousePayment = async ({
   data,
 }: {
   houseId: string;
-  data: CollectionType;
+  data: CollectionType & { receivedBy: string | undefined };
 }) => {
-  return await axiosPut(`/houses/update/payment/${houseId}`, data);
+  const formData = new FormData();
+
+  // Add regular data fields
+  formData.append(
+    "houseLatestPaymentAmount",
+    data.houseLatestPaymentAmount.toString()
+  );
+  formData.append("housePaymentMonths", data.housePaymentMonths.toString());
+
+  if (data.housePaymentRemarks) {
+    formData.append("housePaymentRemarks", data.housePaymentRemarks);
+  }
+
+  if (data.receivedBy) {
+    formData.append("receivedBy", data.receivedBy);
+  }
+
+  // Add file if it exists
+  if (data.paymentProof instanceof File) {
+    formData.append("paymentProof", data.paymentProof);
+  }
+  return await axiosPut(`/houses/update/payment/${houseId}`, formData);
 };
 
-export { getHouses, getHousesSummary, updateHousePayment, addHouse };
+export {
+  getHouses,
+  getHouseVehicle,
+  getHouse,
+  getHousesSummary,
+  updateHousePayment,
+  addHouse,
+};
