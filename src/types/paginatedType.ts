@@ -1,16 +1,20 @@
 type PaginatedDataType<T> = {
-  items: T[]; 
+  items: T[];
   totalItems: number;
   currentPage: number;
   hasNextPage: boolean;
   pageSize: number;
   totalPages: number;
   prevPage: number | null;
-  nextPage: number | null; 
+  nextPage: number | null;
 };
-type paginatedParams ={
-    page:string,
-    pageSize:string
-}
+type paginatedParams = {
+  month?: string | null;
+  status?: string | null;
+  phase?: string | null;
+  query?: string | null;
+  page?: string;
+  pageSize?: string;
+};
 
-export type { PaginatedDataType, paginatedParams,};
+export type { PaginatedDataType, paginatedParams };

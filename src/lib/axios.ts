@@ -5,23 +5,35 @@ let accessToken: string | null = null;
 
 // Function to get the latest access token
 const updateAccessToken = async () => {
-  const { data } = await supabase.auth.getSession();
-  accessToken = data?.session?.access_token || null;
+  try {
+    const { data } = await supabase.auth.getSession();
+    accessToken = data?.session?.access_token || null;
+    return accessToken;
+  } catch (error) {
+    console.warn("Failed to get session token:", error);
+    accessToken = null;
+    return null;
+  }
 };
 
-// Initialize token on app startup
-updateAccessToken();
+// Initialize token on app startup (but don't throw errors)
+updateAccessToken().catch(() => {
+  // Silently fail on initial token fetch
+  accessToken = null;
+});
 
 // Listen for token refresh events and update in memory
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === "TOKEN_REFRESHED" && session) {
     accessToken = session.access_token;
+  } else if (event === "SIGNED_OUT") {
+    accessToken = null;
   }
 });
 
 // Axios instance
 const api = axios.create({
-  baseURL: "https://estateflow.onrender.com",
+  baseURL: "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -30,11 +42,24 @@ const api = axios.create({
 // Axios request interceptor to always use the latest token
 api.interceptors.request.use(
   async (config) => {
-    if (!accessToken) {
-      await updateAccessToken();
-    }
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    // Skip token for auth endpoints (like login)
+    const isAuthEndpoint =
+      config.url?.includes("/login") ||
+      config.url?.includes("/signup") ||
+      config.url?.includes("/auth");
+
+    if (!isAuthEndpoint) {
+      try {
+        if (!accessToken) {
+          await updateAccessToken();
+        }
+        if (accessToken) {
+          config.headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+      } catch (error) {
+        console.warn("Error updating access token:", error);
+        // Continue with request even without token
+      }
     }
     return config;
   },

@@ -21,9 +21,16 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { cn } from "@/lib/utils";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
 import { Card, CardContent } from "../ui/card";
 import { toggleComment } from "@/services/commentServices";
+import AutoLinkText from "@/lib/AutoLinkText";
 
 const AnnouncementComponent = ({ announcements }: Announcement) => {
   const [searchParams] = useSearchParams();
@@ -63,15 +70,27 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
     deleteAnnouncementMutation.mutate(announcements.id);
   };
 
-  const disableCommentMutation = useMutation({
+  const toggleCommentMutation = useMutation({
     mutationFn: toggleComment,
     onSuccess: () => {
       toast({
         title: "Success",
         description: "Comment Disabled",
       });
-    }
-   });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Error disabling comment",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["announcements", searchParams.get("phase")],
+      });
+    },
+  });
 
   return (
     <div
@@ -111,9 +130,15 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
               <Icon className="w-5 h-5" icon="mingcute:more-1-line" />
             </PopoverTrigger>
             <PopoverContent className="flex flex-col w-fit p-0">
-            <Button onClick={() => disableCommentMutation.mutate} variant={"ghost"} className="w-full">
-                  Disable Comment
-                </Button>
+              <Button
+                onClick={() => toggleCommentMutation.mutate(announcements.id)}
+                variant={"ghost"}
+                className="w-full"
+              >
+                {announcements.comment_enabled
+                  ? "Disable Comment"
+                  : "Enable Comment"}
+              </Button>
               <AnnouncementForm announcement={announcements}>
                 <Button variant={"ghost"} className="w-full">
                   Edit
@@ -159,55 +184,67 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
         </div>
       </div>
 
-      <p className="mb-4 whitespace-pre-wrap text-start leading-[18.2px] text-sm">
-        {announcements.content}
-      </p>
+      <AutoLinkText
+        text={announcements.content}
+        className="mb-4 whitespace-pre-wrap text-start leading-[18.2px] text-sm"
+      />
 
       <Dialog>
         <DialogTrigger asChild>
           <div className="flex w-full gap-2 justify-center">
             {announcements.announcement_files.length > 0 &&
-              announcements.announcement_files[0]?.type?.startsWith("image") && (
+              announcements.announcement_files[0]?.type?.startsWith(
+                "image"
+              ) && (
                 <div className="flex w-full gap-2">
-                  {announcements.announcement_files.slice(0, 3).map((file, i) => {
-                    const isFirst = i === 0;
-                    const isLast = i === Math.min(announcements.announcement_files.length - 1, 2);
-                    const hasMoreImages = i === 2 && announcements.announcement_files.length > 3;
-                    
-                    return (
-                      <div
-                        key={i}
-                        className={cn(
-                          "flex-1 overflow-hidden rounded-md hover:cursor-pointer", 
-                          {
-                            "rounded-l-xl": isFirst,
-                            "rounded-r-xl": isLast,
-                            "relative": true,
-                          }
-                        )}
-                      >
-                        <img
-                          className={cn("h-[223px] w-full object-cover", {
-                            "opacity-45": hasMoreImages,
-                          })}
-                          src={file.url}
-                          alt="file"
-                        />
-                        {hasMoreImages && (
-                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <p className="text-base font-semibold text-white">
-                              +{announcements.announcement_files.length - 3} more
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {announcements.announcement_files
+                    .slice(0, 3)
+                    .map((file, i) => {
+                      const isFirst = i === 0;
+                      const isLast =
+                        i ===
+                        Math.min(
+                          announcements.announcement_files.length - 1,
+                          2
+                        );
+                      const hasMoreImages =
+                        i === 2 && announcements.announcement_files.length > 3;
+
+                      return (
+                        <div
+                          key={i}
+                          className={cn(
+                            "flex-1 overflow-hidden rounded-md hover:cursor-pointer",
+                            {
+                              "rounded-l-xl": isFirst,
+                              "rounded-r-xl": isLast,
+                              relative: true,
+                            }
+                          )}
+                        >
+                          <img
+                            className={cn("h-[223px] w-full object-cover", {
+                              "opacity-45": hasMoreImages,
+                            })}
+                            src={file.url}
+                            alt="file"
+                          />
+                          {hasMoreImages && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <p className="text-base font-semibold text-white">
+                                +{announcements.announcement_files.length - 3}{" "}
+                                more
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
           </div>
         </DialogTrigger>
-        
+
         {announcements.announcement_files.length > 0 &&
           announcements.announcement_files[0]?.type?.startsWith("video") && (
             <div className="border border-primary-outline">
@@ -231,10 +268,12 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
               rel="noopener noreferrer"
               className="text-blue-500 underline"
             >
-              {`${announcements.announcement_files[0]?.name}.${announcements.announcement_files[0].type.split("/")[1]}`}
+              {`${announcements.announcement_files[0]?.name}.${
+                announcements.announcement_files[0].type.split("/")[1]
+              }`}
             </a>
           )}
-          
+
         <DialogContent className="flex h-full w-dvw max-w-none items-center justify-center border-0 bg-transparent">
           <DialogHeader className="sr-only">
             <DialogTitle className="sr-only"></DialogTitle>
@@ -271,7 +310,15 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
       </div>
       <Separator className="mb-4 mt-6 bg-[#BAC1D6]/40" />
 
-      {announcements.comment_enabled && <Comments announcement_id={announcements?.id} />}
+      {announcements.comment_enabled ? (
+        <Comments announcement_id={announcements?.id} />
+      ) : (
+        <div className=" flex items-center justify-center">
+          <p className=" text-xs text-[#45495A]/50 font-medium">
+            Comments are disabled for this announcement.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

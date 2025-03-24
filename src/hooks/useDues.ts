@@ -1,31 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./use-toast";
-import { addDues, deleteDues, fetchDues, fetchTotalDue, ToggleDueActivation, updateDues } from "@/services/DuesServices";
+import {
+  addDues,
+  deleteDues,
+  fetchTotalDue,
+  ToggleDueActivation,
+  updateDues,
+} from "@/services/DuesServices";
 import { dueSchema, dueType } from "@/validations/duesSchema";
 import { EditDue } from "@/types/DueTypes";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const useDues = (data: EditDue) => {
+const useDues = (data?: EditDue) => {
   const queryClient = useQueryClient();
-
-  const duesData = useQuery({
-    queryKey: ["dues"],
-    queryFn: async () => fetchDues(),
-  });
 
   const totalDueData = useQuery({
     queryKey: ["totalDue"],
     queryFn: async () => fetchTotalDue(),
   });
-  
+
   const form = useForm({
     resolver: zodResolver(dueSchema),
     defaultValues: {
-      dueName: data?.due_name ?? "",
-      dueDescription: data?.due_description ?? "",
-      dueCost: data?.due_cost ?? 0,
-      dueIsActive: data?.due_is_active ?? true,
+      dueName: data?.dueName ?? "",
+      dueDescription: data?.dueDescription ?? "",
+      dueCost: data?.dueCost ?? 0,
+      // dueIsActive: data?.due_is_active ?? true,
     },
   });
 
@@ -48,7 +49,7 @@ const useDues = (data: EditDue) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["dues"],
+        queryKey: ["duesCategories"],
       });
     },
   });
@@ -78,7 +79,7 @@ const useDues = (data: EditDue) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["dues"],
+        queryKey: ["duesCategories"],
       });
       queryClient.invalidateQueries({
         queryKey: ["totalDue"],
@@ -86,11 +87,13 @@ const useDues = (data: EditDue) => {
     },
   });
 
-  const onSubmit = (formData: dueType) => {
-    if (data?.id) {
-      duesEditMutation.mutate({ dueId: data.id, payload: formData });
-    } else {
-      duesAddMutation.mutate(formData);
+  const onSubmit = (formData: dueType, categoryId?: string) => {
+    if (data) {
+      duesEditMutation.mutate({ dueId: data.dueId, payload: formData });
+      return;
+    }
+    if (categoryId) {
+      duesAddMutation.mutate({ categoryId, formData });
     }
   };
 
@@ -113,7 +116,7 @@ const useDues = (data: EditDue) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["dues"],
+        queryKey: ["duesCategories"],
       });
       queryClient.invalidateQueries({
         queryKey: ["totalDue"],
@@ -121,12 +124,28 @@ const useDues = (data: EditDue) => {
     },
   });
 
-  const deactivateMutation  = useMutation({
+  const toggleActivateMutation = useMutation({
     mutationFn: async (data: { dueId: string; dueIsActive: boolean }) =>
       ToggleDueActivation(data.dueId, data.dueIsActive),
+    onSuccess: () => {
+      toast({
+        title: "Due Activation Toggled Successfully",
+      });
+    },
+    onMutate: () => {
+      toast({
+        title: "Toggling Activation...",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error Toggling Activation",
+      });
+    },
+
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["dues"],
+        queryKey: ["duesCategories"],
       });
       queryClient.invalidateQueries({
         queryKey: ["totalDue"],
@@ -137,10 +156,10 @@ const useDues = (data: EditDue) => {
   return {
     form,
     onSubmit,
-    duesData,
+    // duesData,
     totalDueData,
     deleteDuesMutation,
-    deactivateMutation
+    toggleActivateMutation,
   };
 };
 

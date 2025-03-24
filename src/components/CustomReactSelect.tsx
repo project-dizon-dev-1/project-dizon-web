@@ -14,10 +14,9 @@ import { getInitial } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 // Define the shape of your option items
-// Change to match your actual options type
 interface OptionType {
   label: string;
-  value: number | string; // Changed to number to match your props
+  value: number | string;
 }
 
 // Custom styles type
@@ -113,14 +112,15 @@ const CustomReactSelect: React.FC<CustomReactSelectProps> = ({
   // Function to handle "Select All" option
   const handleSelectAll = () => {
     if (!options) return;
-    
+
     const allOptions = options as OptionType[];
-    
+
     // Always select all options when the button is clicked
-    onChange && onChange(allOptions, { 
-      action: "select-option", 
-      option: allOptions[allOptions.length - 1] 
-    });
+    onChange &&
+      onChange(allOptions, {
+        action: "select-option",
+        option: allOptions[allOptions.length - 1],
+      });
   };
 
   return (
