@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { TransactionDataType } from "@/types/TransactionTypes";
+import { TransactionDataType } from "@/services/transantionTypes";
 
 const FinancialLogs = () => {
   // Simplified query without filters
