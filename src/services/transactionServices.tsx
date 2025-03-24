@@ -1,6 +1,6 @@
 import { axiosGet, axiosPost } from "@/lib/axios";
 import { PaginatedDataType } from "@/types/paginatedType";
-import { TransactionDataType } from "@/types/transactionTypes";
+import { TransactionDataType } from "@/types/TransactionTypes";
 import {
   CategoryType,
   PaymentMethodType,
