@@ -1,4 +1,4 @@
-import { axiosGet, axiosPost } from "@/lib/axios";
+import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import { PaginatedDataType } from "@/types/paginatedType";
 import {
   CategoryType,
@@ -39,4 +39,15 @@ const fetchTransactions = async ({
   });
 };
 
-export { addTransaction, fetchTransactions };
+// Add approval function
+const approveTransaction = async ({
+  transactionId,
+  userId,
+}: {
+  transactionId: string | undefined;
+  userId: string | undefined;
+}) => {
+  return await axiosPut(`/transactions/${transactionId}/approve`, { userId });
+};
+
+export { addTransaction, fetchTransactions, approveTransaction };

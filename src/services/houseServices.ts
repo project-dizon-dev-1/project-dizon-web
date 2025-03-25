@@ -40,7 +40,7 @@ const getHouses = async ({
   }
 };
 
-const getHousesSummary = async (): Promise<HouseSummary[]> => {
+const getHousesSummary = async (): Promise<HouseSummary> => {
   return await axiosGet("/houses/summary");
 };
 
@@ -88,6 +88,16 @@ const updateHousePayment = async ({
   return await axiosPut(`/houses/update/payment/${houseId}`, formData);
 };
 
+const approveCollection = async ({
+  dueId,
+  userId,
+}: {
+  dueId: string | undefined;
+  userId: string | undefined;
+}) => {
+  return await axiosPut(`/houses/${dueId}/confirm`, { userId });
+};
+
 export {
   getHouses,
   getHouseVehicle,
@@ -95,4 +105,5 @@ export {
   getHousesSummary,
   updateHousePayment,
   addHouse,
+  approveCollection,
 };

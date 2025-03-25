@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ResidentDetails = () => {
   const { houseId } = useParams();
@@ -39,14 +40,6 @@ const ResidentDetails = () => {
     queryFn: async () => await getHouseVehicle(houseId),
   });
 
-  if (houseLoading || vehiclesLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (houseError || vehiclesError) {
-    return <div>Error loading data</div>;
-  }
-
   return (
     <div>
       <div className="flex gap-3">
@@ -56,47 +49,78 @@ const ResidentDetails = () => {
           icon={"mingcute:arrow-left-line"}
         />
         <h1 className="text-xl font-bold">
-          {data?.house_family_name} Family Details
+          {houseLoading ? (
+            <Skeleton className="h-7 w-64 inline-block" />
+          ) : (
+            `${data?.house_family_name} Family Details`
+          )}
         </h1>
       </div>
       <Separator className="mt-3 mb-8 bg-[#45495A]/[.12]" />
+
       {/* House details table */}
-      <h1 className=" font-bold mb-3">Details</h1>
+      <h1 className="font-bold mb-3">Details</h1>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className=" py-3 px-6 rounded-l-xl text-sm text-nowrap font-bold">
+            <TableHead className="py-3 px-6 rounded-l-xl text-sm text-nowrap font-bold">
               Property
             </TableHead>
-            <TableHead className=" py-3 px-6 rounded-r-xl  text-sm text-nowrap font-bold">
+            <TableHead className="py-3 px-6 rounded-r-xl text-sm text-nowrap font-bold">
               Value
             </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow className="h-[45px]">
-            <TableCell className=" text-sm font-medium ">Address</TableCell>
-            <TableCell className=" text-sm font-medium ">{` ${data?.house_street} Street, Block ${data?.house_block},Lot ${data?.house_lot}`}</TableCell>
-          </TableRow>
-          <TableRow className="bg-white/60 h-[45px]">
-            <TableCell className="rounded-l-xl text-sm font-medium  ">
-              Phase
-            </TableCell>
-            <TableCell className="rounded-r-xl text-sm font-medium">
-              {data?.house_phase}
-            </TableCell>
-          </TableRow>
-          <TableRow className="h-[45px]">
-            <TableCell className=" text-sm font-medium ">
-              Main Point of Contact
-            </TableCell>
-            <TableCell className=" text-sm font-medium">
-              {data?.house_main_poc}
-            </TableCell>
-          </TableRow>
+          {houseLoading ? (
+            // Skeleton rows for house details - simpler approach like in Residents
+            Array.from({ length: 3 }, (_, i) => (
+              <TableRow
+                key={`house-skeleton-${i}`}
+                className={i % 2 === 0 ? "" : "bg-white/60"}
+              >
+                <TableCell colSpan={2}>
+                  <Skeleton className="h-8 w-full" />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : houseError ? (
+            <TableRow>
+              <TableCell colSpan={2} className="text-center text-red-500 py-4">
+                Error loading house details
+              </TableCell>
+            </TableRow>
+          ) : (
+            <>
+              <TableRow className="h-[45px]">
+                <TableCell className="text-sm font-medium">Address</TableCell>
+                <TableCell className="text-sm font-medium">{` ${data?.house_street} Street, Block ${data?.house_block}, Lot ${data?.house_lot}`}</TableCell>
+              </TableRow>
+              <TableRow className="bg-white/60 h-[45px]">
+                <TableCell className="rounded-l-xl text-sm font-medium">
+                  Phase
+                </TableCell>
+                <TableCell className="rounded-r-xl text-sm font-medium">
+                  {data?.house_phase}
+                </TableCell>
+              </TableRow>
+              <TableRow className="h-[45px]">
+                <TableCell className="text-sm font-medium">
+                  Main Point of Contact
+                </TableCell>
+                <TableCell className="text-sm font-medium">
+                  {data?.house_main_poc_user?.user_first_name}{" "}
+                  {data?.house_main_poc_user?.user_last_name}
+                </TableCell>
+              </TableRow>
+            </>
+          )}
         </TableBody>
-      </Table>{" "}
+      </Table>
+
       <Separator className="my-8 bg-[#45495A]/[.12]" />
+
+      {/* Vehicles table */}
       <h1 className="font-bold mb-3">Vehicles</h1>
       <Table>
         <TableHeader>
@@ -116,12 +140,30 @@ const ResidentDetails = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {vehicles && vehicles.length > 0 ? (
+          {vehiclesLoading ? (
+            // Skeleton rows for vehicles - simpler approach like in Residents
+            Array.from({ length: 2 }, (_, i) => (
+              <TableRow
+                key={`vehicle-skeleton-${i}`}
+                className={i % 2 === 0 ? "" : "bg-white/60"}
+              >
+                <TableCell colSpan={4}>
+                  <Skeleton className="h-8 w-full" />
+                </TableCell>
+              </TableRow>
+            ))
+          ) : vehiclesError ? (
+            <TableRow>
+              <TableCell colSpan={4} className="text-center text-red-500 py-4">
+                Error loading vehicle information
+              </TableCell>
+            </TableRow>
+          ) : vehicles && vehicles.length > 0 ? (
             vehicles.map((vehicle, index) => (
               <TableRow
                 key={vehicle.id || index}
-                className={cn("h-[45]", {
-                  "bg-white/60 h-[45px]": index + (1 % 2) === 0,
+                className={cn("h-[45px]", {
+                  "bg-white/60": index % 2 === 1,
                 })}
               >
                 <TableCell className="text-sm font-medium">

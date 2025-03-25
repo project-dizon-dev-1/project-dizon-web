@@ -28,7 +28,7 @@ const CommentInput = ({
         className="flex-1"
       >
         <Textarea
-          className="rounded-2xl h-9 max-h-9 border-accent/30 bg-default focus:border-none resize-none focus:outline-none"
+          className="rounded-2xl h-9 max-h-9  bg-default focus:border-none resize-none focus:outline-none"
           {...register("comment", { required: true })} // Use the correct field name
           onFocus={() => setIsCommenting(true)}
           placeholder="Write a comment..."
@@ -48,9 +48,9 @@ const CommentInput = ({
             Cancel
           </Button>
           <Button
+            className="rounded-xl"
             type="submit"
             form={`comment${announcement_id}`}
-            className="bg-accent"
           >
             Comment
           </Button>
