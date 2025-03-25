@@ -14,7 +14,6 @@ import Announcements from "./pages/Announcements";
 import ResidentDetails from "./pages/ResidentDetails";
 import CollectionDetails from "./pages/CollectionDetails";
 import FinanceOverview from "./pages/FinanceOverview";
-import Transactions from "./pages/Transactions";
 import AuditLogs from "./pages/AuditLogs";
 import FinancialLogs from "./pages/FinancialLogs";
 
@@ -39,7 +38,6 @@ const App = () => {
             <Route path="/history" element={<PaymentHistory />} />
             <Route path="/finance-overview" element={<FinanceOverview />} />
             <Route path="/expenses" element={<Dues />} />
-            <Route path="/transactions" element={<Transactions />} />
             <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/financial-logs" element={<FinancialLogs />} />
             {/* Catch-all route for 404 Not Found */}

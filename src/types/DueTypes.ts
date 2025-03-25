@@ -24,7 +24,10 @@ type DueLog = {
     user_first_name: string;
     user_last_name: string;
   } | null;
-  confirmed_by: string | null;
+  confirmed_by_user: {
+    user_first_name: string;
+    user_last_name: string;
+  } | null;
   house_list: {
     house_family_name: string;
     house_phase: string;

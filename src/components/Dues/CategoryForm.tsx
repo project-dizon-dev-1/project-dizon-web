@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useUserContext from "@/hooks/useUserContext";
 
 const CategoryForm = ({
   categoryId,
@@ -35,6 +36,7 @@ const CategoryForm = ({
   categoryName?: string;
   children: React.ReactNode;
 }) => {
+  const { user } = useUserContext();
   const form = useForm({
     resolver: zodResolver(categorySchema),
     defaultValues: {
@@ -45,11 +47,23 @@ const CategoryForm = ({
 
   const onSubmit = (data: CategoryType) => {
     if (categoryId) {
-      updateCategoryMutation.mutate({ categoryId, data });
+      updateCategoryMutation.mutate({
+        categoryId,
+        data: {
+          ...data,
+          userId: user?.id,
+          userName: `${user?.user_first_name} ${user?.user_last_name}`,
+        },
+      });
       return;
     }
 
-    addCategoryMutation.mutate(data);
+    addCategoryMutation.mutate({
+      ...data,
+      categoryType: "EXPENSE",
+      userId: user?.id,
+      userName: `${user?.user_first_name} ${user?.user_last_name}`,
+    });
   };
   return (
     <AlertDialog>

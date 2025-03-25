@@ -1,6 +1,16 @@
-import { fetchTransactions } from "@/services/transactionServices";
+import {
+  fetchTransactions,
+  approveTransaction,
+} from "@/services/transactionServices";
 import { PaginatedDataType } from "@/types/paginatedType";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import useUserContext from "@/hooks/useUserContext";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 import useInterObserver from "@/hooks/useIntersectObserver";
 import {
   Table,
@@ -30,7 +40,27 @@ import {
 import { TransactionDataType } from "@/services/transantionTypes";
 
 const FinancialLogs = () => {
-  // Simplified query without filters
+  const { user } = useUserContext();
+  const queryClient = useQueryClient();
+
+  // Add approve transaction mutation
+  const approveMutation = useMutation({
+    mutationFn: approveTransaction,
+    onSuccess: () => {
+      toast({
+        title: "Transaction approved successfully",
+      });
+      // Refetch transactions data to update the UI
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error approving transaction",
+        variant: "destructive",
+      });
+    },
+  });
+
   const {
     data,
     isLoading,
@@ -157,9 +187,7 @@ const FinancialLogs = () => {
                             : "bg-yellow-100 text-yellow-800"
                         )}
                       >
-                        {transaction.approved_by
-                          ? "Approved"
-                          : "Pending Approval"}
+                        {transaction.approved_by ? "Approved" : "Pending"}
                       </span>
                     </TableCell>
 
@@ -180,7 +208,7 @@ const FinancialLogs = () => {
                           </div>
                         </TableCell>
                       </AlertDialogTrigger>
-                      <AlertDialogContent>
+                      <AlertDialogContent className=" max-h-[80%] overflow-y-scroll">
                         <AlertDialogHeader>
                           <AlertDialogTitle>
                             {transaction.category}
@@ -245,7 +273,7 @@ const FinancialLogs = () => {
 
                           <div className="flex">
                             <div className="flex-1">
-                              <h3 className="text-[#287EFF] text-sm font-medium">
+                              <h3 className="text-blue-600 text-sm font-medium">
                                 Received By:
                               </h3>
                               <p className="text-sm font-medium">
@@ -253,24 +281,69 @@ const FinancialLogs = () => {
                                   ? `${transaction.received_by_details.user_first_name} ${transaction.received_by_details.user_last_name}`
                                   : "Not specified"}
                               </p>
+                              {transaction.created_at && (
+                                <p className="text-xs text-gray-500">
+                                  {formatDate(transaction.created_at)}
+                                </p>
+                              )}
                             </div>
 
                             <div className="flex-1">
-                              <h3 className="text-[#02B93F] text-sm font-medium">
-                                {transaction.approved_by
-                                  ? "Approved By:"
-                                  : "Awaiting Approval"}
-                              </h3>
-                              <p className="text-sm font-medium">
-                                {transaction.approved_by_details
-                                  ? `${transaction.approved_by_details.user_first_name} ${transaction.approved_by_details.user_last_name}`
-                                  : "Pending"}
-                              </p>
+                              {transaction.approved_by ? (
+                                <h3 className="text-green-600 text-sm font-medium">
+                                  Approved By:
+                                </h3>
+                              ) : (
+                                <h3 className="text-yellow-600 text-sm font-medium">
+                                  Pending Approval
+                                </h3>
+                              )}
+                              {transaction?.approved_by_details && (
+                                <p>
+                                  {transaction?.approved_by_details
+                                    ?.user_first_name || ""}{" "}
+                                  {transaction?.approved_by_details
+                                    ?.user_last_name || ""}
+                                </p>
+                              )}
+
                               {transaction.approve_date && (
                                 <p className="text-xs text-gray-500">
                                   {formatDate(transaction.approve_date)}
                                 </p>
                               )}
+
+                              {/* Add approve button for pending transactions */}
+                              {!transaction.approved_by &&
+                                user?.role === "admin" &&
+                                !(
+                                  transaction.received_by_details
+                                    ?.user_first_name ===
+                                    user?.user_first_name &&
+                                  transaction.received_by_details
+                                    ?.user_last_name === user?.user_last_name
+                                ) && (
+                                  <Button
+                                    className="mt-2"
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      approveMutation.mutate({
+                                        transactionId: transaction.id,
+                                        userId: user.id,
+                                      })
+                                    }
+                                    disabled={approveMutation.isPending}
+                                  >
+                                    <Icon
+                                      icon="mingcute:check-circle-line"
+                                      className="mr-1 h-4 w-4 text-green-600"
+                                    />
+                                    {approveMutation.isPending
+                                      ? "Approving..."
+                                      : "Approve Transaction"}
+                                  </Button>
+                                )}
                             </div>
                           </div>
                         </AlertDialogBody>
