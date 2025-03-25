@@ -1,6 +1,7 @@
 type Announcement = {
   announcements: {
     users_list: {
+      id: string;
       user_last_name: string;
       user_first_name: string;
     } | null;
@@ -14,7 +15,7 @@ type Announcement = {
     created_at: Date;
     title: string;
     content: string;
-    comment_enabled:boolean;
+    comment_enabled: boolean;
   };
 };
 

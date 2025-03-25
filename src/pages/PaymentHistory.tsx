@@ -18,8 +18,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchDueLogs } from "@/services/DuesServices";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import Loading from "@/components/Loading";
 import { DueLog } from "@/types/DueTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
@@ -40,12 +43,37 @@ import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { fetchDueLogs } from "@/services/dueServices";
+import useUserContext from "@/hooks/useUserContext";
+import { toast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { approveCollection } from "@/services/houseServices";
 
 const PaymentHistory = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useUserContext();
+  const queryClient = useQueryClient();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("query") || ""
   );
+
+  // Add approve transaction mutation
+  const confirmMutation = useMutation({
+    mutationFn: approveCollection,
+    onSuccess: () => {
+      toast({
+        title: "Transaction approved successfully",
+      });
+      // Refetch transactions data to update the UI
+      queryClient.invalidateQueries({ queryKey: ["paymentHistory"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error approving transaction",
+        variant: "destructive",
+      });
+    },
+  });
   const debouncedSearch = useDebounce(searchInput, 500);
 
   const {
@@ -179,7 +207,9 @@ const PaymentHistory = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="Fully_Paid">Fully Paid</SelectItem>
+            <SelectItem value="Fully_Paid">
+              <Badge>Fully Paid</Badge>
+            </SelectItem>
             <SelectItem value="Partially_Paid">Partially Paid</SelectItem>
           </SelectContent>
         </Select>
@@ -258,9 +288,21 @@ const PaymentHistory = () => {
                       {due.amount?.toLocaleString("en-PH") ?? 0}
                     </TableCell>
                     <TableCell>
-                      {due.amount_status === "Fully_Paid"
-                        ? "Fully Paid"
-                        : "Partially Paid"}
+                      {due.amount_status === "Fully_Paid" ? (
+                        <Badge
+                          variant={"default"}
+                          className=" bg-green-100 text-green-800 shadow-none hover:bg-green-100 "
+                        >
+                          Fully Paid
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant={"default"}
+                          className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
+                        >
+                          Partially Paid
+                        </Badge>
+                      )}
                     </TableCell>
 
                     <AlertDialog>
@@ -317,7 +359,21 @@ const PaymentHistory = () => {
                                 {new Date(due.created_at).toLocaleDateString()}
                               </p>
                               <p>{due.amount?.toLocaleString()}</p>
-                              <p>{due.amount_status}</p>
+                              {due.amount_status === "Fully_Paid" ? (
+                                <Badge
+                                  variant={"default"}
+                                  className=" bg-green-100 text-green-800 shadow-none hover:bg-green-100 "
+                                >
+                                  Fully Paid
+                                </Badge>
+                              ) : (
+                                <Badge
+                                  variant={"default"}
+                                  className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
+                                >
+                                  Partially Paid
+                                </Badge>
+                              )}
                             </div>
                           </div>
                           <h2 className=" text-default/75 font-bold text-sm">
@@ -338,12 +394,45 @@ const PaymentHistory = () => {
                             </div>
 
                             <div className="flex-1">
-                              <h3 className="text-[#02B93F] text-sm font-medium">
-                                Confirmed By:
-                              </h3>
+                              {!due.confirmed_by_user ? (
+                                <h3 className="text-yellow-600 text-sm font-medium">
+                                  Pending Confirmation:
+                                </h3>
+                              ) : (
+                                <h3 className="text-green-600 text-sm font-medium">
+                                  Confirmed By:
+                                </h3>
+                              )}
+
                               <p className="text-sm font-medium">
-                                {due.confirmed_by} Mark Liwanag (hardcoded)
+                                {due.confirmed_by_user?.user_first_name}{" "}
+                                {due.confirmed_by_user?.user_last_name}
                               </p>
+                              {!due.confirmed_by_user &&
+                                user?.role === "admin" &&
+                                due.receiver?.user_first_name !==
+                                  user.user_first_name && (
+                                  <Button
+                                    className="mt-2"
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                      confirmMutation.mutate({
+                                        dueId: due.id,
+                                        userId: user.id,
+                                      })
+                                    }
+                                    disabled={confirmMutation.isPending}
+                                  >
+                                    <Icon
+                                      icon="mingcute:check-circle-line"
+                                      className="mr-1 h-4 w-4 text-green-600"
+                                    />
+                                    {confirmMutation.isPending
+                                      ? "Confirming..."
+                                      : "Confirm Transaction"}
+                                  </Button>
+                                )}
                             </div>
                           </div>
                         </AlertDialogBody>

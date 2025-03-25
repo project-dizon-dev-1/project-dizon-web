@@ -125,62 +125,65 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
           </div>
         </div>
         <div>
-          <Popover>
-            <PopoverTrigger>
-              <Icon className="w-5 h-5" icon="mingcute:more-1-line" />
-            </PopoverTrigger>
-            <PopoverContent className="flex flex-col w-fit p-0">
-              <Button
-                onClick={() => toggleCommentMutation.mutate(announcements.id)}
-                variant={"ghost"}
-                className="w-full"
-              >
-                {announcements.comment_enabled
-                  ? "Disable Comment"
-                  : "Enable Comment"}
-              </Button>
-              <AnnouncementForm announcement={announcements}>
-                <Button variant={"ghost"} className="w-full">
-                  Edit
+          {user?.id === announcements.users_list?.id && (
+            <Popover>
+              <PopoverTrigger>
+                <Icon className="w-5 h-5" icon="mingcute:more-1-line" />
+              </PopoverTrigger>
+              <PopoverContent className="flex flex-col w-fit p-0">
+                <Button
+                  onClick={() => toggleCommentMutation.mutate(announcements.id)}
+                  variant={"ghost"}
+                  className="w-full"
+                >
+                  {announcements.comment_enabled
+                    ? "Disable Comment"
+                    : "Enable Comment"}
                 </Button>
-              </AnnouncementForm>
-
-              <Dialog
-                open={deleteDialogOpen}
-                onOpenChange={setDeleteDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button variant={"ghost"} className="shadow-none">
-                    Delete
+                <AnnouncementForm announcement={announcements}>
+                  <Button variant={"ghost"} className="w-full">
+                    Edit
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Are you absolutely sure?</DialogTitle>
-                    <DialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => setDeleteDialogOpen(false)}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleDelete}
-                      variant="destructive"
-                      className="flex-1"
-                    >
+                </AnnouncementForm>
+
+                <Dialog
+                  open={deleteDialogOpen}
+                  onOpenChange={setDeleteDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant={"ghost"} className="shadow-none">
                       Delete
                     </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </PopoverContent>
-          </Popover>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Are you absolutely sure?</DialogTitle>
+                      <DialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your account and remove your data from our
+                        servers.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => setDeleteDialogOpen(false)}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleDelete}
+                        variant="destructive"
+                        className="flex-1"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
       </div>
 

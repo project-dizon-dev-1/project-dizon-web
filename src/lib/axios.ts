@@ -184,7 +184,7 @@ export const axiosGet = async <T>(
 // PUT Request
 export const axiosPut = async <T>(
   endpoint: string,
-  data: T
+  data?: T
 ): Promise<T | null> => {
   try {
     const isFormData = data instanceof FormData;
@@ -228,10 +228,10 @@ export const axiosPut = async <T>(
 // DELETE Request
 export const axiosDelete = async <T>(
   endpoint: string,
-  config?: { params?: Record<string, string | undefined | null> }
+  data?: T
 ): Promise<T | null> => {
   try {
-    const response = await api.delete<T>(endpoint, config);
+    const response = await api.delete<T>(endpoint, { data });
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error)) {
