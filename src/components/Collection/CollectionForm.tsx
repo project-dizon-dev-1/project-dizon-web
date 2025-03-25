@@ -27,13 +27,13 @@ import {
 } from "@/validations/collectionSchema";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchFixedDue } from "@/services/DuesServices";
 import { updateHousePayment } from "@/services/houseServices";
 import { Textarea } from "../ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Label } from "../ui/label";
 import useUserContext from "@/hooks/useUserContext";
+import { fetchFixedDue } from "@/services/dueServices";
 
 const CollectionForm = ({
   houseId,

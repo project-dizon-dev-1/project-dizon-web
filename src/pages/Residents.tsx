@@ -33,10 +33,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { addHouse, getHouses } from "@/services/houseServices";
-import { House } from "@/types/HouseTypes";
-import { PaginatedDataType } from "@/types/paginatedType";
+
 import useHouseSearchParams from "@/hooks/useHouseSearchParams";
-import Loading from "@/components/Loading";
 
 import {
   Form,
@@ -54,6 +52,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router";
 import { useDebounce } from "@/hooks/useDebounce";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Residents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -77,7 +76,7 @@ const Residents = () => {
     // fetchNextPage,
     // hasNextPage,
     // isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedDataType<House>, Error>({
+  } = useInfiniteQuery({
     queryKey: [
       "houses",
       searchParams.get("query"),
@@ -87,7 +86,7 @@ const Residents = () => {
       selectedLot,
     ],
     queryFn: async ({ pageParam }) => {
-      const page = pageParam as string;
+      const page = pageParam.toString();
       return await getHouses({
         page,
         lot: selectedLot,
@@ -166,9 +165,9 @@ const Residents = () => {
   }
 
   return (
-    <div className=" w-full overflow-y-scroll no-scrollbar">
+    <div className="w-full overflow-y-scroll no-scrollbar">
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger asChild className=" absolute z-50 right-3 bottom-3">
+        <DialogTrigger asChild className="absolute z-50 right-3 bottom-3">
           <Button className="">Add House Unit</Button>
         </DialogTrigger>
         <DialogContent>
@@ -362,61 +361,70 @@ const Residents = () => {
         </Button>
       </div>
 
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className=" py-3 px-6 rounded-l-xl text-sm text-nowrap font-bold">
-                Family Name
-              </TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Main Contact</TableHead>
-              <TableHead className="px-6 rounded-r-lg  font-bold">
-                Details
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className=" ">
-            {data?.pages &&
-            data.pages.flatMap((page) => page)[0].items.length > 0 ? (
-              data.pages
-                .flatMap((page) => page.items)
-                .map((data, i) => (
-                  <TableRow
-                    className={cn(
-                      "h-[45px]",
-                      i % 2 === 0 ? "   rounded-xl" : "bg-white/60"
-                    )}
-                    key={i}
-                  >
-                    <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-l-xl")}
-                    >
-                      {data.house_family_name}
-                    </TableCell>
-                    <TableCell>{`${data.house_phase}, ${data.house_street}, ${data.house_block}, ${data.house_lot}`}</TableCell>
-                    <TableCell>{data.house_main_poc}</TableCell>
-                    <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
-                    >
-                      <Link to={`/residents/${data.id}`}>
-                        <Button variant={"ghost"}>View</Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  No houses available
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="py-3 px-6 rounded-l-xl text-sm text-nowrap font-bold">
+              Family Name
+            </TableHead>
+            <TableHead>Address</TableHead>
+            <TableHead>Main Contact</TableHead>
+            <TableHead className="px-6 rounded-r-lg font-bold">
+              Details
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            // Skeleton rows when loading
+            Array.from({ length: 5 }, (_, index) => (
+              <TableRow
+                key={`skeleton-${index}`}
+                className={index % 2 === 0 ? "" : "bg-white/60"}
+              >
+                <TableCell colSpan={4}>
+                  <Skeleton className="h-8 w-full" />
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      )}
+            ))
+          ) : data?.pages &&
+            data.pages.flatMap((page) => page)[0].items.length > 0 ? (
+            // Actual data when loaded
+            data.pages
+              .flatMap((page) => page.items)
+              .map((data, i) => (
+                <TableRow
+                  className={cn(
+                    "h-[45px]",
+                    i % 2 === 0 ? "rounded-xl" : "bg-white/60"
+                  )}
+                  key={i}
+                >
+                  <TableCell className={cn(i % 2 === 0 ? "" : "rounded-l-xl")}>
+                    {data.house_family_name}
+                  </TableCell>
+                  <TableCell>{`${data.house_phase}, ${data.house_street}, ${data.house_block}, ${data.house_lot}`}</TableCell>
+                  <TableCell>
+                    {data.house_main_poc_user?.user_first_name}{" "}
+                    {data.house_main_poc_user?.user_last_name}
+                  </TableCell>
+                  <TableCell className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}>
+                    <Link to={`/residents/${data.id}`}>
+                      <Button variant={"ghost"}>View</Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))
+          ) : (
+            // No data message
+            <TableRow>
+              <TableCell colSpan={4} className="text-center">
+                No houses available
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };

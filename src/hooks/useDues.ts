@@ -1,19 +1,23 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "./use-toast";
+
+import { dueSchema, dueType } from "@/validations/duesSchema";
+import { EditDue } from "@/types/DueTypes";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   addDues,
   deleteDues,
   fetchTotalDue,
   ToggleDueActivation,
   updateDues,
-} from "@/services/DuesServices";
-import { dueSchema, dueType } from "@/validations/duesSchema";
-import { EditDue } from "@/types/DueTypes";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+} from "@/services/dueServices";
+import useUserContext from "./useUserContext";
 
 const useDues = (data?: EditDue) => {
   const queryClient = useQueryClient();
+
+  const { user } = useUserContext();
 
   const totalDueData = useQuery({
     queryKey: ["totalDue"],
@@ -60,7 +64,7 @@ const useDues = (data?: EditDue) => {
       payload,
     }: {
       dueId: string | undefined;
-      payload: dueType;
+      payload: dueType & { userName: string; userId: string | undefined };
     }) => updateDues(dueId, payload),
     onSuccess: () => {
       toast({
@@ -89,11 +93,25 @@ const useDues = (data?: EditDue) => {
 
   const onSubmit = (formData: dueType, categoryId?: string) => {
     if (data) {
-      duesEditMutation.mutate({ dueId: data.dueId, payload: formData });
+      duesEditMutation.mutate({
+        dueId: data.dueId,
+        payload: {
+          ...formData,
+          userId: user?.id,
+          userName: `${user?.user_first_name} ${user?.user_last_name}`,
+        },
+      });
       return;
     }
     if (categoryId) {
-      duesAddMutation.mutate({ categoryId, formData });
+      duesAddMutation.mutate({
+        categoryId,
+        formData: {
+          ...formData,
+          userId: user?.id,
+          userName: `${user?.user_first_name} ${user?.user_last_name}`,
+        },
+      });
     }
   };
 
@@ -156,7 +174,6 @@ const useDues = (data?: EditDue) => {
   return {
     form,
     onSubmit,
-    // duesData,
     totalDueData,
     deleteDuesMutation,
     toggleActivateMutation,

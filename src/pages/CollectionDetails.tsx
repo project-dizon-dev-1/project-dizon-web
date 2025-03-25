@@ -231,7 +231,10 @@ const CollectionDetails = () => {
                       {house.house_family_name}
                     </TableCell>
                     <TableCell className="">{`Phase ${house.house_phase}, ${house.house_street} Street, Block ${house.house_block}, Lot ${house.house_lot}`}</TableCell>
-                    <TableCell>{house.house_main_poc}</TableCell>
+                    <TableCell>
+                      {house.house_main_poc_user?.user_first_name}{" "}
+                      {house.house_main_poc_user?.user_last_name}
+                    </TableCell>
                     <TableCell>
                       {house.house_latest_payment
                         ? new Date(house.house_latest_payment).toLocaleString(

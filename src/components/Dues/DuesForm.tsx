@@ -48,8 +48,8 @@ const DuesForm = ({
           </AlertDialogTitle>
           <AlertDialogDescription>
             {data
-              ? "Edit expense to manage your expenses."
-              : "Add a new expense to manage your expenses"}
+              ? "Update the expense details below"
+              : " Add a new expense below"}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogBody>

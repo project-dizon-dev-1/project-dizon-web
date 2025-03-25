@@ -1,4 +1,5 @@
 type TransactionDataType = {
+  id: string;
   category: string;
   amount: number;
   type: string;

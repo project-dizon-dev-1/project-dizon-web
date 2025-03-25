@@ -1,5 +1,3 @@
-import { Database } from "./database";
-
 type House = {
   id: string;
   house_family_name: string;
@@ -9,8 +7,22 @@ type House = {
   house_lot: string;
   house_main_poc: string | null;
 };
-
-type HouseDetails = Database["public"]["Tables"]["house-list"]["Row"];
+type UserProfile = {
+  user_first_name: string | null;
+  user_last_name: string | null;
+};
+type HouseDetails = {
+  id: string;
+  house_family_name: string;
+  house_phase: string;
+  house_block: string;
+  house_street: string;
+  house_lot: string;
+  house_main_poc_user: UserProfile | null;
+  house_latest_payment_amount: number | null;
+  house_latest_payment: Date | null;
+  house_arrears: number | null;
+};
 
 type VehicleDetails = {
   created_at: Date;
@@ -27,7 +39,7 @@ type SubdivisionPhases = {
   total_population: number;
 }[];
 
-type HouseSummary = {
+type PhaseData = {
   phase: string;
   totalResidents: number;
   paidResidentsCount: number;
@@ -38,6 +50,18 @@ type HouseSummary = {
   totalExpectedAmount: number;
   paidResidentsPercentage: number;
   unpaidResidentsPercentage: number;
+};
+
+type HouseSummary = {
+  summaryPerPhase: PhaseData[];
+  totalResidents: number;
+  totalPaidResidents: number;
+  totalUnpaidResidents: number;
+  totalDueAmount: number;
+  totalPaidAmount: number;
+  totalUnpaidAmount: number;
+  totalExpectedAmount: number;
+  percentageCollected: number;
 };
 
 type FetchHouseCollectionQueryParams = {
