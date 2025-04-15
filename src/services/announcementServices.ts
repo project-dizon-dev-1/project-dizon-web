@@ -1,5 +1,8 @@
 import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/lib/axios";
-import { Announcement, paginatedAnnouncementQueryParams } from "@/types/announcementTypes";
+import {
+  Announcement,
+  paginatedAnnouncementQueryParams,
+} from "@/types/announcementTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 
 const addAnnouncement = async ({
@@ -15,28 +18,43 @@ const addAnnouncement = async ({
 const fetchAnnouncements = async ({
   page,
   pageSize,
-  phase
-}:paginatedAnnouncementQueryParams): Promise<PaginatedDataType<Announcement>> => {
+  phase,
+}: paginatedAnnouncementQueryParams): Promise<
+  PaginatedDataType<Announcement>
+> => {
   return await axiosGet(`/announcements/`, {
-    params: { page, pageSize,phase },
+    params: { page, pageSize, phase },
   });
 };
 
-const fetchAnnouncementPhases = async (announcemendId:string|undefined):Promise<number[]> => {
-    return await axiosGet(`/announcements/announcementPhases/${announcemendId}`);
+const fetchAnnouncementPhases = async (
+  announcementId: string | undefined
+): Promise<{ id: string; name: string }[]> => {
+  return await axiosGet(`/announcements/announcementPhases/${announcementId}`);
 };
 const toggleComment = async () => {
   return await axiosPost(`/announcements/toggleComment/`);
 };
 
-const editAnnouncement = async ({announcementId,data}:{announcementId:string,data:FormData}) => {
-
-    return await axiosPut(`/announcements/put/${announcementId}`,data);
-
+const editAnnouncement = async ({
+  announcementId,
+  data,
+}: {
+  announcementId: string;
+  data: FormData;
+}) => {
+  return await axiosPut(`/announcements/put/${announcementId}`, data);
 };
 
-const deleteAnnouncements = async (announcementId:string) => {
-    return await axiosDelete(`/announcements/delete/${announcementId}`);
+const deleteAnnouncements = async (announcementId: string) => {
+  return await axiosDelete(`/announcements/delete/${announcementId}`);
 };
 
-export { toggleComment,editAnnouncement,addAnnouncement, fetchAnnouncements,deleteAnnouncements,fetchAnnouncementPhases };
+export {
+  toggleComment,
+  editAnnouncement,
+  addAnnouncement,
+  fetchAnnouncements,
+  deleteAnnouncements,
+  fetchAnnouncementPhases,
+};

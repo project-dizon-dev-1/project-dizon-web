@@ -1,13 +1,15 @@
 import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
 import {
   FetchHouseCollectionQueryParams,
+  HouseData,
   HouseDetails,
+  HousesSummary,
   HouseSummary,
   VehicleDetails,
 } from "@/types/HouseTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { CollectionType } from "@/validations/collectionSchema";
-import { HouseSchemaType } from "@/validations/HouseSchema";
+import { HouseSchemaType } from "@/validations/houseSchema";
 
 const getHouses = async ({
   page,
@@ -40,11 +42,18 @@ const getHouses = async ({
   }
 };
 
-const getHousesSummary = async (): Promise<HouseSummary> => {
+const getHousesSummary = async (): Promise<HousesSummary> => {
   return await axiosGet("/houses/summary");
 };
+const getHouseSummary = async (
+  houseId: string | undefined | null
+): Promise<HouseSummary> => {
+  return await axiosGet(`/houses/summary/${houseId}`);
+};
 
-const getHouse = async (houseId: string | undefined): Promise<HouseDetails> => {
+const getHouse = async (
+  houseId: string | undefined | null
+): Promise<HouseData> => {
   return await axiosGet(`/houses/house/${houseId}`);
 };
 const getHouseVehicle = async (
@@ -106,4 +115,5 @@ export {
   updateHousePayment,
   addHouse,
   approveCollection,
+  getHouseSummary,
 };

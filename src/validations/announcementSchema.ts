@@ -29,7 +29,7 @@ const announcementSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   phases: z
-    .array(z.number().min(0, "Phase number must be valid"))
+    .array(z.string().min(0, "Phase number must be valid"))
     .optional()
     .default([]),
   files: z

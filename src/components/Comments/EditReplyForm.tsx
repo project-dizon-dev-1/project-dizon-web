@@ -1,6 +1,5 @@
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { EditReplyFormPropsType } from "@/types/commentTypes";
@@ -11,13 +10,11 @@ const EditReplyForm = ({
   InputDefaultValue,
   handleUpdateReply,
 }: EditReplyFormPropsType) => {
-  const { register, handleSubmit, setValue } = useForm();
-
-  useEffect(() => {
-    if (InputDefaultValue) {
-      setValue("comment", InputDefaultValue);
-    }
-  }, []);
+  const { register, handleSubmit } = useForm({
+    defaultValues: {
+      comment: InputDefaultValue || "",
+    },
+  });
 
   return (
     <form
@@ -35,7 +32,7 @@ const EditReplyForm = ({
         >
           Cancel
         </Button>
-        <Button type="submit" className="bg-accent hover:bg-blue-500">
+        <Button type="submit" className=" hover:bg-blue-500">
           Save
         </Button>
       </div>

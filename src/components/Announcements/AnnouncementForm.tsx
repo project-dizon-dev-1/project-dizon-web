@@ -17,7 +17,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,7 +30,6 @@ import {
 } from "@/validations/announcementSchema";
 import React, { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchSubdivisionPhases } from "@/services/subdivisionServices";
 import useUserContext from "@/hooks/useUserContext";
 import {
   addAnnouncement,
@@ -45,6 +43,7 @@ import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Label } from "../ui/label";
+import { useSubdivisionContext } from "@/context/phaseContext";
 
 const AnnouncementForm = ({
   announcement,
@@ -53,6 +52,7 @@ const AnnouncementForm = ({
   announcement?: Announcement["announcements"];
   children: React.ReactNode;
 }) => {
+  const { phases } = useSubdivisionContext();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
@@ -71,7 +71,12 @@ const AnnouncementForm = ({
     { icon: "file-fill", value: "PDF Document" },
   ];
 
-  const { data: formPhases } = useQuery({
+  // Query for fetching announcement phases with loading and error states
+  const {
+    data: formPhases,
+    isLoading: isPhaseLoading,
+    isError: isPhaseError,
+  } = useQuery({
     queryKey: ["announcementphases", announcement?.id],
     queryFn: () => fetchAnnouncementPhases(announcement?.id),
     enabled: !!announcement?.id,
@@ -85,15 +90,6 @@ const AnnouncementForm = ({
       phases: [],
       files: [],
     },
-  });
-
-  const {
-    data: phases,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["phases"],
-    queryFn: fetchSubdivisionPhases,
   });
 
   const addAnnouncementMutation = useMutation({
@@ -141,19 +137,22 @@ const AnnouncementForm = ({
   });
 
   const phaseOptions = phases?.map((phase) => ({
-    label: `Phase ${phase.phase_number}`,
-    value: phase.phase_number.toString(),
+    label: phase.name,
+    value: phase.id,
   }));
 
   // Set phases once formPhases are loaded
   useEffect(() => {
     if (formPhases && formPhases.length > 0) {
-      form.setValue("phases", formPhases);
+      const formPhasesId = formPhases.map((phase) => phase.id);
+      form.setValue("phases", formPhasesId);
     }
-  }, [formPhases, form]);
+  }, [formPhases, form, dialogOpen]);
 
   // Load files for editing
   useEffect(() => {
+    if (!dialogOpen) return; // Don't load files if dialog is closed
+
     const urlToFile = async (url: string, filename: string): Promise<File> => {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -174,7 +173,7 @@ const AnnouncementForm = ({
     };
 
     fetchFiles();
-  }, [announcement, form]);
+  }, [announcement, form, dialogOpen]);
 
   const handleRemoveFile = (index: number) => {
     const updatedFiles =
@@ -211,308 +210,430 @@ const AnnouncementForm = ({
     }
   };
 
+  // Improved URL cleanup function
+  const revokeObjectURLs = () => {
+    // Cleanup all image preview URLs
+    filePreviews.forEach((url) => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error("Error revoking object URL:", error);
+      }
+    });
+
+    // Cleanup PDF URL if exists
+    if (selectedPDF) {
+      try {
+        URL.revokeObjectURL(selectedPDF);
+      } catch (error) {
+        console.error("Error revoking PDF URL:", error);
+      }
+    }
+
+    // Cleanup Video URL if exists
+    if (selectedVideo) {
+      try {
+        URL.revokeObjectURL(selectedVideo);
+      } catch (error) {
+        console.error("Error revoking video URL:", error);
+      }
+    }
+  };
+
+  // Improved dialog close handler with complete cleanup
+  const handleCloseDialog = () => {
+    // Revoke all object URLs first
+    revokeObjectURLs();
+
+    // Reset all state
+    setDialogOpen(false);
+    setCurrentFiles([]);
+    setFilePreviews([]);
+    setSelectedPDF(null);
+    setSelectedVideo(null);
+    setSelectedFileType(announcement?.announcement_files ? "Image(s)" : "None");
+    form.reset();
+  };
+
+  // Add useEffect cleanup on component unmount
+  useEffect(() => {
+    // Cleanup function that runs when component unmounts
+    return () => {
+      revokeObjectURLs();
+    };
+  }, []); // Empty dependency array means this runs on unmount only
+
+  // Modify file type change handler to properly cleanup URLs
+  const handleFileTypeChange = (newType: string) => {
+    // Clean up existing URLs first
+    revokeObjectURLs();
+
+    // Reset states
+    setFilePreviews([]);
+    setCurrentFiles([]);
+    setSelectedPDF(null);
+    setSelectedVideo(null);
+    setSelectedFileType(newType);
+    form.setValue("files", []);
+  };
+
+  // Handle opening the dialog
+  const handleOpenDialog = () => {
+    // For new announcements, we can open immediately
+    if (!announcement) {
+      setDialogOpen(true);
+      return;
+    }
+
+    // For editing, trigger the dialog to open which will start the phase fetching
+    setDialogOpen(true);
+  };
+
   return (
     <AlertDialog
       open={dialogOpen}
       onOpenChange={(open) => {
-        setDialogOpen(open);
-        if (!open) {
-          setCurrentFiles([]);
-          form.reset();
+        if (open) {
+          handleOpenDialog();
+        } else {
+          handleCloseDialog();
         }
       }}
     >
-      <AlertDialogTrigger className="w-full">{children}</AlertDialogTrigger>
+      <AlertDialogTrigger className="w-full" onClick={handleOpenDialog}>
+        {children}
+      </AlertDialogTrigger>
       <AlertDialogContent className="max-h-[80%] w-full overflow-y-scroll no-scrollbar">
         <AlertDialogHeader>
-          <AlertDialogTitle>Create Announcement</AlertDialogTitle>
+          <AlertDialogTitle>
+            {announcement ? "Edit Announcement" : "Create Announcement"}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Create an announcement to be displayed to the residents.
+            {announcement
+              ? "Update this announcement."
+              : "Create an announcement to be displayed to the residents."}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogBody>
-          <Form {...form}>
-            <form
-              id="form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-2"
-            >
-              <div className="rounded-xl border border-primary-outline bg-[#DFF0FF6B] p-6 py-[18px]">
+
+        {/* Show loading state while phases are being fetched */}
+        {announcement && isPhaseLoading ? (
+          <AlertDialogBody className="flex justify-center items-center min-h-[300px]">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="relative">
+                  <div className="h-12 w-12 rounded-full border-t-4 border-b-4 border-blue-500 animate-spin"></div>
+                  <div
+                    className="absolute top-0 left-0 h-12 w-12 rounded-full border-t-4 border-b-4 border-blue-200 animate-spin"
+                    style={{
+                      animationDirection: "reverse",
+                      animationDuration: "1.5s",
+                    }}
+                  ></div>
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Loading announcement data...
+              </p>
+            </div>
+          </AlertDialogBody>
+        ) : isPhaseError ? (
+          <AlertDialogBody className="flex justify-center items-center min-h-[200px]">
+            <div className="text-center space-y-2">
+              <Icon
+                icon="mingcute:warning-fill"
+                className="h-12 w-12 text-amber-500 mb-2"
+              />
+              <p className="text-sm text-red-500">
+                Error loading announcement data.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDialogOpen(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </AlertDialogBody>
+        ) : (
+          <AlertDialogBody>
+            <Form {...form}>
+              <form
+                id="form"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-2"
+              >
+                <div className="rounded-xl border border-primary-outline bg-[#DFF0FF6B] p-6 py-[18px]">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            className="rounded-none shadow-none border-none bg-transparent p-0 font-bold placeholder:text-[16px]"
+                            placeholder="Announcement Title"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Separator />
+
+                  {/* Content Field */}
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            className="no-scrollbar shadow-none resize-none rounded-none border-none bg-transparent p-0 placeholder:text-sm"
+                            placeholder="Announcement body..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div>
+                  {form.formState.errors.title && (
+                    <p className="text-sm font-medium text-red-500">
+                      {form.formState.errors.title.message}
+                    </p>
+                  )}
+                  {form.formState.errors.content && (
+                    <p className="text-sm font-medium text-red-500">
+                      {form.formState.errors.content.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* File Upload Section */}
                 <FormField
                   control={form.control}
-                  name="title"
+                  name="files"
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <Input
-                          className="rounded-none shadow-none border-none bg-transparent p-0 font-bold placeholder:text-[16px]"
-                          placeholder="Announcement Title"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Separator />
-
-                {/* Content Field */}
-                <FormField
-                  control={form.control}
-                  name="content"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          className="no-scrollbar shadow-none resize-none rounded-none border-none bg-transparent p-0 placeholder:text-sm"
-                          placeholder="Announcement body..."
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div>
-                {form.formState.errors.title && (
-                  <p className="text-sm font-medium text-red-500">
-                    {form.formState.errors.title.message}
-                  </p>
-                )}
-                {form.formState.errors.content && (
-                  <p className="text-sm font-medium text-red-500">
-                    {form.formState.errors.content.message}
-                  </p>
-                )}
-              </div>
-
-              {/* File Upload Section */}
-              <FormField
-                control={form.control}
-                name="files"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <>
-                        <Input
-                          id="file-input"
-                          type="file"
-                          className="hidden"
-                          accept={
-                            selectedFileType === "Image(s)"
-                              ? "image/*"
-                              : selectedFileType === "Video"
-                              ? "video/*"
-                              : "application/pdf"
-                          }
-                          multiple={selectedFileType === "Image(s)"}
-                          onChange={(e) => {
-                            const files = e.target.files;
-
-                            if (files && files.length > 0) {
-                              if (selectedFileType === "Image(s)") {
-                                field.onChange([
-                                  ...currentFiles,
-                                  ...Array.from(files),
-                                ]);
-                                setCurrentFiles((prevState) => [
-                                  ...prevState,
-                                  ...Array.from(files),
-                                ]);
-
-                                const fileArray = Array.from(files);
-                                setFilePreviews((prevState) => [
-                                  ...prevState,
-                                  ...fileArray.map((item) =>
-                                    URL.createObjectURL(item)
-                                  ),
-                                ]);
-                              } else {
-                                const file = files[0];
-                                const url = URL.createObjectURL(file);
-
-                                if (file.type === "application/pdf") {
-                                  setSelectedPDF(url);
-                                } else {
-                                  setSelectedVideo(url);
-                                }
-
-                                form.setValue("files", [file]);
-                              }
+                        <>
+                          <Input
+                            id="file-input"
+                            type="file"
+                            className="hidden"
+                            accept={
+                              selectedFileType === "Image(s)"
+                                ? "image/*"
+                                : selectedFileType === "Video"
+                                ? "video/*"
+                                : "application/pdf"
                             }
-                          }}
-                        />
+                            multiple={selectedFileType === "Image(s)"}
+                            onChange={(e) => {
+                              const files = e.target.files;
 
-                        <div className="max-w-full space-y-2 rounded-xl border border-primary-outline bg-[#DFF0FF6B] px-6 pb-[12px] pt-[16px]">
-                          <p className="text-[12px]">
-                            <span className="font-bold">Attachment:</span>{" "}
-                            {selectedFileType}
-                          </p>
-                          <div className="flex gap-2">
-                            {fileTypes.map(({ icon, value }, index) => (
-                              <div
-                                key={index}
-                                onClick={() => {
-                                  setFilePreviews([]);
-                                  setSelectedFileType(value);
-                                  setCurrentFiles([]);
-                                  setSelectedVideo("");
-                                  setSelectedPDF("");
-                                  form.setValue("files", []);
-                                }}
-                                className={cn(
-                                  "rounded-xl bg-[#DEEDFF] px-[14px] py-[6px] hover:cursor-pointer",
-                                  { "bg-white": selectedFileType === value }
-                                )}
-                              >
-                                <Icon
-                                  className={cn("h-5 w-5", {
-                                    "": selectedFileType === value,
-                                  })}
-                                  icon={`mingcute:${icon}`}
-                                />
-                              </div>
-                            ))}
-                          </div>
-                          <Separator />
+                              if (files && files.length > 0) {
+                                if (selectedFileType === "Image(s)") {
+                                  field.onChange([
+                                    ...currentFiles,
+                                    ...Array.from(files),
+                                  ]);
+                                  setCurrentFiles((prevState) => [
+                                    ...prevState,
+                                    ...Array.from(files),
+                                  ]);
 
-                          {selectedFileType === "Image(s)" && (
-                            <div className="flex max-h-[110px] w-full max-w-[420px] gap-3 overflow-x-scroll">
-                              {filePreviews.map((url, index) => (
+                                  const fileArray = Array.from(files);
+                                  setFilePreviews((prevState) => [
+                                    ...prevState,
+                                    ...fileArray.map((item) =>
+                                      URL.createObjectURL(item)
+                                    ),
+                                  ]);
+                                } else {
+                                  revokeObjectURLs();
+
+                                  const file = files[0];
+                                  const url = URL.createObjectURL(file);
+
+                                  if (file.type === "application/pdf") {
+                                    setSelectedPDF(url);
+                                  } else {
+                                    setSelectedVideo(url);
+                                  }
+
+                                  form.setValue("files", [file]);
+                                }
+                              }
+                            }}
+                          />
+
+                          <div className="max-w-full space-y-2 rounded-xl border border-primary-outline bg-[#DFF0FF6B] px-6 pb-[12px] pt-[16px]">
+                            <p className="text-[12px]">
+                              <span className="font-bold">Attachment:</span>{" "}
+                              {selectedFileType}
+                            </p>
+                            <div className="flex gap-2">
+                              {fileTypes.map(({ icon, value }, index) => (
                                 <div
                                   key={index}
-                                  className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
+                                  onClick={() => handleFileTypeChange(value)}
+                                  className={cn(
+                                    "rounded-xl bg-[#DEEDFF] px-[14px] py-[6px] hover:cursor-pointer",
+                                    { "bg-white": selectedFileType === value }
+                                  )}
                                 >
-                                  <img
-                                    className="object-cover object-center"
-                                    src={url}
-                                    alt="an image"
-                                  />
                                   <Icon
-                                    onClick={() => handleRemoveFile(index)}
-                                    className="absolute right-1 top-1 text-xl hover:cursor-pointer"
-                                    icon={"mingcute:close-circle-fill"}
+                                    className={cn("h-5 w-5", {
+                                      "": selectedFileType === value,
+                                    })}
+                                    icon={`mingcute:${icon}`}
                                   />
                                 </div>
                               ))}
-                              <Label htmlFor="file-input">
-                                <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
-                                  <Icon
-                                    className="h-9 w-9"
-                                    icon={"mingcute:add-line"}
-                                  />
-                                </div>
-                              </Label>
                             </div>
-                          )}
+                            <Separator />
 
-                          {selectedFileType === "Video" &&
-                            (selectedVideo ? (
-                              <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
-                                <div className="relative flex h-[100px] w-[100px] flex-shrink-0 rounded-md">
-                                  <video controls={true} src={selectedVideo} />
-                                </div>
-                              </div>
-                            ) : (
-                              <Label htmlFor="file-input">
-                                <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
-                                  <div className="flex flex-shrink-0 items-center justify-center rounded-md">
+                            {selectedFileType === "Image(s)" && (
+                              <div className="flex max-h-[110px] w-full max-w-[420px] gap-3 overflow-x-scroll">
+                                {filePreviews.map((url, index) => (
+                                  <div
+                                    key={index}
+                                    className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
+                                  >
+                                    <img
+                                      className="object-cover object-center"
+                                      src={url}
+                                      alt="an image"
+                                    />
                                     <Icon
-                                      className="h-11 w-11 text-[#DEEDFF]"
-                                      icon={"mingcute:video-fill"}
+                                      onClick={() => handleRemoveFile(index)}
+                                      className="absolute right-1 top-1 text-xl hover:cursor-pointer"
+                                      icon={"mingcute:close-circle-fill"}
                                     />
                                   </div>
-                                  <p className="text-[12px] font-semibold text-[#DEEDFF]">
-                                    Upload Video
-                                  </p>
-                                </div>
-                              </Label>
-                            ))}
-
-                          {selectedFileType === "PDF Document" &&
-                            (selectedPDF ? (
-                              <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
-                                <div className="flex items-center flex-col relative h-[100px] w-[100px] flex-shrink-0 rounded-md">
-                                  <Icon
-                                    className="h-11 w-11 text-[#DEEDFF]"
-                                    icon={"mingcute:pdf-fill"}
-                                  />
-                                  <p className="text-2xs text-[#DEEDFF]">
-                                    {form.getValues("files")?.[0]?.name}
-                                  </p>
-                                </div>
+                                ))}
+                                <Label htmlFor="file-input">
+                                  <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
+                                    <Icon
+                                      className="h-9 w-9"
+                                      icon={"mingcute:add-line"}
+                                    />
+                                  </div>
+                                </Label>
                               </div>
-                            ) : (
-                              <Label htmlFor="file-input">
-                                <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
-                                  <div className="flex flex-shrink-0 items-center justify-center rounded-md">
+                            )}
+
+                            {selectedFileType === "Video" &&
+                              (selectedVideo ? (
+                                <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
+                                  <div className="relative flex h-[100px] w-[100px] flex-shrink-0 rounded-md">
+                                    <video
+                                      controls={true}
+                                      src={selectedVideo}
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <Label htmlFor="file-input">
+                                  <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
+                                    <div className="flex flex-shrink-0 items-center justify-center rounded-md">
+                                      <Icon
+                                        className="h-11 w-11 text-[#DEEDFF]"
+                                        icon={"mingcute:video-fill"}
+                                      />
+                                    </div>
+                                    <p className="text-[12px] font-semibold text-[#DEEDFF]">
+                                      Upload Video
+                                    </p>
+                                  </div>
+                                </Label>
+                              ))}
+
+                            {selectedFileType === "PDF Document" &&
+                              (selectedPDF ? (
+                                <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
+                                  <div className="flex items-center flex-col relative h-[100px] w-[100px] flex-shrink-0 rounded-md">
                                     <Icon
                                       className="h-11 w-11 text-[#DEEDFF]"
                                       icon={"mingcute:pdf-fill"}
                                     />
+                                    <p className="text-2xs text-[#DEEDFF]">
+                                      {form.getValues("files")?.[0]?.name}
+                                    </p>
                                   </div>
-                                  <p className="text-[12px] font-semibold text-[#DEEDFF]">
-                                    Upload PDF
-                                  </p>
                                 </div>
-                              </Label>
-                            ))}
-                        </div>
-                      </>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                              ) : (
+                                <Label htmlFor="file-input">
+                                  <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
+                                    <div className="flex flex-shrink-0 items-center justify-center rounded-md">
+                                      <Icon
+                                        className="h-11 w-11 text-[#DEEDFF]"
+                                        icon={"mingcute:pdf-fill"}
+                                      />
+                                    </div>
+                                    <p className="text-[12px] font-semibold text-[#DEEDFF]">
+                                      Upload PDF
+                                    </p>
+                                  </div>
+                                </Label>
+                              ))}
+                          </div>
+                        </>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="phases"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phases</FormLabel>
-                    <FormControl>
-                      <CustomReactSelect
-                        showSelectAll={true}
-                        options={phaseOptions}
-                        isLoading={isLoading}
-                        value={phaseOptions?.filter((option) =>
-                          field.value?.some(
-                            (val) =>
-                              // Ensure we're comparing the same types by converting both to strings for comparison
-                              String(val) === String(option.value)
-                          )
-                        )}
-                        onChange={(selectedOptions) =>
-                          field.onChange(
-                            selectedOptions?.map((option) =>
-                              // Ensure the value is converted to a number
-                              typeof option.value === "string"
-                                ? Number(option.value)
-                                : option.value
-                            ) || []
-                          )
-                        }
-                        placeholder={
-                          isError ? "Failed to load phases" : "Select Phase..."
-                        }
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {isError && "There was an error fetching phases."}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
-        </AlertDialogBody>
+                <FormField
+                  control={form.control}
+                  name="phases"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phases</FormLabel>
+                      <FormControl>
+                        <CustomReactSelect
+                          showSelectAll={true}
+                          options={phaseOptions}
+                          value={phaseOptions?.filter((option) =>
+                            field.value?.some(
+                              (val) =>
+                                // Ensure we're comparing the same types by converting both to strings for comparison
+                                String(val) === String(option.value)
+                            )
+                          )}
+                          onChange={(selectedOptions) =>
+                            field.onChange(
+                              selectedOptions?.map((option) => option.value) ||
+                                []
+                            )
+                          }
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          </AlertDialogBody>
+        )}
+
         <AlertDialogFooter className="flex justify-end space-x-2">
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <Button className="flex-1" form="form" type="submit">
+          <Button
+            className="flex-1"
+            form="form"
+            type="submit"
+            disabled={announcement && (isPhaseLoading || isPhaseError)}
+          >
             Submit
           </Button>
         </AlertDialogFooter>

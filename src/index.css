@@ -26,12 +26,12 @@
 }
 
 
-
 @layer base {
   :root {
     --text-primary: 229, 13%, 31%; /* #45495A */
     --background: 216, 71%, 97%; /* #EAF4FC */
-    --radius: 0.5rem;
+    --primary-blue: 221, 83%, 53%; /* #2563EB */
+    --background-blue: 221 83% 53% /*#2563EB*/
     --sidebar-background: 0 0% 98%; /* #FAFAFA */
     --sidebar-foreground: 240 5.3% 26.1%; /* #3D3D46 */
     --sidebar-primary: 240 5.9% 10%; /* #191A1D */
@@ -86,6 +86,8 @@
 
           /* Standard Shadcn UI variables - light theme */
     --background: 222.2 84% 4.9%;
+    --primary-blue: 221, 83%, 53%; /* Keep the same value in dark mode */
+    --background-blue: 221 83% 53% /*#2563EB*/
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;

@@ -1,6 +1,6 @@
 import {
   AlertDialog,
-  AlertDialogAction,
+  AlertDialogActionNoClose,
   AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
@@ -37,7 +37,7 @@ import {
 } from "@/validations/transactionSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Separator } from "@/components/ui/separator";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -103,7 +103,6 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Function to reset the form and image state
   const resetForm = () => {
     form.reset({
       type: "EXPENSE",
@@ -115,9 +114,17 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
     });
     setImagePreview(null);
   };
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, []);
 
   // Handle image removal
   const handleRemoveImage = () => {
+    URL.revokeObjectURL(imagePreview as string);
     setImagePreview(null);
     form.unregister("transactionProof");
   };
@@ -329,13 +336,8 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              if (event.target?.result) {
-                                setImagePreview(event.target.result as string);
-                              }
-                            };
-                            reader.readAsDataURL(file);
+                            const previewUrl = URL.createObjectURL(file);
+                            setImagePreview(previewUrl);
                             onChange(file);
                           }
                         }}
@@ -390,12 +392,12 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
 
         <AlertDialogFooter>
           <AlertDialogCancel onClick={resetForm}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          <AlertDialogActionNoClose
             onClick={() => form.handleSubmit(onSubmit)()}
             type="submit"
           >
             Submit Transaction
-          </AlertDialogAction>
+          </AlertDialogActionNoClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -7,6 +7,7 @@ import {
 import { TransactionDataType } from "./transantionTypes";
 
 const addTransaction = async (data: {
+  dueId?: string | undefined;
   userId: string;
   type: CategoryType;
   amount: number;
@@ -16,6 +17,10 @@ const addTransaction = async (data: {
   transactionProof: File;
 }) => {
   const formData = new FormData();
+
+  if (data.dueId) {
+    formData.append("dueId", data.dueId);
+  }
   formData.append("type", data.type);
   formData.append("amount", data.amount.toString());
   formData.append("category", data.category);
@@ -39,7 +44,6 @@ const fetchTransactions = async ({
   });
 };
 
-// Add approval function
 const approveTransaction = async ({
   transactionId,
   userId,

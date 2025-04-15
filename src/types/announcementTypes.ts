@@ -34,7 +34,7 @@ type LikeDislikeParams = {
 type paginatedAnnouncementQueryParams = {
   page: string;
   pageSize: string;
-  phase: string | null;
+  phase: string | null | undefined;
 };
 export type {
   Announcement,

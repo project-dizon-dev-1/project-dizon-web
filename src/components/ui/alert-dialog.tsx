@@ -122,11 +122,7 @@ const AlertDialogAction = React.forwardRef<
 >(({ className, variant = "default", ...props }, ref) => (
   <AlertDialogPrimitive.Action
     ref={ref}
-    className={cn(
-      buttonVariants({ variant }), // Use the variant prop here
-      "flex-1 rounded-lg",
-      className
-    )}
+    className={cn(buttonVariants({ variant }), "flex-1 rounded-lg", className)}
     {...props}
   />
 ));
@@ -154,6 +150,26 @@ const AlertDialogCancel = React.forwardRef<
 ));
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName;
 
+// New component that doesn't close the dialog on click
+const AlertDialogActionNoClose = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: ButtonProps["variant"];
+  }
+>(({ className, variant = "default", onClick, ...props }, ref) => (
+  <button
+    ref={ref}
+    className={cn(
+      buttonVariants({ variant }),
+      "flex-1 rounded-lg bg-primary-blue hover:bg-primary-blue hover:opacity-90",
+      className
+    )}
+    onClick={onClick}
+    {...props}
+  />
+));
+AlertDialogActionNoClose.displayName = "AlertDialogActionNoClose";
+
 export {
   AlertDialog,
   AlertDialogPortal,
@@ -167,4 +183,5 @@ export {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogBody,
+  AlertDialogActionNoClose,
 };
