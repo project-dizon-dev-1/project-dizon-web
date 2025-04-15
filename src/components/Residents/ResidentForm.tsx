@@ -38,15 +38,16 @@ import {
 } from "@/services/subdivisionServices";
 import useHouseSearchParams from "@/hooks/useHouseSearchParams";
 import { Button } from "../ui/button";
-import { useSubdivisionContext } from "@/context/phaseContext";
+import { usePhaseContext } from "@/context/phaseContext";
 import { Icon } from "@iconify/react";
 import CustomReactSelect from "../CustomReactSelect";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
+import { Lot, Phase } from "@/types/subdivisionTypes";
 
 const ResidentForm = () => {
-  const { phases } = useSubdivisionContext();
+  const { phases } = usePhaseContext();
   const { selectedBlock, selectedStreet, selectedPhase, selectedLot } =
     useHouseSearchParams();
   const queryClient = useQueryClient();
@@ -154,7 +155,7 @@ const ResidentForm = () => {
     enabled: !!watchedBlock,
   });
 
-  const selectOptions = formLots?.map((lot) => ({
+  const selectOptions = formLots?.map((lot: Lot) => ({
     label: lot.name,
     value: lot.id,
   }));
@@ -230,7 +231,7 @@ const ResidentForm = () => {
                             <SelectValue placeholder="Select a phase" />
                           </SelectTrigger>
                           <SelectContent>
-                            {phases.map((phase) => (
+                            {phases.map((phase: Phase) => (
                               <SelectItem key={phase.id} value={phase.id}>
                                 {phase.name}
                               </SelectItem>
