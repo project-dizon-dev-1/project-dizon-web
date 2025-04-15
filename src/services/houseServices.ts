@@ -9,7 +9,7 @@ import {
 } from "@/types/HouseTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { CollectionType } from "@/validations/collectionSchema";
-import { HouseSchemaType } from "@/validations/houseSchema";
+import { HouseSchemaType } from "@/validations/residentSchema";
 
 const getHouses = async ({
   page,
