@@ -44,7 +44,7 @@ import CustomReactSelect from "../CustomReactSelect";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Lot, Phase } from "@/types/subdivisionTypes";
-import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
+import { houseSchema, HouseSchemaType } from "@/validations/residentSchema";
 
 const ResidentForm = () => {
   const { phases } = usePhaseContext();
