@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addBlock, editBlock } from "@/services/subdivisionServices";
@@ -44,20 +44,16 @@ const BlockForm = ({
   const [dialogOpen, setDialogOpen] = useState(false);
   const edittingBlock = id ? true : false;
   const queryClient = useQueryClient();
-  // const [searchTerm, setSearchTerm] = useState("");
 
   const blockForm = useForm<BlockFormValues>({
     resolver: zodResolver(blockSchema),
     defaultValues: {
-      name: name ?? "",
+      name: name || "",
+    },
+    values: {
+      name: name || "",
     },
   });
-
-  useEffect(() => {
-    if (edittingBlock && name) {
-      blockForm.setValue("name", name);
-    }
-  }, [edittingBlock, name, blockForm]);
 
   const addBlockMutation = useMutation({
     mutationFn: addBlock,
@@ -112,24 +108,28 @@ const BlockForm = ({
     setDialogOpen(false);
   };
 
-  // const handleEdit = (block: Block) => {
-  //   const blockFormValues: BlockFormValues = {
-  //     id: block.id,
-  //     name: block.name,
-  //     phaseId: block.phase_id,
-  //   };
-  //   setEditingBlock(blockFormValues);
-  //   blockForm.reset(blockFormValues);
-  //   setDialogOpen(true);
-  // };
-
-  // const filteredBlocks = blocks.filter((block) =>
-  //   block.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
+  const handleOpenDialog = () => {
+    blockForm.reset({ name: name || "" });
+    setDialogOpen(true);
+  };
 
   return (
-    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        if (open) handleOpenDialog();
+        else setDialogOpen(false);
+      }}
+    >
+      <AlertDialogTrigger
+        asChild
+        onClick={(e) => {
+          e.preventDefault();
+          handleOpenDialog();
+        }}
+      >
+        {children}
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>

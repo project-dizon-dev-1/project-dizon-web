@@ -43,8 +43,8 @@ import { Icon } from "@iconify/react";
 import CustomReactSelect from "../CustomReactSelect";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
-import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
 import { Lot, Phase } from "@/types/subdivisionTypes";
+import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
 
 const ResidentForm = () => {
   const { phases } = usePhaseContext();
@@ -371,7 +371,7 @@ const ResidentForm = () => {
                             value={field.value}
                             className="flex flex-col space-y-1"
                           >
-                            {watchedLots.map((lotId) => {
+                            {watchedLots.map((lotId: string) => {
                               const lotOption = selectOptions?.find(
                                 (opt) => String(opt.value) === String(lotId)
                               );
