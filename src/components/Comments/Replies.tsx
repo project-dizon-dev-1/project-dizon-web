@@ -54,7 +54,7 @@ const Replies = ({
           <div className="relative flex-grow rounded-3xl bg-default px-5 py-4">
             <div className="flex flex-grow justify-between">
               <div className="flex flex-col">
-                <p className="font-bold text-accent">{`${reply?.users_list?.user_first_name} ${reply?.users_list?.user_last_name}`}</p>
+                <p className="font-bold">{`${reply?.users_list?.user_first_name} ${reply?.users_list?.user_last_name}`}</p>
                 <div className="flex gap-1">
                   <CommentDate
                     date={reply.created_at}
@@ -67,10 +67,7 @@ const Replies = ({
                   <Popover>
                     <PopoverTrigger>
                       {/* <img src={kebab} alt="kebab icon" /> */}
-                      <Icon
-                        icon="mingcute:more-1-line"
-                        className="h-5 w-5 text-accent"
-                      />
+                      <Icon icon="mingcute:more-1-line" className="h-5 w-5" />
                     </PopoverTrigger>
                     <PopoverContent
                       align="center"
@@ -104,7 +101,7 @@ const Replies = ({
                               <Button
                                 type="button"
                                 variant="outline"
-                                className="text-accent hover:text-accent rounded-xl"
+                                className=" rounded-xl"
                               >
                                 Cancel
                               </Button>
@@ -137,7 +134,7 @@ const Replies = ({
               </div>
             </div>
             <div>
-              <p className="text-sm text-accent">{reply.comment}</p>
+              <p className="text-sm ">{reply.comment}</p>
               <div className="flex items-center">
                 {/* <TriggerDislikeIcon
                   className="absolute -bottom-4 right-2 w-14 rounded-3xl bg-white p-1"

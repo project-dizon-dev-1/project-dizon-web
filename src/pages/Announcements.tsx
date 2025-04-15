@@ -7,13 +7,13 @@ import { fetchAnnouncements } from "@/services/announcementServices";
 import { Announcement } from "@/types/announcementTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import React, { useRef } from "react";
 import { useSearchParams } from "react-router";
+import useInterObserver from "@/hooks/useIntersectObserver";
 
 const Announcements = () => {
   const [searchParams] = useSearchParams();
   const { user } = useUserContext();
-  // Create a ref for the announcements container
   const announcementsContainerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -24,13 +24,19 @@ const Announcements = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<PaginatedDataType<Announcement>>({
-    queryKey: ["announcements", searchParams.get("phase")],
+    queryKey: [
+      "announcements",
+      user?.role === "resident" ? user.house_phase : searchParams.get("phase"),
+    ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
       return await fetchAnnouncements({
         page,
-        pageSize: "20",
-        phase: searchParams.get("phase"),
+        pageSize: "10",
+        phase:
+          user?.role === "resident"
+            ? user.house_phase
+            : searchParams.get("phase"),
       });
     },
     initialPageParam: "1",
@@ -38,7 +44,18 @@ const Announcements = () => {
       if (!lastPage || !lastPage.hasNextPage) return undefined;
       return lastPage.currentPage + 1;
     },
+    enabled: !!user,
   });
+
+  // Create callback for intersection observer
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  // Use the intersection observer hook
+  const { ref: loadMoreRef } = useInterObserver(handleLoadMore);
 
   if (isError) {
     return <p className="text-red-500">Error loading announcements</p>;
@@ -51,7 +68,10 @@ const Announcements = () => {
         ref={announcementsContainerRef}
         className="grow flex flex-col overflow-y-scroll max-w-[530px] no-scrollbar"
       >
-        <AnnouncementHeader first_name={user?.user_first_name} />
+        {user?.role === "admin" && (
+          <AnnouncementHeader first_name={user?.user_first_name} />
+        )}
+
         {/* Announcements List */}
         {!isLoading && data?.pages[0]?.items?.length === 0 ? (
           <p>No announcement yet</p>
@@ -74,20 +94,25 @@ const Announcements = () => {
               ))
             )}
 
-        {/* Load More Button */}
-        {hasNextPage && (
-          <button
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-            className="mt-4 px-4 py-2 text-white rounded"
-          >
-            {isFetchingNextPage ? "Loading..." : "Load More"}
-          </button>
+        {/* Loading indicator */}
+        {isFetchingNextPage && (
+          <div className="py-4 flex justify-center">
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
         )}
 
-        {/* Filters Sidebar */}
+        {/* Intersection Observer Target Element */}
+        {hasNextPage && (
+          <div
+            ref={loadMoreRef as React.RefObject<HTMLDivElement>}
+            className="h-10"
+          />
+        )}
       </div>
-      <AnnouncementFilters containerRef={announcementsContainerRef} />
+
+      {user?.role === "admin" && (
+        <AnnouncementFilters containerRef={announcementsContainerRef} />
+      )}
     </div>
   );
 };

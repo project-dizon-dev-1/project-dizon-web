@@ -95,7 +95,8 @@ type CustomReactSelectProps = {
       ) => void)
     | undefined;
   placeholder?: string;
-  isLoading: boolean;
+  isLoading?: boolean;
+  isDisabled?: boolean;
   showSelectAll?: boolean;
 };
 
@@ -108,6 +109,7 @@ const CustomReactSelect: React.FC<CustomReactSelectProps> = ({
   onChange,
   placeholder,
   showSelectAll = false,
+  isDisabled = false,
 }) => {
   // Function to handle "Select All" option
   const handleSelectAll = () => {
@@ -145,6 +147,7 @@ const CustomReactSelect: React.FC<CustomReactSelectProps> = ({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        isDisabled={isDisabled}
       />
     </div>
   );

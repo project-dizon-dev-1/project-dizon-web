@@ -22,7 +22,7 @@ import {
   AlertDialogCancel,
   AlertDialogTitle,
   AlertDialogDescription,
-  AlertDialogAction,
+  AlertDialogActionNoClose,
 } from "@/components/ui/alert-dialog";
 import React from "react";
 
@@ -115,9 +115,9 @@ const DuesForm = ({
           <AlertDialogCancel asChild>
             <Button variant="secondary">Cancel</Button>
           </AlertDialogCancel>
-          <AlertDialogAction form="due-form" type="submit">
+          <AlertDialogActionNoClose form="due-form" type="submit">
             Submit
-          </AlertDialogAction>
+          </AlertDialogActionNoClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

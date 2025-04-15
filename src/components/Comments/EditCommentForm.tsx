@@ -30,7 +30,7 @@ const EditCommentForm = ({
         >
           Cancel
         </Button>
-        <Button type="submit" className="bg-accent hover:bg-blue-500">
+        <Button type="submit" className=" hover:bg-blue-500">
           Save
         </Button>
       </div>

@@ -38,8 +38,13 @@ import {
 } from "@/validations/collectionSchema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { upsertFixedDue } from "@/services/subdivisionServices";
+import { fixedDueType } from "@/types/subdivisionTypes";
 
-const ConfigureCollectionForm = () => {
+const ConfigureCollectionForm = ({
+  amount,
+  due_date,
+  grace_period,
+}: fixedDueType) => {
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
   // Fixed array of days 1-28 (works for all months)
@@ -73,9 +78,9 @@ const ConfigureCollectionForm = () => {
   const form = useForm<configureCollectionSchemaType>({
     resolver: zodResolver(configureCollectionSchema),
     defaultValues: {
-      dayOfMonth: 1,
-      amount: 0,
-      gracePeriod: 0,
+      dayOfMonth: due_date ?? 0,
+      amount: amount ?? 0,
+      gracePeriod: grace_period ?? 0,
     },
   });
 
