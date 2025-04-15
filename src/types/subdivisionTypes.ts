@@ -18,10 +18,8 @@ type Block = {
 };
 
 type Lot = {
-  number: string;
+  name: string;
   id: string;
-  created_at: Date;
-  block_id: string;
 };
 type fixedDueType = {
   amount?: number;

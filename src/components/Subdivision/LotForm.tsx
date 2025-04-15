@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addLot, editLot } from "@/services/subdivisionServices";
@@ -47,15 +47,12 @@ const LotForm = ({
   const lotForm = useForm<LotFormValues>({
     resolver: zodResolver(lotSchema),
     defaultValues: {
-      name: name ?? "",
+      name: name || "",
+    },
+    values: {
+      name: name || "",
     },
   });
-
-  useEffect(() => {
-    if (edittingLot && name) {
-      lotForm.setValue("name", name);
-    }
-  }, [edittingLot, name, lotForm]);
 
   const addLotMutation = useMutation({
     mutationFn: addLot,
@@ -114,9 +111,28 @@ const LotForm = ({
     lotForm.reset();
   };
 
+  const handleOpenDialog = () => {
+    lotForm.reset({ name: name || "" });
+    setDialogOpen(true);
+  };
+
   return (
-    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        if (open) handleOpenDialog();
+        else setDialogOpen(false);
+      }}
+    >
+      <AlertDialogTrigger
+        asChild
+        onClick={(e) => {
+          e.preventDefault();
+          handleOpenDialog();
+        }}
+      >
+        {children}
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
