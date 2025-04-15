@@ -42,25 +42,18 @@ const api = axios.create({
 // Axios request interceptor to always use the latest token
 api.interceptors.request.use(
   async (config) => {
-    // Skip token for auth endpoints (like login)
-    const isAuthEndpoint =
-      config.url?.includes("/login") ||
-      config.url?.includes("/signup") ||
-      config.url?.includes("/auth");
-
-    if (!isAuthEndpoint) {
-      try {
-        if (!accessToken) {
-          await updateAccessToken();
-        }
-        if (accessToken) {
-          config.headers["Authorization"] = `Bearer ${accessToken}`;
-        }
-      } catch (error) {
-        console.warn("Error updating access token:", error);
-        // Continue with request even without token
+    try {
+      if (!accessToken) {
+        await updateAccessToken();
       }
+      if (accessToken) {
+        config.headers["Authorization"] = `Bearer ${accessToken}`;
+      }
+    } catch (error) {
+      console.warn("Error updating access token:", error);
+      // Continue with request even without token
     }
+
     return config;
   },
   (error: unknown) => {
