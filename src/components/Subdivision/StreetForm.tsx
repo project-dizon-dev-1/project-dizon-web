@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addStreet, editStreet } from "@/services/subdivisionServices";
@@ -48,19 +48,16 @@ const StreetForm = ({
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const edittingStreet = id ? true : false;
-  // const [searchTerm, setSearchTerm] = useState("");
 
   const streetForm = useForm<StreetFormValues>({
     resolver: zodResolver(streetSchema),
     defaultValues: {
-      name: name ?? "",
+      name: name || "",
+    },
+    values: {
+      name: name || "",
     },
   });
-  useEffect(() => {
-    if (edittingStreet && name) {
-      streetForm.setValue("name", name);
-    }
-  }, [edittingStreet, name, streetForm]);
 
   const addStreetMutation = useMutation({
     mutationFn: addStreet,
@@ -116,9 +113,28 @@ const StreetForm = ({
     streetForm.reset();
   };
 
+  const handleOpenDialog = () => {
+    streetForm.reset({ name: name || "" });
+    setDialogOpen(true);
+  };
+
   return (
-    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog
+      open={dialogOpen}
+      onOpenChange={(open) => {
+        if (open) handleOpenDialog();
+        else setDialogOpen(false);
+      }}
+    >
+      <AlertDialogTrigger
+        asChild
+        onClick={(e) => {
+          e.preventDefault();
+          handleOpenDialog();
+        }}
+      >
+        {children}
+      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
