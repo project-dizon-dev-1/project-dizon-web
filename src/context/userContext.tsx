@@ -6,14 +6,16 @@ import React, {
   useState,
 } from "react";
 
-
-type User = Database["public"]["Tables"]["users-list"]["Row"]
+export type User = Database["public"]["Tables"]["users-list"]["Row"] & {
+  house_id: string | null | undefined;
+  house_phase?: string | null;
+};
 
 //declare the type of your context
 type UserContextType = {
   user: User | null | undefined;
   setUser: React.Dispatch<SetStateAction<User | null | undefined>>;
-//   logout: () => void;
+  //   logout: () => void;
 };
 
 // declare type for provider props
@@ -24,14 +26,13 @@ type UserProviderProps = {
 // Create the context with default value
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-
 // Create the context provider and wrap the children
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<User | null | undefined>(null);
 
-  return(
-    <UserContext.Provider value={{user, setUser}}>
-        {children}
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
     </UserContext.Provider>
   );
 };

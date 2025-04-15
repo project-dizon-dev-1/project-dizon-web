@@ -9,8 +9,14 @@ const GuestRoute = () => {
     authenticated: false,
   });
 
-
   useEffect(() => {
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        // show screen to update user's password
+        navigate("/passord-recovery");
+        return;
+      }
+    });
     const checkSession = async () => {
       try {
         const {
@@ -18,11 +24,11 @@ const GuestRoute = () => {
         } = await supabase.auth.getSession();
 
         if (session?.user) {
-              // If user is  authenticated, redirect Home
+          // If user is  authenticated, redirect Home
           setAuthStatus({ loading: false, authenticated: true });
           navigate("/", { replace: true });
         } else {
-            // If user is not authenticated, continue to the link
+          // If user is not authenticated, continue to the link
           setAuthStatus({ loading: false, authenticated: false });
         }
       } catch (error) {
@@ -35,11 +41,18 @@ const GuestRoute = () => {
   }, [navigate]);
 
   if (authStatus.loading) {
-    return <div>Loading...</div>; 
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-4 border-t-blue-600 border-blue-200 animate-spin"></div>
+          <p className="text-lg font-medium text-gray-700">Loading...</p>
+        </div>
+      </div>
+    );
   }
- //If user is authenticated it will return null and not render the Outlet
+  //If user is authenticated it will return null and not render the Outlet
   if (authStatus.authenticated) {
-    return null; 
+    return null;
   }
 
   return <Outlet />;

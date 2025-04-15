@@ -2,7 +2,7 @@ import React from "react";
 import { useSearchParams } from "react-router";
 
 const useHouseSearchParams = (
-  setSearchInput: React.Dispatch<React.SetStateAction<string>>
+  setSearchInput?: React.Dispatch<React.SetStateAction<string>>
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -13,7 +13,10 @@ const useHouseSearchParams = (
 
   const clearFilters = () => {
     setSearchParams({});
-    setSearchInput("");
+
+    if (setSearchInput) {
+      setSearchInput("");
+    }
   };
 
   const updateParams = (key: string, value: string) => {

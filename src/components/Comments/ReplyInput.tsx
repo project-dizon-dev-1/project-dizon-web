@@ -61,9 +61,7 @@ ReplyInputPropType) => {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="bg-accent">
-                Reply
-              </Button>
+              <Button type="submit">Reply</Button>
             </div>
           </div>
         </div>

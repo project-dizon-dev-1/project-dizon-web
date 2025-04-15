@@ -1,8 +1,17 @@
-const CommentDate = ({ date, isEdited }: { date: Date | string; isEdited: boolean }) => {
+const CommentDate = ({
+  date,
+  isEdited,
+}: {
+  date: Date | string;
+  isEdited: boolean;
+}) => {
   const formatRelativeTime = (inputDate: Date | string) => {
     const now = new Date();
-    const dateObj = typeof inputDate === "string" ? new Date(inputDate) : inputDate; // Ensure it's a Date object
-    const diffInSeconds = Math.floor((now.getTime() - dateObj.getTime()) / 1000);
+    const dateObj =
+      typeof inputDate === "string" ? new Date(inputDate) : inputDate; // Ensure it's a Date object
+    const diffInSeconds = Math.floor(
+      (now.getTime() - dateObj.getTime()) / 1000
+    );
 
     const timeFrames = [
       { unit: "year", seconds: 60 * 60 * 24 * 365 },
@@ -24,9 +33,7 @@ const CommentDate = ({ date, isEdited }: { date: Date | string; isEdited: boolea
 
   return (
     <div className="flex gap-1">
-      <p className="text-xs text-accent opacity-75">
-        {formatRelativeTime(date)}
-      </p>
+      <p className="text-xs  opacity-75">{formatRelativeTime(date)}</p>
       {isEdited && <p className="text-xs text-slate-500">(Edited)</p>}
     </div>
   );

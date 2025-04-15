@@ -29,20 +29,30 @@ const COMMON_LINKS = {
     link: "/finance-overview",
     icon: "mingcute:presentation-1-line",
   },
-  paymentHistory: {
+  collectionHistory: {
     label: "Collection History",
     link: "/history",
+    icon: "mingcute:history-line",
+  },
+  paymentHistory: {
+    label: "Payment History",
+    link: "/payment-history",
     icon: "mingcute:history-line",
   },
 
   auditLogs: {
     label: "Audit Logs",
     link: "/audit-logs",
-    icon: "mingcute:file-check-line",
+    icon: "mingcute:shield-line",
   },
   financeLogs: {
     label: "Transaction History",
     link: "/financial-logs",
+    icon: "mingcute:book-2-line",
+  },
+  manageSubdivision: {
+    label: "Subdivision",
+    link: "/subdivision",
     icon: "mingcute:file-check-line",
   },
 };
@@ -57,12 +67,14 @@ export const SIDEBAR_LINKS = Object.freeze({
     COMMON_LINKS.dashboard,
     COMMON_LINKS.residents,
     COMMON_LINKS.announcements,
+    COMMON_LINKS.paymentHistory,
+    COMMON_LINKS.manageSubdivision,
   ],
   finance: [
     COMMON_LINKS.financeOverview,
     COMMON_LINKS.expenses,
     COMMON_LINKS.paymentCollection,
-    COMMON_LINKS.paymentHistory,
+    COMMON_LINKS.collectionHistory,
     COMMON_LINKS.auditLogs,
     COMMON_LINKS.financeLogs,
   ],

@@ -17,31 +17,57 @@ import {
 } from "@/components/ui/table";
 
 import { Button } from "@/components/ui/button";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getHouses } from "@/services/houseServices";
 import CollectionForm from "@/components/Collection/CollectionForm";
 import Loading from "@/components/Loading";
-import { PaginatedDataType } from "@/types/paginatedType";
-import { HouseDetails } from "@/types/HouseTypes";
+
 import useHouseSearchParams from "@/hooks/useHouseSearchParams";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import { ChangeEvent, useEffect, useState, useCallback } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useNavigate, useSearchParams, useParams } from "react-router";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import {
+  fetchBlocksByStreet,
+  fetchLotsByBlock,
+  fetchStreetsByPhase,
+} from "@/services/subdivisionServices";
+import useUserContext from "@/hooks/useUserContext";
 
 const CollectionDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useUserContext();
   const { phase } = useParams();
+
+  const { data: blocks, isLoading: blocksLoading } = useQuery({
+    queryKey: ["blocks", phase],
+    queryFn: async () => {
+      return await fetchBlocksByStreet(searchParams.get("street"));
+    },
+    enabled: !!phase,
+  });
+  const { data: lots, isLoading: lotsLoading } = useQuery({
+    queryKey: ["lots", searchParams.get("block")],
+    queryFn: async () => {
+      return await fetchLotsByBlock(searchParams.get("block"));
+    },
+    enabled: !!searchParams.get("block"),
+  });
+  const { data: streets, isLoading: streetsLoading } = useQuery({
+    queryKey: ["streets", phase],
+    queryFn: async () => {
+      return await fetchStreetsByPhase(phase);
+    },
+    enabled: !!phase,
+  });
 
   const navigate = useNavigate();
 
-  // Fix the back navigation with useCallback to ensure consistent behavior
-  const handleBackClick = useCallback(() => {
-    // Use replace and a specific path instead of navigate(-1)
+  const handleBackClick = () => {
     navigate("/collection", { replace: true });
-  }, [navigate]);
+  };
 
   const [searchInput, setSearchInput] = useState(
     searchParams.get("query") || ""
@@ -73,7 +99,7 @@ const CollectionDetails = () => {
     // fetchNextPage,
     // hasNextPage,
     // isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedDataType<HouseDetails>, Error>({
+  } = useInfiniteQuery({
     queryKey: [
       "collection",
       phase,
@@ -83,7 +109,7 @@ const CollectionDetails = () => {
       selectedLot,
     ],
     queryFn: async ({ pageParam }) => {
-      const page = pageParam as string;
+      const page = pageParam.toString();
       return await getHouses({
         page,
         lot: selectedLot,
@@ -120,9 +146,25 @@ const CollectionDetails = () => {
           value={searchInput}
           onChange={handleSearchChange}
         />
-
+        <Select
+          value={selectedStreet || ""}
+          disabled={streetsLoading || !streets}
+          onValueChange={(value) => updateParams("street", value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder={selectedStreet || "All Streets"} />
+          </SelectTrigger>
+          <SelectContent>
+            {streets?.map((street) => (
+              <SelectItem key={street.id} value={street.id}>
+                {street.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select
           value={selectedBlock || ""}
+          disabled={blocksLoading || !blocks}
           onValueChange={(value) => updateParams("block", value)}
         >
           <SelectTrigger className="w-[180px]">
@@ -133,30 +175,17 @@ const CollectionDetails = () => {
             />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">Block 1</SelectItem>
-            <SelectItem value="2">Block 2</SelectItem>
-            <SelectItem value="3">Block 3</SelectItem>
-            <SelectItem value="4">Block 4</SelectItem>
-            <SelectItem value="5">Block 5</SelectItem>
-            <SelectItem value="6">Block 6</SelectItem>
+            {blocks?.map((block) => (
+              <SelectItem key={block.id} value={block.id}>
+                {block.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-        <Select
-          value={selectedStreet || ""}
-          onValueChange={(value) => updateParams("street", value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={selectedStreet || "All Streets"} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Mangga">Mangga</SelectItem>
-            <SelectItem value="Papaya">Papaya</SelectItem>
-            <SelectItem value="Duhat">Duhat</SelectItem>
-            <SelectItem value="Avocado">Avocado</SelectItem>
-          </SelectContent>
-        </Select>
+
         <Select
           value={selectedLot || ""}
+          disabled={lotsLoading || !lots}
           onValueChange={(value) => updateParams("lot", value)}
         >
           <SelectTrigger className="w-[180px]">
@@ -165,12 +194,11 @@ const CollectionDetails = () => {
             />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1">Lot 1</SelectItem>
-            <SelectItem value="2">Lot 2</SelectItem>
-            <SelectItem value="3">Lot 3</SelectItem>
-            <SelectItem value="4">Lot 4</SelectItem>
-            <SelectItem value="5">Lot 5</SelectItem>
-            <SelectItem value="6">Lot 6</SelectItem>
+            {lots?.map((lot) => (
+              <SelectItem key={lot.id} value={lot.id}>
+                {lot.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Button onClick={clearFilters} variant={"ghost"}>
@@ -230,7 +258,7 @@ const CollectionDetails = () => {
                     >
                       {house.house_family_name}
                     </TableCell>
-                    <TableCell className="">{`Phase ${house.house_phase}, ${house.house_street} Street, Block ${house.house_block}, Lot ${house.house_lot}`}</TableCell>
+                    <TableCell className="">{` ${house.phases?.name}, ${house?.streets?.name}, ${house?.blocks?.name}, ${house?.lots?.name}`}</TableCell>
                     <TableCell>
                       {house.house_main_poc_user?.user_first_name}{" "}
                       {house.house_main_poc_user?.user_last_name}
@@ -274,12 +302,13 @@ const CollectionDetails = () => {
                     >
                       {(!house.house_latest_payment ||
                         new Date(house.house_latest_payment).getMonth() <
-                          new Date().getMonth()) && (
-                        <CollectionForm
-                          familyName={house.house_family_name}
-                          houseId={house.id}
-                        />
-                      )}
+                          new Date().getMonth()) &&
+                        user?.id !== house?.house_main_poc_user?.id && (
+                          <CollectionForm
+                            familyName={house.house_family_name}
+                            houseId={house.id}
+                          />
+                        )}
                     </TableCell>
                   </TableRow>
                 ))

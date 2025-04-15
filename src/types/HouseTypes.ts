@@ -8,20 +8,52 @@ type House = {
   house_main_poc: string | null;
 };
 type UserProfile = {
+  id: string;
   user_first_name: string | null;
   user_last_name: string | null;
 };
 type HouseDetails = {
   id: string;
   house_family_name: string;
-  house_phase: string;
-  house_block: string;
-  house_street: string;
-  house_lot: string;
+  phases: {
+    name: string;
+  };
+  blocks: {
+    name: string;
+  };
+  streets: {
+    name: string;
+  };
+  lots: {
+    name: string;
+  };
   house_main_poc_user: UserProfile | null;
   house_latest_payment_amount: number | null;
   house_latest_payment: Date | null;
   house_arrears: number | null;
+};
+type HouseData = {
+  house_family_name: string | null;
+  phases: {
+    name: string;
+  };
+  blocks: {
+    name: string;
+  };
+  streets: {
+    name: string;
+  };
+  lots: {
+    name: string;
+  };
+  house_main_poc_user: {
+    user_first_name: string;
+    user_last_name: string;
+    contact_number: string | null;
+  } | null;
+  house_code: {
+    code: string;
+  }[];
 };
 
 type VehicleDetails = {
@@ -35,12 +67,14 @@ type VehicleDetails = {
 };
 
 type SubdivisionPhases = {
-  phase_number: string;
+  phase_id: string | null;
+  phase_name: string;
   total_population: number;
 }[];
 
 type PhaseData = {
   phase: string;
+  phaseName: string;
   totalResidents: number;
   paidResidentsCount: number;
   unpaidResidentsCount: number;
@@ -52,7 +86,7 @@ type PhaseData = {
   unpaidResidentsPercentage: number;
 };
 
-type HouseSummary = {
+type HousesSummary = {
   summaryPerPhase: PhaseData[];
   totalResidents: number;
   totalPaidResidents: number;
@@ -62,6 +96,29 @@ type HouseSummary = {
   totalUnpaidAmount: number;
   totalExpectedAmount: number;
   percentageCollected: number;
+};
+
+type HouseSummary = {
+  house_family_name: string;
+  house_latest_payment: Date | null;
+  house_latest_payment_amount: number | null;
+  phases: {
+    name: string;
+  };
+  blocks: {
+    name: string;
+  };
+  streets: {
+    name: string;
+  };
+  lots: {
+    number: string;
+  };
+  house_arrears: number | null;
+  house_main_poc_user: {
+    user_first_name: string;
+    user_last_name: string;
+  } | null;
 };
 
 type FetchHouseCollectionQueryParams = {
@@ -87,8 +144,10 @@ type TransactionSummary = {
 };
 
 export type {
+  HouseData,
   TransactionSummary,
   MonthlyTransactionData,
+  HousesSummary,
   House,
   SubdivisionPhases,
   HouseDetails,

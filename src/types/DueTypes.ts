@@ -20,6 +20,7 @@ type DueLog = {
   date: Date | null;
   details: string | null;
   amount: number | null;
+  proof_url: string | null;
   receiver: {
     user_first_name: string;
     user_last_name: string;
@@ -30,10 +31,18 @@ type DueLog = {
   } | null;
   house_list: {
     house_family_name: string;
-    house_phase: string;
-    house_block: string;
-    house_street: string;
-    house_lot: string;
+    phases: {
+      name: string;
+    };
+    blocks: {
+      name: string;
+    };
+    streets: {
+      name: string;
+    };
+    lots: {
+      name: string;
+    };
   } | null;
   amount_status: "Partially_Paid" | "Fully_Paid" | null;
 };
@@ -45,6 +54,7 @@ type DueCategoryType = ({
     due_description: string | null;
     due_cost: number;
     due_is_active: boolean;
+    latest_paid_month: Date | null;
   }[];
 } & {
   created_at: Date;

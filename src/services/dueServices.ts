@@ -23,6 +23,19 @@ const fetchDueLogs = async ({
     params: { phase, month, status, query, page, pageSize },
   });
 };
+const fetchDueLogsByHouse = async ({
+  houseId,
+  page,
+  pageSize,
+}: {
+  houseId: string | undefined | null;
+  page: string;
+  pageSize: string;
+}): Promise<PaginatedDataType<DueLog>> => {
+  return await axiosGet(`/dues/logs/${houseId}`, {
+    params: { page, pageSize },
+  });
+};
 
 const fetchFixedDue = async (): Promise<totalDue> => {
   return await axiosGet(`/dues/fixed-due`);
@@ -69,16 +82,6 @@ const deleteDues = async ({
   return await axiosDelete(`/dues/delete/${dueId}`, payload);
 };
 
-const approveCollection = async ({
-  collectionId,
-  userId,
-}: {
-  collectionId: string | undefined;
-  userId: string | undefined;
-}) => {
-  return await axiosPut(`/dues/${collectionId}/approve`, { userId });
-};
-
 export {
   fetchDueLogs,
   addDues,
@@ -89,5 +92,5 @@ export {
   updateDues,
   deleteDues,
   ToggleDueActivation,
-  approveCollection,
+  fetchDueLogsByHouse,
 };

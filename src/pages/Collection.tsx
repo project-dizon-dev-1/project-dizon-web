@@ -13,16 +13,24 @@ import { Separator } from "@/components/ui/separator";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { HouseSummary } from "@/types/HouseTypes";
+import { HousesSummary } from "@/types/HouseTypes";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-
-// Define the interface for the data structure
+import { fetchUserFixedDue } from "@/services/subdivisionServices";
 
 const Collection = () => {
-  const { data, isError, isLoading } = useQuery<HouseSummary>({
+  const { data, isError, isLoading } = useQuery<HousesSummary>({
     queryKey: ["houseSummary"],
     queryFn: getHousesSummary,
+  });
+
+  const {
+    data: fixedDue,
+    isLoading: DueLoading,
+    isError: dueError,
+  } = useQuery({
+    queryKey: ["userFixedDue"],
+    queryFn: fetchUserFixedDue,
   });
 
   const navigate = useNavigate();
@@ -31,7 +39,7 @@ const Collection = () => {
     navigate(`/collection/${phase}`, { replace: true });
   };
 
-  if (isLoading) {
+  if (isLoading || DueLoading) {
     return (
       <div className="w-full h-full p-6 space-y-6">
         <div className="flex flex-col space-y-3">
@@ -59,7 +67,7 @@ const Collection = () => {
     );
   }
 
-  if (isError) {
+  if (isError || dueError) {
     return (
       <div className="flex h-full w-full items-center justify-center p-6">
         <Card className="w-full max-w-md p-6">
@@ -88,9 +96,9 @@ const Collection = () => {
   }
 
   return (
-    <div className="w-full h-full overflow-y-auto no-scrollbar p-6">
+    <div className="w-full h-full overflow-y-auto no-scrollbar p-2">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-2">Collection Dashboard</h1>
+        <h1 className="text-2xl font-bold mb-1">Collection Dashboard</h1>
         <p className="text-muted-foreground">
           Overview of monthly dues collection and payment status across phases
         </p>
@@ -108,7 +116,7 @@ const Collection = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">
                   Residents
@@ -165,6 +173,20 @@ const Collection = () => {
                   {data.percentageCollected.toFixed(1)}% collected
                 </p>
               </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Collection Amount
+                </p>
+                <p className=" font-bold text-2xl">
+                  ₱{fixedDue?.amount?.toLocaleString("en-PH")}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Every {fixedDue?.due_date} of the month
+                </p>
+                <p className=" text-xs text-muted-foreground">
+                  Grace period: {fixedDue?.grace_period} days
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -172,7 +194,11 @@ const Collection = () => {
 
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Phase Summary</h2>
-        <ConfigureCollectionForm />
+        <ConfigureCollectionForm
+          amount={fixedDue?.amount}
+          due_date={fixedDue?.due_date}
+          grace_period={fixedDue?.grace_period}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -191,7 +217,7 @@ const Collection = () => {
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-center">
                     <CardTitle className="flex items-center gap-2">
-                      <span>Phase {phase.phase}</span>
+                      <span>{phase.phaseName}</span>
                       <Badge
                         className={cn(
                           "ml-2 ",

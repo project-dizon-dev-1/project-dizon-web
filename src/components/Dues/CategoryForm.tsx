@@ -19,7 +19,7 @@ import {
   AlertDialogCancel,
   AlertDialogTitle,
   AlertDialogDescription,
-  AlertDialogAction,
+  AlertDialogActionNoClose,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import React from "react";
@@ -107,9 +107,9 @@ const CategoryForm = ({
           <AlertDialogCancel asChild>
             <Button variant="secondary">Cancel</Button>
           </AlertDialogCancel>
-          <AlertDialogAction form="category-form" type="submit">
+          <AlertDialogActionNoClose form="category-form" type="submit">
             Submit
-          </AlertDialogAction>
+          </AlertDialogActionNoClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
