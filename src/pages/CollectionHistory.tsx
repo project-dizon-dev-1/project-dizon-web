@@ -48,10 +48,11 @@ import useUserContext from "@/hooks/useUserContext";
 import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { approveCollection } from "@/services/houseServices";
-import { useSubdivisionContext } from "@/context/phaseContext";
+import { usePhaseContext } from "@/context/phaseContext";
+import { Phase } from "@/types/subdivisionTypes";
 
 const PaymentHistory = () => {
-  const { phases } = useSubdivisionContext();
+  const { phases } = usePhaseContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useUserContext();
   const queryClient = useQueryClient();
@@ -173,7 +174,7 @@ const PaymentHistory = () => {
             />
           </SelectTrigger>
           <SelectContent>
-            {phases.map((phase) => (
+            {phases.map((phase: Phase) => (
               <SelectItem key={phase.id} value={phase.id}>
                 {phase.name}
               </SelectItem>

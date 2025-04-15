@@ -43,7 +43,8 @@ import { Separator } from "../ui/separator";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Label } from "../ui/label";
-import { useSubdivisionContext } from "@/context/phaseContext";
+import { usePhaseContext } from "@/context/phaseContext";
+import { Phase } from "@/types/subdivisionTypes";
 
 const AnnouncementForm = ({
   announcement,
@@ -52,7 +53,7 @@ const AnnouncementForm = ({
   announcement?: Announcement["announcements"];
   children: React.ReactNode;
 }) => {
-  const { phases } = useSubdivisionContext();
+  const { phases } = usePhaseContext();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
@@ -136,7 +137,7 @@ const AnnouncementForm = ({
     },
   });
 
-  const phaseOptions = phases?.map((phase) => ({
+  const phaseOptions = phases?.map((phase: Phase) => ({
     label: phase.name,
     value: phase.id,
   }));
@@ -601,12 +602,13 @@ const AnnouncementForm = ({
                         <CustomReactSelect
                           showSelectAll={true}
                           options={phaseOptions}
-                          value={phaseOptions?.filter((option) =>
-                            field.value?.some(
-                              (val) =>
-                                // Ensure we're comparing the same types by converting both to strings for comparison
-                                String(val) === String(option.value)
-                            )
+                          value={phaseOptions?.filter(
+                            (option: { label: string; value: string }) =>
+                              field.value?.some(
+                                (val) =>
+                                  // Ensure we're comparing the same types by converting both to strings for comparison
+                                  String(val) === String(option.value)
+                              )
                           )}
                           onChange={(selectedOptions) =>
                             field.onChange(
