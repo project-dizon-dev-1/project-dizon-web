@@ -10,17 +10,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { loginSchema, loginType } from "@/validations/authSchema";
+import { loginSchema, loginType } from "@/validations/userSchema";
 import { login } from "@/services/authServices";
 import { useNavigate, Link } from "react-router";
-import useUserContext from "@/hooks/useUserContext";
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import PasswordInput from "@/components/PasswordInput";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useUserContext();
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: {
@@ -30,32 +27,28 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: loginType) => {
-    setLoading(true);
-    setErrorMessage(null);
-    try {
-      const userData = await login(data);
-      setUser({
-        id: userData.id,
-        created_at: userData?.created_at,
-        user_email: userData?.user_email,
-        user_first_name: userData?.user_first_name,
-        user_last_name: userData?.user_last_name,
-        role: userData?.role,
-      });
-
+  const loginMutation = useMutation({
+    mutationFn: (data: loginType) => login(data),
+    onSuccess: () => {
       navigate("/", { replace: true });
-    } catch (error) {
-      console.error("Login Failed", error);
-      setErrorMessage("Login failed. Please check your credentials.");
-    } finally {
-      setLoading(false);
-    }
+    },
+    onError: (error) => {
+      form.setError("root", {
+        message: error.message,
+      });
+    },
+  });
+
+  const onSubmit = (data: loginType) => {
+    loginMutation.mutate({
+      userEmail: data.userEmail,
+      userPassword: data.userPassword,
+    });
   };
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-md space-y-6 bg-white p-8 rounded-xl shadow-lg">
+    <div className="min-h-dvh flex flex-col items-center justify-center bg-white px-4 py-8">
+      <div className="w-full max-w-md space-y-6 bg-gradient-to-br from-blue-100/90 via-indigo-200/50 to-purple-200/90 p-8 rounded-xl shadow-lg">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
             Login to your account
@@ -74,11 +67,7 @@ const Login = () => {
                 <FormItem>
                   <FormLabel className="text-gray-700">Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="JohnDoe@example.com"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
-                      {...field}
-                    />
+                    <Input placeholder="JohnDoe@example.com" {...field} />
                   </FormControl>
                   <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
@@ -91,10 +80,9 @@ const Login = () => {
                 <FormItem>
                   <FormLabel className="text-gray-700">Password</FormLabel>
                   <FormControl>
-                    <Input
+                    <PasswordInput
+                      className="mb-1"
                       placeholder="Password"
-                      type="password"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary"
                       {...field}
                     />
                   </FormControl>
@@ -103,19 +91,26 @@ const Login = () => {
               )}
             />
 
-            {errorMessage && (
+            {form.formState.errors.root && (
               <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md border border-red-200">
-                {errorMessage}
+                {form.formState.errors.root.message}
               </div>
             )}
 
-            <div className="pt-2">
+            <Link
+              className=" text-sm hover:underline hover:text-blue-700"
+              to={"/reset-password"}
+            >
+              Forgot Password?
+            </Link>
+
+            <div>
               <Button
                 type="submit"
-                disabled={loading}
-                className="w-full py-2 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-colors"
+                disabled={loginMutation.isPending}
+                className="w-full pb-2 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-colors"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loginMutation.isPending ? "Logging in..." : "Login"}
               </Button>
             </div>
 

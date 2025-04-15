@@ -63,6 +63,14 @@ const CollectionForm = ({
     },
   });
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, []);
+
   const housePaymentsMonthCurVal = form.watch("housePaymentMonths");
   const housePaymentAmount = form.watch("houseLatestPaymentAmount");
 
@@ -73,6 +81,12 @@ const CollectionForm = ({
       toast({
         title: "Error",
         description: "Error updating house details",
+      });
+    },
+    onMutate: () => {
+      toast({
+        title: "Updating payment...",
+        description: "Please wait while we update the payment.",
       });
     },
     onSuccess: () => {
@@ -115,7 +129,7 @@ const CollectionForm = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={"outline"}>Add Payment</Button>
+        <Button>Add Payment</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="max-h-[80%] overflow-y-scroll">
         <AlertDialogHeader>
@@ -223,13 +237,8 @@ const CollectionForm = ({
                           const file = e.target.files?.[0];
                           if (file) {
                             // Create a preview of the image
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              if (event.target?.result) {
-                                setImagePreview(event.target.result as string);
-                              }
-                            };
-                            reader.readAsDataURL(file);
+                            const objectUrl = URL.createObjectURL(file);
+                            setImagePreview(objectUrl);
                             onChange(file);
                           }
                         }}
@@ -244,15 +253,11 @@ const CollectionForm = ({
                         />
                         <Icon
                           onClick={() => {
+                            URL.revokeObjectURL(imagePreview);
                             setImagePreview(null);
                             form.setValue("paymentProof", undefined);
-                            // Reset file input
-                            const fileInput = document.getElementById(
-                              "file-input"
-                            ) as HTMLInputElement;
-                            if (fileInput) fileInput.value = "";
                           }}
-                          className="absolute right-4 top-4 text-2xl text-accent hover:cursor-pointer hover:text-red-600"
+                          className="absolute right-4 top-4 text-2xl  hover:cursor-pointer hover:text-red-600"
                           icon={"mingcute:close-circle-fill"}
                         />
                       </div>

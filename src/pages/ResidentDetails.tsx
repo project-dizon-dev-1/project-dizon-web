@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 const ResidentDetails = () => {
   const { houseId } = useParams();
@@ -39,6 +41,12 @@ const ResidentDetails = () => {
     queryKey: ["vehicle", houseId],
     queryFn: async () => await getHouseVehicle(houseId),
   });
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to clipboard",
+    });
+  };
 
   return (
     <div>
@@ -52,7 +60,7 @@ const ResidentDetails = () => {
           {houseLoading ? (
             <Skeleton className="h-7 w-64 inline-block" />
           ) : (
-            `${data?.house_family_name} Family Details`
+            `${data?.house_family_name || ""} House Details`
           )}
         </h1>
       </div>
@@ -73,7 +81,6 @@ const ResidentDetails = () => {
         </TableHeader>
         <TableBody>
           {houseLoading ? (
-            // Skeleton rows for house details - simpler approach like in Residents
             Array.from({ length: 3 }, (_, i) => (
               <TableRow
                 key={`house-skeleton-${i}`}
@@ -94,14 +101,14 @@ const ResidentDetails = () => {
             <>
               <TableRow className="h-[45px]">
                 <TableCell className="text-sm font-medium">Address</TableCell>
-                <TableCell className="text-sm font-medium">{` ${data?.house_street} Street, Block ${data?.house_block}, Lot ${data?.house_lot}`}</TableCell>
+                <TableCell className="text-sm font-medium">{` ${data?.streets?.name} ,  ${data?.blocks?.name},  ${data?.lots?.name}`}</TableCell>
               </TableRow>
               <TableRow className="bg-white/60 h-[45px]">
                 <TableCell className="rounded-l-xl text-sm font-medium">
                   Phase
                 </TableCell>
                 <TableCell className="rounded-r-xl text-sm font-medium">
-                  {data?.house_phase}
+                  {data?.phases?.name}
                 </TableCell>
               </TableRow>
               <TableRow className="h-[45px]">
@@ -111,6 +118,31 @@ const ResidentDetails = () => {
                 <TableCell className="text-sm font-medium">
                   {data?.house_main_poc_user?.user_first_name}{" "}
                   {data?.house_main_poc_user?.user_last_name}
+                </TableCell>
+              </TableRow>
+              <TableRow className="h-[45px]">
+                <TableCell className="text-sm font-medium">
+                  Contact Number
+                </TableCell>
+                <TableCell className="text-sm font-medium">
+                  {data?.house_main_poc_user?.contact_number || "N/A"}
+                </TableCell>
+              </TableRow>
+              <TableRow className="h-[45px]">
+                <TableCell className="text-sm font-medium">
+                  House Code
+                </TableCell>
+                <TableCell className="text-sm font-medium flex items-center gap-2">
+                  {data?.house_code[0].code || "N/A"}
+                  {data?.house_code[0].code && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleCopy(data?.house_code[0].code)}
+                    >
+                      Copy
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             </>
@@ -141,7 +173,6 @@ const ResidentDetails = () => {
         </TableHeader>
         <TableBody>
           {vehiclesLoading ? (
-            // Skeleton rows for vehicles - simpler approach like in Residents
             Array.from({ length: 2 }, (_, i) => (
               <TableRow
                 key={`vehicle-skeleton-${i}`}

@@ -48,7 +48,7 @@ const CommentDetails = ({
       <div className="flex">
         <Avatar className="h-8 w-8 bg-blue-100">
           <AvatarImage src={""} alt="profile picture" />
-          <AvatarFallback className="h-8 w-8 rounded-full bg-accent p-2 ">
+          <AvatarFallback className="h-8 w-8 rounded-full bg-blue-100 p-2 ">
             {getInitial(comment.users_list.user_first_name)}
           </AvatarFallback>
         </Avatar>
@@ -58,7 +58,7 @@ const CommentDetails = ({
           <div className="relative flex flex-col justify-between rounded-3xl bg-default px-5 pb-5 pt-3">
             <div className="flex items-center justify-between gap-2">
               <div>
-                <p className="text-sm font-bold text-accent opacity-80">{`${comment.users_list.user_first_name} ${comment.users_list.user_last_name}`}</p>
+                <p className="text-sm font-bold opacity-80">{`${comment.users_list.user_first_name} ${comment.users_list.user_last_name}`}</p>
                 <CommentDate
                   date={comment.created_at}
                   isEdited={comment.is_edited}
@@ -68,16 +68,13 @@ const CommentDetails = ({
                 {user?.id === comment.users_list.id && (
                   <Popover>
                     <PopoverTrigger>
-                      <Icon
-                        icon="mingcute:more-1-line"
-                        className="h-5 w-5 text-accent"
-                      />
+                      <Icon icon="mingcute:more-1-line" className="h-5 w-5 " />
                     </PopoverTrigger>
                     <PopoverContent className="flex w-28 flex-col overflow-hidden p-0">
                       <Button
                         onClick={() => setEditting(true)}
                         className="w-full rounded-none"
-                        variant={"outline"}
+                        variant={"ghost"}
                       >
                         Edit
                       </Button>
@@ -92,17 +89,17 @@ const CommentDetails = ({
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px] sm:rounded-3xl">
                           <DialogHeader>
-                            <DialogTitle className="font-bold text-accent">
+                            <DialogTitle className="font-bold ">
                               Delete Comment
                             </DialogTitle>
-                            <DialogDescription className="text-accent opacity-80">
+                            <DialogDescription className=" opacity-80">
                               Delete Your Comment Permanently
                             </DialogDescription>
                           </DialogHeader>
                           <DialogFooter>
                             <DialogClose asChild>
                               <Button
-                                className="rounded-xl text-default hover:text-accent"
+                                className="rounded-xl text-default"
                                 type="button"
                                 variant="outline"
                               >
@@ -136,7 +133,7 @@ const CommentDetails = ({
                 </button>
               </div>
             </div>
-            <div className="text-accent">{comment.comment}</div>
+            <div>{comment.comment}</div>
 
             <div className="flex items-center">
               <TriggerLike
@@ -167,7 +164,7 @@ const CommentDetails = ({
           <button
             type="button"
             onClick={() => setShowReply((prevState) => !prevState)}
-            className=" px-1 text-accent rounded-2xl text-sm w-fit hover:underline mb-1"
+            className=" px-1  rounded-2xl text-sm w-fit hover:underline mb-1"
           >
             {showReply
               ? "Hide Replies"

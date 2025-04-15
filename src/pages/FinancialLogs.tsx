@@ -253,7 +253,6 @@ const FinancialLogs = () => {
                           <p className="font-medium text-sm mb-4">
                             {transaction.details || "No additional details"}
                           </p>
-
                           {transaction.proof_url && (
                             <>
                               <h2 className="text-default/75 font-bold text-sm mb-2">

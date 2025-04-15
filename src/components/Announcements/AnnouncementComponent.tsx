@@ -31,6 +31,17 @@ import {
 import { Card, CardContent } from "../ui/card";
 import { toggleComment } from "@/services/commentServices";
 import AutoLinkText from "@/lib/AutoLinkText";
+import {
+  AlertDialog,
+  AlertDialogActionNoClose,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 const AnnouncementComponent = ({ announcements }: Announcement) => {
   const [searchParams] = useSearchParams();
@@ -115,13 +126,7 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                 hour12: true,
               })}
             </p>
-            <div className="flex items-center">
-              <Icon
-                className="w-[14px] h-[14px]"
-                icon="mingcute:house-2-fill"
-              />
-              <p>{searchParams.get("phase")}</p>
-            </div>
+            <div className="flex items-center"></div>
           </div>
         </div>
         <div>
@@ -146,41 +151,43 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                   </Button>
                 </AnnouncementForm>
 
-                <Dialog
+                <AlertDialog
                   open={deleteDialogOpen}
                   onOpenChange={setDeleteDialogOpen}
                 >
-                  <DialogTrigger asChild>
+                  <AlertDialogTrigger asChild>
                     <Button variant={"ghost"} className="shadow-none">
                       Delete
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Are you absolutely sure?</DialogTitle>
-                      <DialogDescription>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you absolutely sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
                         This action cannot be undone. This will permanently
-                        delete your account and remove your data from our
-                        servers.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex gap-2">
-                      <Button
+                        delete your announcement.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <AlertDialogFooter>
+                      <AlertDialogCancel
                         onClick={() => setDeleteDialogOpen(false)}
-                        className="flex-1"
+                        variant={"default"}
                       >
                         Cancel
-                      </Button>
-                      <Button
+                      </AlertDialogCancel>
+                      <AlertDialogActionNoClose
+                        variant={"destructive"}
                         onClick={handleDelete}
-                        variant="destructive"
-                        className="flex-1"
+                        className="bg-red-500 hover:bg-red-600"
                       >
                         Delete
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                      </AlertDialogActionNoClose>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </PopoverContent>
             </Popover>
           )}

@@ -5,15 +5,17 @@ const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
 };
 
-const getInitial = (name?: string) => {
-  const names = name?.split(" ");
-  if (names) {
-    return names
-      .map((name) => name.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join("");
+const getInitial = (name?: string | object | null) => {
+  // Check if name is a string before attempting to split
+  if (typeof name !== "string" || !name) {
+    return "";
   }
-  return "";
+
+  const names = name.split(" ");
+  return names
+    .map((name) => name.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join("");
 };
 
 export { cn, getInitial };
