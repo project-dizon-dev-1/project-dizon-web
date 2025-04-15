@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import { Link, useSearchParams } from "react-router";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSubdivisionContext } from "@/context/phaseContext";
+import { usePhaseContext } from "@/context/phaseContext";
 import {
   fetchBlocksByStreet,
   fetchLotsByBlock,
@@ -32,9 +32,10 @@ import {
 import ResidentForm from "@/components/Residents/ResidentForm";
 import useInterObserver from "@/hooks/useIntersectObserver";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { Phase } from "@/types/subdivisionTypes";
 
 const Residents = () => {
-  const { phases } = useSubdivisionContext();
+  const { phases } = usePhaseContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("query") || ""
@@ -168,7 +169,7 @@ const Residents = () => {
             <SelectValue placeholder="All Phases" />
           </SelectTrigger>
           <SelectContent>
-            {phases.map((phase) => (
+            {phases.map((phase: Phase) => (
               <SelectItem key={phase.id} value={phase.id}>
                 {phase.name}
               </SelectItem>
