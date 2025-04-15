@@ -1,5 +1,3 @@
-import React from "react";
-
 type Phase = {
   id: string;
   name: string;
@@ -31,17 +29,9 @@ type fixedDueType = {
   grace_period?: number;
 };
 
-type SubdivisionContextType = {
+type PhaseContextType = {
   phases: Phase[];
-  streets?: Street[];
-  blocks?: Block[];
-  lots?: Lot[];
-  setPhases: React.Dispatch<React.SetStateAction<Phase[]>>;
-  setStreets?: React.Dispatch<React.SetStateAction<Street[]>>;
-  setBlocks?: React.Dispatch<React.SetStateAction<Block[]>>;
-  setLots?: React.Dispatch<React.SetStateAction<Lot[]>>;
   isLoading: boolean;
-  refetchData: () => void;
 };
 
-export type { Phase, Street, Block, Lot, SubdivisionContextType, fixedDueType };
+export type { Phase, Street, Block, Lot, PhaseContextType, fixedDueType };

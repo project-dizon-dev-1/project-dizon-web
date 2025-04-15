@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
@@ -44,6 +43,7 @@ import { Icon } from "@iconify/react";
 import CustomReactSelect from "../CustomReactSelect";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
+import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
 
 const ResidentForm = () => {
   const { phases } = useSubdivisionContext();
