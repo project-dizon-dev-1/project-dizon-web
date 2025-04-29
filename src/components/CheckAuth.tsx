@@ -5,36 +5,23 @@ import useUserContext from "@/hooks/useUserContext";
 import { useQuery } from "@tanstack/react-query";
 import { getUser } from "@/services/userServices";
 import { User } from "@/context/userContext";
+import { AuthSession } from "@supabase/supabase-js";
 
 const CheckAuth = () => {
-  // Get auth token from localStorage
-  const DatabasePassword = import.meta.env.SUPABASE_PASSWORD!;
-  const tokenString = localStorage.getItem(`sb-${DatabasePassword}-auth-token`);
-  const auth = tokenString ? JSON.parse(tokenString) : null;
-
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser } = useUserContext();
   const [sessionChecked, setSessionChecked] = useState(false);
-
-  // Fetch user data based on the auth token
-  const { data, isSuccess } = useQuery({
-    queryKey: ["user", auth?.user?.id],
-    queryFn: async () => {
-      if (!auth?.user?.id) return null;
-      return getUser(auth.user.id);
-    },
-    enabled: !!auth && sessionChecked,
-  });
+  const [authData, setAuthData] = useState<AuthSession | null>(null);
 
   // First, check the session
   useEffect(() => {
     const checkSession = async () => {
-      // Listen for auth state changes
+      // Get the current session
+      const { data: sessionData, error } = await supabase.auth.getSession();
 
-      // Normal session check
-      const { data: sessionData } = await supabase.auth.getSession();
-      if (!sessionData.session && !auth) {
+      if (error) {
+        console.error("Error checking session:", error);
         navigate("/login", {
           replace: true,
           state: { from: location.pathname },
@@ -42,12 +29,46 @@ const CheckAuth = () => {
         return;
       }
 
-      // Mark session check as complete
+      if (!sessionData.session) {
+        navigate("/login", {
+          replace: true,
+          state: { from: location.pathname },
+        });
+        return;
+      }
+
+      // Set the auth data
+      setAuthData(sessionData.session);
       setSessionChecked(true);
     };
 
     checkSession();
-  }, [navigate, location, auth]);
+
+    // Set up auth state change listener
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        navigate("/login", { replace: true });
+      } else if (session) {
+        setAuthData(session);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, location]);
+
+  // Fetch user data based on the auth session
+  const { data, isSuccess } = useQuery({
+    queryKey: ["user", authData?.user?.id],
+    queryFn: async () => {
+      if (!authData?.user?.id) return null;
+      return getUser(authData.user.id);
+    },
+    enabled: !!authData && sessionChecked,
+  });
 
   // Then, set up user data once session is checked and data is loaded
   useEffect(() => {
