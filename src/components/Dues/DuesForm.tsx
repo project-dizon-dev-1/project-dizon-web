@@ -24,7 +24,7 @@ import {
   AlertDialogDescription,
   AlertDialogActionNoClose,
 } from "@/components/ui/alert-dialog";
-import React from "react";
+import React, { useState } from "react";
 
 const DuesForm = ({
   data,
@@ -35,10 +35,11 @@ const DuesForm = ({
   data?: EditDue;
   children: React.ReactNode;
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { onSubmit, form } = useDues(data);
 
   return (
-    <AlertDialog>
+    <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
 
       <AlertDialogContent>
@@ -56,7 +57,9 @@ const DuesForm = ({
           <Form {...form}>
             <form
               id="due-form"
-              onSubmit={form.handleSubmit((data) => onSubmit(data, categoryId))} // Add categoryId to the onSubmit function
+              onSubmit={form.handleSubmit((data) => {
+                onSubmit(data, categoryId), setIsDialogOpen(false);
+              })} // Add categoryId to the onSubmit function
               className="space-y-2"
             >
               <FormField

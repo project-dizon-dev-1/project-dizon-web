@@ -28,7 +28,7 @@ import {
   announcementSchema,
   AnnouncementSchemaType,
 } from "@/validations/announcementSchema";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useUserContext from "@/hooks/useUserContext";
 import {
@@ -54,6 +54,7 @@ const AnnouncementForm = ({
   children: React.ReactNode;
 }) => {
   const { phases } = usePhaseContext();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
@@ -254,6 +255,10 @@ const AnnouncementForm = ({
     setSelectedVideo(null);
     setSelectedFileType(announcement?.announcement_files ? "Image(s)" : "None");
     form.reset();
+    //reset input value to allow re-uploading the same file
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
   // Add useEffect cleanup on component unmount
@@ -261,6 +266,11 @@ const AnnouncementForm = ({
     // Cleanup function that runs when component unmounts
     return () => {
       revokeObjectURLs();
+
+      //reset input value to allow re-uploading the same file
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     };
   }, []); // Empty dependency array means this runs on unmount only
 
@@ -427,6 +437,7 @@ const AnnouncementForm = ({
                             id="file-input"
                             type="file"
                             className="hidden"
+                            ref={inputRef}
                             accept={
                               selectedFileType === "Image(s)"
                                 ? "image/*"
@@ -456,6 +467,10 @@ const AnnouncementForm = ({
                                       URL.createObjectURL(item)
                                     ),
                                   ]);
+                                  //reset input value to allow re-uploading the same file
+                                  if (inputRef.current) {
+                                    inputRef.current.value = "";
+                                  }
                                 } else {
                                   revokeObjectURLs();
 

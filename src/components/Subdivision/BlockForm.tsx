@@ -100,7 +100,7 @@ const BlockForm = ({
     } else {
       const payload = {
         ...data,
-        streetId: params.get("streetId")!,
+        phaseId: params.get("phaseId")!,
       };
       addBlockMutation.mutate(payload);
     }

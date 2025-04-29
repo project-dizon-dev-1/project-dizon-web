@@ -99,7 +99,9 @@ const AuditLogs = () => {
                       {audit.users_list?.user_last_name}
                     </TableCell>
                     <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
+                      className={cn("md:text-wrap text-nowrap", {
+                        "rounded-r-xl": i % 2 === 0,
+                      })}
                     >
                       {audit.description}
                     </TableCell>

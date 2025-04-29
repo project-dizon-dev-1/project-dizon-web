@@ -72,6 +72,7 @@ const LotForm = ({
         variant: "destructive",
       });
     },
+    
   });
 
   const updateLotMutation = useMutation({

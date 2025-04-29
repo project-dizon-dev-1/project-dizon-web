@@ -33,7 +33,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 // Axios instance
 const api = axios.create({
-  baseURL: "https://project-dizon-backend.onrender.com",
+  baseURL: import.meta.env.VITE_PUBLIC_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
