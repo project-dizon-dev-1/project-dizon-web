@@ -36,6 +36,7 @@ const loginSchema = baseSchema
     userLastName: true,
     houseCode: true,
     confirmPassword: true,
+    userContact: true,
   })
   .extend({
     userPassword: z.string().min(1, "Password is required"),

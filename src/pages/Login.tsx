@@ -35,7 +35,7 @@ const Login = () => {
   const loginMutation = useMutation({
     mutationFn: (data: loginType) => login(data),
     onSuccess: () => {
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     },
     onError: (error) => {
       form.setError("root", {
