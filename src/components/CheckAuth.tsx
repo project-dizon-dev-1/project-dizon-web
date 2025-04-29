@@ -8,7 +8,7 @@ import { User } from "@/context/userContext";
 
 const CheckAuth = () => {
   // Get auth token from localStorage
-  const DatabasePassword = import.meta.env.VITE_SUPABASE_PASSWORD!;
+  const DatabasePassword = import.meta.env.SUPABASE_PASSWORD!;
   const tokenString = localStorage.getItem(`sb-${DatabasePassword}-auth-token`);
   const auth = tokenString ? JSON.parse(tokenString) : null;
 
