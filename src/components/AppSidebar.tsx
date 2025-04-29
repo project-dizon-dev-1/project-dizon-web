@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { SIDEBAR_LINKS } from "@/constants/sidebarLinks";
 import useUserContext from "@/hooks/useUserContext";
@@ -28,6 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Skeleton } from "./ui/skeleton";
 
 export const AppSidebar = () => {
+  const { isMobile } = useSidebar();
   const { user, setUser } = useUserContext();
   const url = useLocation();
   const navigate = useNavigate();
@@ -71,7 +73,7 @@ export const AppSidebar = () => {
         alt="an icon"
       />
       <Sidebar
-        className="bg-transparent w-[265px]"
+        className={cn("bg-transparent w-[265px]", { hidden: isMobile })}
         variant="sidebar"
         collapsible="none"
       >
@@ -253,18 +255,7 @@ export const AppSidebar = () => {
                         Send a feedback
                       </span>
                     </DropdownMenuItem>
-                    {/* <DropdownMenuItem
-                      onSelect={() => navigate("/bug-report")}
-                      className="flex items-center hover:cursor-pointer gap-2 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors"
-                    >
-                      <Icon
-                        className="h-5 w-5 text-blue-300"
-                        icon="mingcute:bug-line"
-                      />
-                      <span className="text-sm font-medium text-gray-800">
-                        Report a bug
-                      </span>
-                    </DropdownMenuItem> */}
+
                     <DropdownMenuItem
                       onClick={async () => {
                         setUser(null);

@@ -16,8 +16,14 @@ const signup = async (userData: signupType) => {
     };
   }
 
-  const { userEmail, userFirstName, userLastName, userContact , userPassword, houseCode } =
-    validationResult.data;
+  const {
+    userEmail,
+    userFirstName,
+    userLastName,
+    userContact,
+    userPassword,
+    houseCode,
+  } = validationResult.data;
 
   // First verify house code is valid
   const { data: houseData, error: houseError } = await supabase
@@ -30,7 +36,7 @@ const signup = async (userData: signupType) => {
     throw new Error("Invalid house code. Please check and try again.");
   }
 
-  // Create the user in auth 
+  // Create the user in auth
   const { data, error } = await supabase.auth.signUp({
     email: userEmail,
     password: userPassword,
@@ -105,7 +111,7 @@ const login = async (userData: loginType) => {
     .single();
 
   if (fetchError) {
-  throw new Error(fetchError.message);
+    throw new Error(fetchError.message);
   }
 
   return userDetails;

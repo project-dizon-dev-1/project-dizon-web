@@ -10,8 +10,11 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useRef } from "react";
 import { useSearchParams } from "react-router";
 import useInterObserver from "@/hooks/useIntersectObserver";
+import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const Announcements = () => {
+  const { isMobile } = useSidebar();
   const [searchParams] = useSearchParams();
   const { user } = useUserContext();
   const announcementsContainerRef = useRef<HTMLDivElement>(null);
@@ -62,11 +65,16 @@ const Announcements = () => {
   }
 
   return (
-    <div className="flex justify-center max-h-full h-full gap-12 ">
+    <div
+      className={cn("flex justify-center max-h-full h-full gap-12 ", {
+        "flex-col-reverse overflow-y-scroll gap-4 w-full no-scrollbar":
+          isMobile,
+      })}
+    >
       {/* Main Content */}
       <div
         ref={announcementsContainerRef}
-        className="grow flex flex-col overflow-y-scroll max-w-[530px] no-scrollbar"
+        className="grow flex flex-col overflow-y-scroll lg:max-w-[530px] no-scrollbar "
       >
         {user?.role === "admin" && (
           <AnnouncementHeader first_name={user?.user_first_name} />

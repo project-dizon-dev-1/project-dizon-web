@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router";
 import Signup from "@/pages/Signup";
 import Login from "@/pages/Login";
 import MainLayout from "@/layouts/MainLayout";
@@ -22,19 +22,20 @@ import Profile from "./pages/Profile";
 import FeedbackForm from "./pages/FeedbackForm";
 import SendResetPassword from "./pages/SendResetPassword";
 import PasswordRecovery from "./pages/PasswordRecovery";
+import Homepage from "./pages/Homepage";
 
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route element={<GuestRoute />}>
+          <Route path="/" element={<Homepage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/reset-password" element={<SendResetPassword />} />
         </Route>
         <Route element={<CheckAuth />}>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/collection" element={<Collection />} />
             <Route path="/collection/:phase" element={<CollectionDetails />} />

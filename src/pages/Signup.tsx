@@ -15,8 +15,12 @@ import { signup } from "@/services/authServices";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router";
 import PasswordInput from "@/components/PasswordInput";
+import BackGroundImage from "@/assets/BG.png";
+import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const Signup = () => {
+  const { isMobile } = useSidebar();
   const form = useForm({
     defaultValues: {
       userFirstName: "",
@@ -49,8 +53,16 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center  px-4 py-8">
-      <div className="w-full max-w-4xl bg-gradient-to-br from-blue-100/90 via-indigo-200/50 to-purple-200/90 p-8 rounded-xl shadow-lg">
+    <div className="min-h-dvh h-dvh flex flex-col items-center justify-center w-full overflow-y-scroll no-scrollbar ">
+      {!isMobile && <img src={BackGroundImage} alt="background image" />}
+      <div
+        className={cn(
+          "  w-full max-w-4xl bg-white p-8 rounded-xl overflow-y-scroll no-scrollbar",
+          {
+            " absolute -right-3 -bottom-3 shadow-lg ": !isMobile,
+          }
+        )}
+      >
         <div className="text-center space-y-2 mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
             Create an account

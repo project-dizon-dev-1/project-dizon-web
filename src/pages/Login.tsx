@@ -15,9 +15,14 @@ import { login } from "@/services/authServices";
 import { useNavigate, Link } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import PasswordInput from "@/components/PasswordInput";
+import BackGroundImage from "@/assets/BG.png";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { useSidebar } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { isMobile } = useSidebar();
 
   const form = useForm({
     defaultValues: {
@@ -47,9 +52,27 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center bg-white px-4 py-8">
-      <div className="w-full max-w-md space-y-6 bg-gradient-to-br from-blue-100/90 via-indigo-200/50 to-purple-200/90 p-8 rounded-xl shadow-lg">
-        <div className="text-center space-y-2">
+    <div className="min-h-dvh flex flex-col items-center justify-center bg-white  w-full overflow-y-scroll no-scrollbar">
+      {!isMobile && (
+        <img
+          className="object-cover"
+          src={BackGroundImage}
+          alt="background image"
+        />
+      )}
+      <div
+        className={cn("w-full space-y-6 z-50 bg-white p-8 rounded-xl ", {
+          "absolute bottom-12 right-32 max-w-md shadow-lg": !isMobile,
+        })}
+      >
+        <div className="flex flex-col items-center space-y-2">
+          <Icon
+            className="text-center w-14 h-14"
+            icon={"mingcute:attachment-line"}
+          />
+          <h1 className="text-5xl font-bold tracking-tight text-primary-blue">
+            GEMS
+          </h1>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">
             Login to your account
           </h1>

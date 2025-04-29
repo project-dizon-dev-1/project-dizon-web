@@ -25,7 +25,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePhaseContext } from "@/context/phaseContext";
 import {
-  fetchBlocksByStreet,
+  fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
 } from "@/services/subdivisionServices";
@@ -42,7 +42,6 @@ const Residents = () => {
   );
   const {
     clearFilters,
-    updateParams,
     selectedBlock,
     selectedStreet,
     selectedPhase,
@@ -52,7 +51,7 @@ const Residents = () => {
   // Fetch blocks based on selected phase
   const { data: blocks, isLoading: blocksLoading } = useQuery({
     queryKey: ["blocks", selectedStreet],
-    queryFn: async () => await fetchBlocksByStreet(selectedStreet),
+    queryFn: async () => await fetchBlocksByPhase(selectedStreet),
     enabled: !!selectedStreet,
   });
 
@@ -71,33 +70,76 @@ const Residents = () => {
   });
 
   const handlePhaseChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
+    if (value === "all") {
+      const newParams = new URLSearchParams(searchParams);
 
-    if (value) {
-      newParams.set("phase", value);
-    } else {
       newParams.delete("phase");
+      newParams.delete("block");
+      newParams.delete("street");
+      newParams.delete("lot");
+
+      setSearchParams(newParams);
+    } else {
+      const newParams = new URLSearchParams(searchParams);
+
+      newParams.set("phase", value);
+      newParams.delete("block");
+      newParams.delete("street");
+      newParams.delete("lot");
+      setSearchParams(newParams);
     }
-
-    newParams.delete("block");
-    newParams.delete("street");
-    newParams.delete("lot");
-
-    setSearchParams(newParams);
   };
 
   const handleBlockChange = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
+    if (value === "all") {
+      const newParams = new URLSearchParams(searchParams);
 
-    if (value) {
-      newParams.set("block", value);
-    } else {
       newParams.delete("block");
+      newParams.delete("lot");
+
+      setSearchParams(newParams);
+    } else {
+      const newParams = new URLSearchParams(searchParams);
+
+      newParams.set("block", value);
+      newParams.delete("lot");
+
+      setSearchParams(newParams);
     }
+  };
 
-    newParams.delete("lot");
+  const handleStreetChange = (value: string) => {
+    if (value === "all") {
+      const newParams = new URLSearchParams(searchParams);
 
-    setSearchParams(newParams);
+      newParams.delete("street");
+      newParams.delete("lot");
+
+      setSearchParams(newParams);
+    } else {
+      const newParams = new URLSearchParams(searchParams);
+
+      newParams.set("street", value);
+      newParams.delete("lot");
+
+      setSearchParams(newParams);
+    }
+  };
+
+  const handleLotChange = (value: string) => {
+    if (value === "all") {
+      const newParams = new URLSearchParams(searchParams);
+
+      newParams.delete("lot");
+
+      setSearchParams(newParams);
+    } else {
+      const newParams = new URLSearchParams(searchParams);
+
+      newParams.set("lot", value);
+
+      setSearchParams(newParams);
+    }
   };
 
   const {
@@ -157,9 +199,9 @@ const Residents = () => {
   return (
     <div className="w-full overflow-y-scroll no-scrollbar">
       <ResidentForm />
-      <div className="flex gap-4 mb-4">
+      <div className="flex gap-4 mb-4 flex-wrap">
         <Input
-          className="w-auto rounded-xl bg-white h-[42px]"
+          className="w-[428px]  rounded-xl bg-white h-[42px]"
           placeholder="Search Household Units"
           value={searchInput}
           onChange={handleSearchChange}
@@ -169,6 +211,7 @@ const Residents = () => {
             <SelectValue placeholder="All Phases" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all"> All Phases</SelectItem>
             {phases.map((phase: Phase) => (
               <SelectItem key={phase.id} value={phase.id}>
                 {phase.name}
@@ -178,7 +221,7 @@ const Residents = () => {
         </Select>
         <Select
           value={selectedStreet || ""}
-          onValueChange={(value) => updateParams("street", value)}
+          onValueChange={handleStreetChange}
           disabled={!selectedPhase || streetsLoading}
         >
           <SelectTrigger className="w-[180px]">
@@ -196,6 +239,8 @@ const Residents = () => {
             )}
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Streets</SelectItem>
+
             {streets?.map((street) => (
               <SelectItem key={street.id} value={street.id}>
                 {street.name}
@@ -223,6 +268,7 @@ const Residents = () => {
             )}
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Blocks</SelectItem>
             {blocks?.map((block) => (
               <SelectItem key={block.id} value={block.id}>
                 {block.name}
@@ -233,7 +279,7 @@ const Residents = () => {
 
         <Select
           value={selectedLot || ""}
-          onValueChange={(value) => updateParams("lot", value)}
+          onValueChange={handleLotChange}
           disabled={!selectedBlock || lotsLoading}
         >
           <SelectTrigger className="w-[180px]">
@@ -251,6 +297,8 @@ const Residents = () => {
             )}
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Lots</SelectItem>
+
             {lots?.map((lot) => (
               <SelectItem key={lot.id} value={lot.id}>
                 {lot.name}

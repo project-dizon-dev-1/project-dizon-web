@@ -32,7 +32,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addHouse } from "@/services/houseServices";
 import { useEffect, useState } from "react";
 import {
-  fetchBlocksByStreet,
+  fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
 } from "@/services/subdivisionServices";
@@ -120,7 +120,7 @@ const ResidentForm = () => {
 
   const watchedPhase = form.watch("phase");
   const watchedBlock = form.watch("block");
-  const watchedStreet = form.watch("street");
+  // const watchedStreet = form.watch("street");
 
   // Fetch form-specific blocks when phase changes in the form
   const {
@@ -128,9 +128,9 @@ const ResidentForm = () => {
     isLoading: isBlocksLoading,
     error: blocksError,
   } = useQuery({
-    queryKey: ["form-blocks", watchedStreet],
-    queryFn: async () => await fetchBlocksByStreet(watchedStreet),
-    enabled: !!watchedStreet,
+    queryKey: ["form-blocks", watchedPhase],
+    queryFn: async () => await fetchBlocksByPhase(watchedPhase),
+    enabled: !!watchedPhase,
   });
 
   // Fetch form-specific streets when phase changes in the form
@@ -189,7 +189,7 @@ const ResidentForm = () => {
 
   return (
     <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <AlertDialogTrigger asChild className="absolute z-50 right-3 bottom-3">
+      <AlertDialogTrigger asChild className="absolute z-20 right-3 bottom-3">
         <Button variant={"default"} size="lg">
           <span className="mr-2">Add House Unit</span>
           {addHouseMutation.isPending && (
@@ -271,6 +271,10 @@ const ResidentForm = () => {
                               )}
                             </SelectTrigger>
                             <SelectContent>
+                              {formStreets?.length === 0 && (
+                                <p className="p-2">No streets available</p>
+                              )}
+
                               {formStreets?.map((street) => (
                                 <SelectItem key={street.id} value={street.id}>
                                   {street.name}
@@ -309,6 +313,9 @@ const ResidentForm = () => {
                               )}
                             </SelectTrigger>
                             <SelectContent>
+                              {formBlocks?.length === 0 && (
+                                <p className=" p-2">No blocks available</p>
+                              )}
                               {formBlocks?.map((block) => (
                                 <SelectItem key={block.id} value={block.id}>
                                   {block.name}

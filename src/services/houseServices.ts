@@ -71,7 +71,7 @@ const updateHousePayment = async ({
   data,
 }: {
   houseId: string;
-  data: CollectionType & { receivedBy: string | undefined };
+  data: CollectionType;
 }) => {
   const formData = new FormData();
 
@@ -84,10 +84,6 @@ const updateHousePayment = async ({
 
   if (data.housePaymentRemarks) {
     formData.append("housePaymentRemarks", data.housePaymentRemarks);
-  }
-
-  if (data.receivedBy) {
-    formData.append("receivedBy", data.receivedBy);
   }
 
   // Add file if it exists

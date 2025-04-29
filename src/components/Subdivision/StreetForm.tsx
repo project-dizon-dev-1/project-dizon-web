@@ -54,9 +54,6 @@ const StreetForm = ({
     defaultValues: {
       name: name || "",
     },
-    values: {
-      name: name || "",
-    },
   });
 
   const addStreetMutation = useMutation({
@@ -113,28 +110,9 @@ const StreetForm = ({
     streetForm.reset();
   };
 
-  const handleOpenDialog = () => {
-    streetForm.reset({ name: name || "" });
-    setDialogOpen(true);
-  };
-
   return (
-    <AlertDialog
-      open={dialogOpen}
-      onOpenChange={(open) => {
-        if (open) handleOpenDialog();
-        else setDialogOpen(false);
-      }}
-    >
-      <AlertDialogTrigger
-        asChild
-        onClick={(e) => {
-          e.preventDefault();
-          handleOpenDialog();
-        }}
-      >
-        {children}
-      </AlertDialogTrigger>
+    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>

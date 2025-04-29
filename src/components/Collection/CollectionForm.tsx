@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
-  AlertDialogAction,
+  AlertDialogActionNoClose,
   AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
@@ -32,21 +32,23 @@ import { Textarea } from "../ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Label } from "../ui/label";
-import useUserContext from "@/hooks/useUserContext";
 import { fetchFixedDue } from "@/services/dueServices";
 
 const CollectionForm = ({
   houseId,
   familyName,
-}: {
+  houseLatestPayment,
+}: // arrears = 0,
+{
   familyName: string;
   houseId: string;
+  houseLatestPayment: Date | null;
+  // arrears: number;
 }) => {
   const [amountToPay, setAmountToPay] = useState<number>(0);
   const [monthsPaying, setMonthsPaying] = useState<string[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const queryClient = useQueryClient();
-  const { user } = useUserContext();
 
   const { data: fixedDue } = useQuery({
     queryKey: ["fixedDue"],
@@ -102,8 +104,7 @@ const CollectionForm = ({
   });
 
   const onSubmit = (data: CollectionType) => {
-    const newData = { ...data, receivedBy: user?.id };
-    updatePaymentMutation.mutate({ houseId, data: newData });
+    updatePaymentMutation.mutate({ houseId, data });
   };
 
   useEffect(() => {
@@ -111,20 +112,35 @@ const CollectionForm = ({
       setAmountToPay(fixedDue.total_due * form.getValues("housePaymentMonths"));
 
       // Generate a list of months being paid for
-      const currentMonth = new Date().getMonth(); // Get the current month (0-based)
+      let startDate;
+
+      if (houseLatestPayment) {
+        // If there's a latest payment, start from the month after that payment
+        startDate = new Date(houseLatestPayment);
+        // Move to the next month
+        startDate.setMonth(startDate.getMonth() + 1);
+      } else {
+        // If no payment history, start from current month
+        startDate = new Date();
+      }
+
       const totalMonths = form.getValues("housePaymentMonths");
 
       // Create an array of month names based on the number of months
       const monthsArray = Array.from({ length: totalMonths }, (_, i) => {
-        const monthIndex = (currentMonth + i) % 12; // Wrap around after December
-        return new Date(0, monthIndex).toLocaleString("default", {
+        const paymentDate = new Date(startDate);
+        paymentDate.setMonth(startDate.getMonth() + i);
+
+        // Format as "Month Year" to avoid confusion when spanning multiple years
+        return paymentDate.toLocaleString("default", {
           month: "long",
+          year: "numeric",
         });
       });
 
       setMonthsPaying(monthsArray);
     }
-  }, [fixedDue, housePaymentsMonthCurVal]);
+  }, [fixedDue, housePaymentsMonthCurVal, houseLatestPayment]);
 
   return (
     <AlertDialog>
@@ -182,11 +198,8 @@ const CollectionForm = ({
                         {...field}
                         onChange={(e) => {
                           const value = parseInt(e.target.value);
-                          if (value >= 1) {
-                            field.onChange(value);
-                          } else {
-                            field.onChange(1);
-                          }
+
+                          field.onChange(value);
                         }}
                       />
                     </FormControl>
@@ -286,18 +299,16 @@ const CollectionForm = ({
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          <AlertDialogActionNoClose
             disabled={
-              (housePaymentAmount !== amountToPay &&
-                housePaymentsMonthCurVal > 1) ||
-              (housePaymentAmount > amountToPay &&
-                housePaymentsMonthCurVal === 1)
+              housePaymentAmount !== amountToPay
+              // || (housePaymentAmount > amountToPay
             }
             type="submit"
             form="form"
           >
             Submit
-          </AlertDialogAction>
+          </AlertDialogActionNoClose>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

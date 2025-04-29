@@ -30,7 +30,7 @@ const addPhase = async (data: { name: string }) => {
   return await axiosPost("/subdivision/phases", data);
 };
 
-const addBlock = async (data: { name: string; streetId: string }) => {
+const addBlock = async (data: { name: string; phaseId: string }) => {
   return await axiosPost("/subdivision/blocks", data);
 };
 
@@ -90,48 +90,48 @@ const fetchAllPhases = async (): Promise<
   return await axiosGet("/subdivision/phases/all");
 };
 
-const fetchAllBlocks = async (): Promise<
-  {
-    created_at: Date;
-    name: string;
-    id: string;
-    phase_id: string;
-  }[]
-> => {
-  return await axiosGet("/subdivision/blocks/all");
-};
+// const fetchAllBlocks = async (): Promise<
+//   {
+//     created_at: Date;
+//     name: string;
+//     id: string;
+//     phase_id: string;
+//   }[]
+// > => {
+//   return await axiosGet("/subdivision/blocks/all");
+// };
 
-const fetchAllStreets = async (): Promise<
-  {
-    id: string;
-    created_at: Date;
-    name: string;
-    phase_id: string;
-  }[]
-> => {
-  return await axiosGet("/subdivision/streets/all");
-};
+// const fetchAllStreets = async (): Promise<
+//   {
+//     id: string;
+//     created_at: Date;
+//     name: string;
+//     phase_id: string;
+//   }[]
+// > => {
+//   return await axiosGet("/subdivision/streets/all");
+// };
 
-const fetchAllLots = async (): Promise<
-  {
-    name: string;
-    id: string;
-    created_at: Date;
-    block_id: string;
-  }[]
-> => {
-  return await axiosGet("/subdivision/lots/all");
-};
+// const fetchAllLots = async (): Promise<
+//   {
+//     name: string;
+//     id: string;
+//     created_at: Date;
+//     block_id: string;
+//   }[]
+// > => {
+//   return await axiosGet("/subdivision/lots/all");
+// };
 
-const fetchBlocksByStreet = async (
-  streetId?: string | null
+const fetchBlocksByPhase = async (
+  phaseId?: string | null
 ): Promise<
   {
     id: string;
     name: string;
   }[]
 > => {
-  return await axiosGet(`/subdivision/phases/${streetId}/blocks`);
+  return await axiosGet(`/subdivision/phases/${phaseId}/blocks`);
 };
 
 const fetchStreetsByPhase = async (
@@ -169,6 +169,13 @@ const fetchLotsByBlock = async (
   return await axiosGet(`/subdivision/blocks/${blockId}/lots`);
 };
 
+const fetchPaymentStatus = async (): Promise<{
+  message: string;
+  status: string;
+}> => {
+  return await axiosGet(`/subdivision/payment-status`);
+};
+
 export {
   fetchSubdivisionPhases,
   fetchSubdivisionSummary,
@@ -180,10 +187,10 @@ export {
   addStreet,
   addLot,
   fetchAllPhases,
-  fetchAllBlocks,
-  fetchAllStreets,
-  fetchAllLots,
-  fetchBlocksByStreet,
+  // fetchAllBlocks,
+  // fetchAllStreets,
+  // fetchAllLots,
+  fetchBlocksByPhase,
   fetchStreetsByPhase,
   fetchLotsByBlock,
   editPhase,
@@ -194,4 +201,5 @@ export {
   deleteBlock,
   deleteStreet,
   deleteLot,
+  fetchPaymentStatus,
 };

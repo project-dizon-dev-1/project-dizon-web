@@ -86,6 +86,7 @@ const ConfigureCollectionForm = ({
 
   const onSubmit = async (data: configureCollectionSchemaType) => {
     configureCollectionMutation.mutate(data);
+    setIsOpen(false);
     form.reset();
   };
 

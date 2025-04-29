@@ -157,7 +157,7 @@ const PaymentHistory = () => {
 
   return (
     <div className="  h-full overflow-y-scroll no-scrollbar">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <Input
           className=" w-[428px] rounded-xl bg-white h-[42px]"
           placeholder="Search Household Units"
@@ -410,6 +410,8 @@ const PaymentHistory = () => {
                               </p>
                               {!due.confirmed_by_user &&
                                 user?.role === "admin" &&
+                                `${due.house_list?.house_main_poc_user?.user_first_name} ${due.house_list?.house_main_poc_user?.user_last_name}` !==
+                                  `${user.user_first_name} ${user.user_last_name}` &&
                                 `${due.receiver?.user_first_name} ${due.receiver?.user_last_name}` !==
                                   `${user.user_first_name} ${user.user_last_name}` && (
                                   <Button

@@ -6,7 +6,7 @@ import {
   deletePhase,
   deleteStreet,
   fetchAllPhases,
-  fetchBlocksByStreet,
+  fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
 } from "@/services/subdivisionServices";
@@ -15,12 +15,15 @@ import PhaseForm from "@/components/Subdivision/PhaseForm";
 import StreetForm from "@/components/Subdivision/StreetForm";
 import BlockForm from "@/components/Subdivision/BlockForm";
 import LotForm from "@/components/Subdivision/LotForm";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import SubdivisionColumn from "@/components/Subdivision/SubdivisionColumn";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const SubdivisionManagement = () => {
+  const { isMobile } = useSidebar();
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [params, setParams] = useSearchParams();
@@ -37,9 +40,9 @@ const SubdivisionManagement = () => {
   });
 
   const { data: blocks, isLoading: blocksLoading } = useQuery({
-    queryKey: ["blocks", params.get("streetId")],
-    queryFn: async () => await fetchBlocksByStreet(params.get("streetId")),
-    enabled: !!params.get("streetId"),
+    queryKey: ["blocks", params.get("phaseId")],
+    queryFn: async () => await fetchBlocksByPhase(params.get("phaseId")),
+    enabled: !!params.get("phaseId"),
   });
 
   const { data: lots, isLoading: lotsLoading } = useQuery({
@@ -201,7 +204,7 @@ const SubdivisionManagement = () => {
       />
 
       {/* Streets Column */}
-      {(streets || streetsLoading) && (
+      {(streets || streetsLoading) && !isMobile && (
         <SubdivisionColumn
           title={"Streets"}
           FormComponent={StreetForm}
@@ -218,9 +221,38 @@ const SubdivisionManagement = () => {
           queryParamsKey="streetId"
         />
       )}
+      {isMobile && (streets || streetsLoading) && (
+        <Sheet
+          open={!!streets}
+          onOpenChange={(open) => {
+            if (!open) {
+              setParams();
+            }
+          }}
+        >
+          <SheetContent className="w-full  sm:max-w-full sm:w-full md:max-w-full ">
+            <SubdivisionColumn
+              title={"Streets"}
+              FormComponent={StreetForm}
+              childExist={!!streets}
+              data={streets}
+              setParams={handleStreetClick}
+              deleteDialogOpen={deleteDialogOpen}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              handleDeleteData={handleDeleteStreet}
+              loading={streetsLoading}
+              deleteMessage={
+                "This action cannot be undone. This will permanently delete your street and all the blocks and lots in this street."
+              }
+              queryParamsKey="streetId"
+            />
+          </SheetContent>
+        </Sheet>
+      )}
+      {/* Street Mobile View */}
 
       {/* Blocks Column */}
-      {(blocks || blocksLoading) && (
+      {(blocks || blocksLoading) && !isMobile && (
         <SubdivisionColumn
           title={"Blocks"}
           FormComponent={BlockForm}
@@ -237,9 +269,41 @@ const SubdivisionManagement = () => {
           queryParamsKey="blockId"
         />
       )}
+      {/* Block Mobile View */}
+      {isMobile && (blocks || blocksLoading) && (
+        <Sheet
+          open={!!blocks}
+          onOpenChange={(open) => {
+            if (!open) {
+              const newParams = new URLSearchParams();
+              newParams.set("phaseId", params.get("phaseId") || "");
+
+              setParams(newParams);
+            }
+          }}
+        >
+          <SheetContent className="w-full  sm:max-w-full sm:w-full md:max-w-full ">
+            <SubdivisionColumn
+              title={"Blocks"}
+              FormComponent={BlockForm}
+              childExist={!!blocks}
+              data={blocks}
+              setParams={handleBlockClick}
+              deleteDialogOpen={deleteDialogOpen}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              handleDeleteData={handleDeleteBlock}
+              loading={blocksLoading}
+              deleteMessage={
+                "This action cannot be undone. This will permanently delete your block and all the lots in this block."
+              }
+              queryParamsKey="blockId"
+            />
+          </SheetContent>
+        </Sheet>
+      )}
 
       {/* Lots Column */}
-      {(lots || lotsLoading) && (
+      {(lots || lotsLoading) && !isMobile && (
         <SubdivisionColumn
           title={"Lots"}
           FormComponent={LotForm}
@@ -255,6 +319,39 @@ const SubdivisionManagement = () => {
           }
           queryParamsKey="lotId"
         />
+      )}
+
+      {/* Lot Mobile View */}
+      {isMobile && (lots || lotsLoading) && (
+        <Sheet
+          open={!!lots}
+          onOpenChange={(open) => {
+            if (!open) {
+              const newParams = new URLSearchParams();
+              newParams.set("phaseId", params.get("phaseId") || "");
+              newParams.set("streetId", params.get("streetId") || "");
+              setParams(newParams);
+            }
+          }}
+        >
+          <SheetContent className="w-full  sm:max-w-full sm:w-full md:max-w-full ">
+            <SubdivisionColumn
+              title={"Lots"}
+              FormComponent={LotForm}
+              childExist={!!lots}
+              data={lots}
+              setParams={() => {}}
+              deleteDialogOpen={deleteDialogOpen}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              handleDeleteData={handleDeleteLot}
+              loading={lotsLoading}
+              deleteMessage={
+                "This action cannot be undone. This will permanently delete your lot."
+              }
+              queryParamsKey="lotId"
+            />
+          </SheetContent>
+        </Sheet>
       )}
     </div>
   );

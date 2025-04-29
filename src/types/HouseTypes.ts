@@ -112,7 +112,7 @@ type HouseSummary = {
     name: string;
   };
   lots: {
-    number: string;
+    name: string;
   };
   house_arrears: number | null;
   house_main_poc_user: {

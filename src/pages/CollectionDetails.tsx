@@ -30,7 +30,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useNavigate, useSearchParams, useParams } from "react-router";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import {
-  fetchBlocksByStreet,
+  fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
 } from "@/services/subdivisionServices";
@@ -44,7 +44,7 @@ const CollectionDetails = () => {
   const { data: blocks, isLoading: blocksLoading } = useQuery({
     queryKey: ["blocks", phase],
     queryFn: async () => {
-      return await fetchBlocksByStreet(searchParams.get("street"));
+      return await fetchBlocksByPhase(phase);
     },
     enabled: !!phase,
   });
@@ -134,7 +134,7 @@ const CollectionDetails = () => {
 
   return (
     <div className="h-full overflow-y-scroll no-scrollbar">
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <Icon
           onClick={handleBackClick}
           className="hover:cursor-pointer opacity-75 w-6 h-6"
@@ -149,12 +149,25 @@ const CollectionDetails = () => {
         <Select
           value={selectedStreet || ""}
           disabled={streetsLoading || !streets}
-          onValueChange={(value) => updateParams("street", value)}
+          onValueChange={(value) => {
+            if (value === "all") {
+              // Remove the street parameter instead of setting it to "all"
+              const params = new URLSearchParams(searchParams);
+              params.delete("street");
+              // Also clear block and lot since they depend on street
+              params.delete("block");
+              params.delete("lot");
+              setSearchParams(params);
+            } else {
+              updateParams("street", value);
+            }
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder={selectedStreet || "All Streets"} />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value={"all"}>All Streets</SelectItem>
             {streets?.map((street) => (
               <SelectItem key={street.id} value={street.id}>
                 {street.name}
@@ -165,7 +178,17 @@ const CollectionDetails = () => {
         <Select
           value={selectedBlock || ""}
           disabled={blocksLoading || !blocks}
-          onValueChange={(value) => updateParams("block", value)}
+          onValueChange={(value) => {
+            if (value === "all") {
+              const params = new URLSearchParams(searchParams);
+
+              params.delete("block");
+              params.delete("lot");
+              setSearchParams(params);
+            } else {
+              updateParams("block", value);
+            }
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
@@ -175,6 +198,8 @@ const CollectionDetails = () => {
             />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value={"all"}>All Blocks</SelectItem>
+
             {blocks?.map((block) => (
               <SelectItem key={block.id} value={block.id}>
                 {block.name}
@@ -186,7 +211,15 @@ const CollectionDetails = () => {
         <Select
           value={selectedLot || ""}
           disabled={lotsLoading || !lots}
-          onValueChange={(value) => updateParams("lot", value)}
+          onValueChange={(value) => {
+            if (value === "all") {
+              const params = new URLSearchParams(searchParams);
+              params.delete("lot");
+              setSearchParams(params);
+            } else {
+              updateParams("lot", value);
+            }
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
@@ -194,6 +227,8 @@ const CollectionDetails = () => {
             />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value={"all"}>All Lots</SelectItem>
+
             {lots?.map((lot) => (
               <SelectItem key={lot.id} value={lot.id}>
                 {lot.name}
@@ -300,11 +335,14 @@ const CollectionDetails = () => {
                           : "rounded-r-xl"
                       )}
                     >
-                      {(!house.house_latest_payment ||
+                      {((house.house_arrears && house.house_arrears > 0) ||
+                        !house.house_latest_payment ||
                         new Date(house.house_latest_payment).getMonth() <
                           new Date().getMonth()) &&
                         user?.id !== house?.house_main_poc_user?.id && (
                           <CollectionForm
+                            // arrears={house.house_arrears ?? 0}
+                            houseLatestPayment={house.house_latest_payment}
                             familyName={house.house_family_name}
                             houseId={house.id}
                           />
