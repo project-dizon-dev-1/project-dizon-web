@@ -29,7 +29,6 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Create the context provider and wrap the children
 export const UserProvider = ({ children }: UserProviderProps) => {
   const [user, setUser] = useState<User | null | undefined>(null);
-
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}

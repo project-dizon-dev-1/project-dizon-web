@@ -110,6 +110,7 @@ const PaymentHistory = () => {
       </p>
     </div>
   );
+
   return (
     <div className="h-full overflow-y-scroll no-scrollbar">
       <div className="mb-6">

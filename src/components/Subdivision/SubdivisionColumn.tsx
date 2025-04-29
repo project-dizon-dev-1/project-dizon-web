@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/popover";
 import { useSearchParams } from "react-router";
 import { Skeleton } from "../ui/skeleton";
+import { useSidebar } from "../ui/sidebar";
 
 const SubdivisionColumn = ({
   title,
@@ -59,12 +60,13 @@ const SubdivisionColumn = ({
   deleteMessage: string;
   queryParamsKey: string;
 }) => {
+  const { isMobile } = useSidebar();
   const [params] = useSearchParams();
 
   return (
     <div
       className={cn("flex-1 overflow-y-scroll no-scrollbar", {
-        "border-r border-[#45495A/0.12] rounded-l-xl": childExist,
+        "border-r border-[#45495A/0.12] rounded-l-xl": childExist && !isMobile,
       })}
     >
       <div className="flex justify-between py-[18px] pl-[32px] pr-[24px] border-b border-[#45495A/0.12]">
@@ -85,12 +87,12 @@ const SubdivisionColumn = ({
           </div>
         ) : (
           data &&
-          data.map((data) => {
-            const isSelected = params.get(queryParamsKey) === data.id;
+          data.map((item) => {
+            const isSelected = params.get(queryParamsKey) === item.id;
             return (
               <div
-                key={data.id}
-                onClick={() => setParams(data.id)}
+                key={item.id}
+                onClick={() => setParams(item.id)}
                 className={cn(
                   ` flex items-center  justify-between h-16 rounded-xl mb-2 bg-[#45495A05] ${
                     title !== "Lots" &&
@@ -103,7 +105,7 @@ const SubdivisionColumn = ({
                 )}
               >
                 <div>
-                  <p>{data.name}</p>
+                  <p>{item.name}</p>
                   <p
                     className={cn(
                       "text-2xs group-hover:text-white",
@@ -115,7 +117,7 @@ const SubdivisionColumn = ({
                     5 Streets
                   </p>
                 </div>
-                <Popover>
+                <Popover modal={true}>
                   <PopoverTrigger
                     onClick={(e) => {
                       e.stopPropagation();
@@ -129,9 +131,9 @@ const SubdivisionColumn = ({
                   >
                     <div className="flex flex-col bg-white">
                       <FormComponent
-                        key={data.id}
-                        name={data.name}
-                        id={data.id}
+                        key={item.id}
+                        name={item.name}
+                        id={item.id}
                       >
                         <Button variant="ghost" className="rounded-none">
                           Edit
@@ -171,7 +173,7 @@ const SubdivisionColumn = ({
                             </AlertDialogCancel>
                             <AlertDialogActionNoClose
                               variant={"destructive"}
-                              onClick={() => handleDeleteData(data.id)}
+                              onClick={() => handleDeleteData(item.id)}
                               className="bg-red-500 hover:bg-red-600"
                             >
                               Delete

@@ -8,6 +8,7 @@ import React, {
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllPhases } from "@/services/subdivisionServices";
 import { Phase } from "@/types/subdivisionTypes";
+import useUserContext from "@/hooks/useUserContext";
 
 // Define a simplified context type
 interface PhaseContextType {
@@ -26,6 +27,7 @@ interface PhaseProviderProps {
 }
 
 export const PhaseProvider = ({ children }: PhaseProviderProps) => {
+  const { user } = useUserContext();
   const [phases, setPhases] = useState<Phase[]>([]);
 
   // Fetch phases using useQuery
@@ -36,6 +38,7 @@ export const PhaseProvider = ({ children }: PhaseProviderProps) => {
   } = useQuery({
     queryKey: ["phases"],
     queryFn: fetchAllPhases,
+    enabled: !!user,
   });
 
   // Update state when data is fetched

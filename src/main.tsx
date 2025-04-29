@@ -6,18 +6,21 @@ import App from "./App.tsx";
 import { UserProvider } from "./context/userContext.tsx";
 import { Toaster } from "./components/ui/toaster.tsx";
 import { PhaseProvider } from "./context/phaseContext.tsx";
+import { SidebarProvider } from "./components/ui/sidebar.tsx";
 
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <PhaseProvider>
-        <UserProvider>
-          <App />
+      <UserProvider>
+        <PhaseProvider>
+          <SidebarProvider>
+            <App />
+          </SidebarProvider>
           <Toaster />
-        </UserProvider>
-      </PhaseProvider>
+        </PhaseProvider>
+      </UserProvider>
     </QueryClientProvider>
   </StrictMode>
 );

@@ -7,8 +7,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useDuesCategory from "@/hooks/useDuesCategory";
-import { categorySchema, CategoryType } from "@/validations/duesSchema";
 import {
   AlertDialogBody,
   AlertDialogFooter,
@@ -22,10 +20,8 @@ import {
   AlertDialogActionNoClose,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import useUserContext from "@/hooks/useUserContext";
+import React, { useState } from "react";
+import useCategoryForm from "@/hooks/useCategoryForm";
 
 const CategoryForm = ({
   categoryId,
@@ -36,37 +32,11 @@ const CategoryForm = ({
   categoryName?: string;
   children: React.ReactNode;
 }) => {
-  const { user } = useUserContext();
-  const form = useForm({
-    resolver: zodResolver(categorySchema),
-    defaultValues: {
-      categoryName: categoryName ?? "",
-    },
-  });
-  const { addCategoryMutation, updateCategoryMutation } = useDuesCategory();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { form, onSubmit } = useCategoryForm(categoryName, categoryId);
 
-  const onSubmit = (data: CategoryType) => {
-    if (categoryId) {
-      updateCategoryMutation.mutate({
-        categoryId,
-        data: {
-          ...data,
-          userId: user?.id,
-          userName: `${user?.user_first_name} ${user?.user_last_name}`,
-        },
-      });
-      return;
-    }
-
-    addCategoryMutation.mutate({
-      ...data,
-      categoryType: "EXPENSE",
-      userId: user?.id,
-      userName: `${user?.user_first_name} ${user?.user_last_name}`,
-    });
-  };
   return (
-    <AlertDialog>
+    <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
 
       <AlertDialogContent>
@@ -84,7 +54,9 @@ const CategoryForm = ({
           <Form {...form}>
             <form
               id="category-form"
-              onSubmit={form.handleSubmit(onSubmit)}
+              onSubmit={form.handleSubmit((data) =>
+                onSubmit(data, setIsDialogOpen)
+              )}
               className="space-y-2"
             >
               <FormField

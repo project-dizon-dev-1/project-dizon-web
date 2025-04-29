@@ -13,10 +13,25 @@ import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router";
-import { fetchUserFixedDue } from "@/services/subdivisionServices";
+import {
+  fetchPaymentStatus,
+  fetchUserFixedDue,
+} from "@/services/subdivisionServices";
+import { useEffect, useState } from "react";
+import { AlertDialog } from "@radix-ui/react-alert-dialog";
+import {
+  AlertDialogBody,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Dashboard = () => {
   const { user } = useUserContext();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: houseSummary, isLoading } = useQuery({
     queryKey: ["userHouseSummary", user],
@@ -87,6 +102,36 @@ const Dashboard = () => {
         return "th";
     }
   };
+  const { data: paymentStatusData, isSuccess } = useQuery({
+    queryKey: ["paymentStatus"],
+    queryFn: fetchPaymentStatus,
+  });
+
+  // Check if we should show the dialog based on the last shown timestamp
+  const shouldShowDialog = () => {
+    const lastShown = localStorage.getItem("paymentDialogLastShown");
+    if (!lastShown) return true;
+
+    const lastShownDate = new Date(parseInt(lastShown));
+    const currentDate = new Date();
+
+    // Check if it's been at least 24 hours since the dialog was last shown
+    const timeDiff = currentDate.getTime() - lastShownDate.getTime();
+    const hoursPassed = timeDiff / (1000 * 60 * 60);
+
+    return hoursPassed >= 24;
+  };
+  useEffect(() => {
+    if (
+      isSuccess &&
+      paymentStatusData.status !== "success" &&
+      shouldShowDialog()
+    ) {
+      setDialogOpen(true);
+      // Store the current timestamp when showing the dialog
+      localStorage.setItem("paymentDialogLastShown", Date.now().toString());
+    }
+  }, [isSuccess, paymentStatusData]);
 
   if (isLoading || !user) {
     return (
@@ -120,7 +165,7 @@ const Dashboard = () => {
               {houseSummary?.house_family_name} Family
             </CardTitle>
             <CardDescription>
-              {houseSummary?.phases.name}, {houseSummary?.streets.name}{" "}
+              {houseSummary?.phases?.name}, {houseSummary?.streets?.name}{" "}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -128,7 +173,7 @@ const Dashboard = () => {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="font-medium text-gray-500">Address</div>
                 <div>
-                  {houseSummary?.blocks.name}, {houseSummary?.lots.number}
+                  {houseSummary?.blocks?.name}, {houseSummary?.lots?.name}
                 </div>
 
                 <div className="font-medium text-gray-500">
@@ -237,6 +282,36 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Payment Status Message</AlertDialogTitle>
+            <AlertDialogDescription></AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            <div className="flex flex-col items-center">
+              {paymentStatusData?.status === "warning" && (
+                <Icon
+                  icon="mingcute:warning-line"
+                  className="text-orange-500 h-10 w-10 mb-2"
+                />
+              )}
+              {paymentStatusData?.status === "danger" && (
+                <Icon
+                  icon="mingcute:warning-line"
+                  className="text-red-500 h-10 w-10 mb-2"
+                />
+              )}
+              <p className="text-gray-700 text-sm">
+                {paymentStatusData?.message}
+              </p>
+            </div>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
