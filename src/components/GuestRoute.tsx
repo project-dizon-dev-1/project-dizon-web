@@ -26,7 +26,7 @@ const GuestRoute = () => {
         if (session?.user) {
           // If user is  authenticated, redirect Home
           setAuthStatus({ loading: false, authenticated: true });
-          navigate("/", { replace: true });
+          navigate("/dashboard", { replace: true });
         } else {
           // If user is not authenticated, continue to the link
           setAuthStatus({ loading: false, authenticated: false });

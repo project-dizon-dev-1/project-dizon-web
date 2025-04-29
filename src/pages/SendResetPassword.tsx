@@ -92,7 +92,7 @@ const SendResetPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center h-screen w-full">
       <div className="flex flex-col items-center justify-center w-[450px]">
         <div className="flex flex-col items-center justify-center mb-10">
           <Icon
