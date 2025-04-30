@@ -15,7 +15,7 @@ import { login } from "@/services/authServices";
 import { useNavigate, Link } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import PasswordInput from "@/components/PasswordInput";
-import BackGroundImage from "@/assets/BG.png";
+import BackGroundImage from "@/assets/BG.webp";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
@@ -52,24 +52,38 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center bg-white  w-full overflow-y-scroll no-scrollbar">
+    <div className="min-h-dvh flex flex-col items-center justify-center bg-white w-full overflow-y-scroll no-scrollbar">
+      {/* Add Home Navigation Link */}
+      <div className="absolute top-4 left-4 z-50">
+        <div className="flex justify-end mb-4">
+          <Button variant="ghost" size="sm" className="gap-1">
+            <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
+            <Link to="/">Back to Home</Link>
+          </Button>
+        </div>
+      </div>
+
       {!isMobile && (
-        <img
-          className="object-cover"
-          src={BackGroundImage}
-          alt="background image"
-        />
+        <div className="fixed inset-0 z-0">
+          <img
+            className="w-full h-full object-cover"
+            src={BackGroundImage}
+            alt="background image"
+          />
+        </div>
       )}
       <div
         className={cn("w-full space-y-6 z-50 bg-white p-8 rounded-xl ", {
-          "absolute bottom-12 right-32 max-w-md shadow-lg": !isMobile,
+          "relative mx-auto max-w-md md:absolute md:bottom-12 md:right-32 md:mx-0 shadow-lg":
+            !isMobile,
+          "mx-auto max-w-md": isMobile,
         })}
       >
         <div className="flex flex-col items-center space-y-2">
-          <Icon
+          {/* <Icon
             className="text-center w-14 h-14"
             icon={"mingcute:attachment-line"}
-          />
+          /> */}
           <h1 className="text-5xl font-bold tracking-tight text-primary-blue">
             GEMS
           </h1>

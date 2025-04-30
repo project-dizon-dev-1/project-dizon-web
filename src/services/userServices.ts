@@ -1,4 +1,4 @@
-import { axiosGet, axiosPut } from "@/lib/axios";
+import { axiosDelete, axiosGet, axiosPut } from "@/lib/axios";
 import { Database } from "@/types/database";
 import { supabase } from "./supabaseClient";
 
@@ -134,6 +134,9 @@ const sendPasswordResetLink = async (email: string) => {
     throw new Error(`Error sending password reset link: ${error.message}`);
   }
 };
+const deleteAccount = async (userId?: string | null) => {
+  axiosDelete(`/user/delete/${userId}`);
+};
 
 export {
   sendPasswordResetLink,
@@ -142,4 +145,5 @@ export {
   updateUserPassword,
   sendChangeEmailVerification,
   updateEmail,
+  deleteAccount,
 };

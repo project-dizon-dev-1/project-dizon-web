@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router";
 import {
   fetchPaymentStatus,
-  fetchUserFixedDue,
+  fetchFixedDue,
 } from "@/services/subdivisionServices";
 import { useEffect, useState } from "react";
 import { AlertDialog } from "@radix-ui/react-alert-dialog";
@@ -41,7 +41,7 @@ const Dashboard = () => {
 
   const { data: fixedDue } = useQuery({
     queryKey: ["userFixedDue"],
-    queryFn: fetchUserFixedDue,
+    queryFn: fetchFixedDue,
   });
   // Calculate payment status
   const currentMonthDue = fixedDue?.amount || 0;

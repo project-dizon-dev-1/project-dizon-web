@@ -16,6 +16,7 @@ import { updateEmail } from "@/services/userServices";
 import { supabase } from "@/services/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router";
+import DeleteAccountForm from "@/components/Profile/DeleteAccountForm";
 
 const Profile = () => {
   const { user } = useUserContext();
@@ -250,6 +251,7 @@ const Profile = () => {
                 Change Password
               </Button>
               <EditEmailForm />
+              <DeleteAccountForm userId={user?.id} />
             </div>
           </div>
         </CardContent>

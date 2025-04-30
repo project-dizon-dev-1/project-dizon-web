@@ -16,10 +16,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { HousesSummary } from "@/types/HouseTypes";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { fetchUserFixedDue } from "@/services/subdivisionServices";
+import { fetchFixedDue } from "@/services/subdivisionServices";
 
 const Collection = () => {
-  const { data, isError, isLoading } = useQuery<HousesSummary>({
+  const { data, isError, isLoading, error } = useQuery<HousesSummary>({
     queryKey: ["houseSummary"],
     queryFn: getHousesSummary,
   });
@@ -30,7 +30,7 @@ const Collection = () => {
     isError: dueError,
   } = useQuery({
     queryKey: ["userFixedDue"],
-    queryFn: fetchUserFixedDue,
+    queryFn: fetchFixedDue,
   });
 
   const navigate = useNavigate();
@@ -63,6 +63,32 @@ const Collection = () => {
             </Card>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  if (isError && error.message === "Failed to fetch due amount") {
+    return (
+      <div className="flex h-full w-full items-center justify-center p-6">
+        <Card className="w-full max-w-md p-6">
+          <div className="flex flex-col items-center text-center">
+            <Icon
+              icon="mingcute:warning-fill"
+              className="h-12 w-12 text-amber-500 mb-4"
+            />
+            <CardTitle className="text-xl mb-2">
+              Error Loading Due Amount
+            </CardTitle>
+            <CardDescription className="mb-6">
+              Please configure the collection amount and due date first.
+            </CardDescription>
+          </div>
+        </Card>
+        <ConfigureCollectionForm
+          amount={fixedDue?.amount}
+          due_date={fixedDue?.due_date}
+          grace_period={fixedDue?.grace_period}
+        />
       </div>
     );
   }
@@ -178,13 +204,19 @@ const Collection = () => {
                   Collection Amount
                 </p>
                 <p className=" font-bold text-2xl">
-                  ₱{fixedDue?.amount?.toLocaleString("en-PH")}
+                  {fixedDue?.amount
+                    ? `₱${fixedDue?.amount?.toLocaleString("en-PH")}`
+                    : "₱0"}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Every {fixedDue?.due_date} of the month
+                  {fixedDue?.due_date
+                    ? `Every ${fixedDue?.due_date} of the month`
+                    : "Due date not set"}
                 </p>
                 <p className=" text-xs text-muted-foreground">
-                  Grace period: {fixedDue?.grace_period} days
+                  {fixedDue?.grace_period
+                    ? `Grace period: ${fixedDue?.grace_period} days`
+                    : "No grace period"}
                 </p>
               </div>
             </div>

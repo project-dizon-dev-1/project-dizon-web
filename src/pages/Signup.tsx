@@ -11,16 +11,29 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
 import { signup } from "@/services/authServices";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router";
 import PasswordInput from "@/components/PasswordInput";
-import BackGroundImage from "@/assets/BG.png";
+import BackGroundImage from "@/assets/BG.webp";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { Icon } from "@iconify/react";
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Signup = () => {
   const { isMobile } = useSidebar();
+  const [eulaOpen, setEulaOpen] = useState(false);
+
   const form = useForm({
     defaultValues: {
       userFirstName: "",
@@ -30,6 +43,7 @@ const Signup = () => {
       houseCode: "",
       userPassword: "",
       confirmPassword: "",
+      agreementAccepted: false,
     },
     resolver: zodResolver(signupSchema),
   });
@@ -53,13 +67,31 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-dvh h-dvh flex flex-col items-center justify-center w-full overflow-y-scroll no-scrollbar ">
-      {!isMobile && <img src={BackGroundImage} alt="background image" />}
+    <div className="min-h-dvh flex flex-col items-center justify-center w-full overflow-y-scroll no-scrollbar">
+      {/* Add Home Navigation Link */}
+      <div className="absolute top-4 left-4 z-50">
+        <Button variant="ghost" size="sm" className="gap-1">
+          <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
+          <Link to="/">Back to Home</Link>
+        </Button>
+      </div>
+
+      {!isMobile && (
+        <div className="fixed inset-0 z-0">
+          <img
+            className="w-full h-full object-cover"
+            src={BackGroundImage}
+            alt="background image"
+          />
+        </div>
+      )}
       <div
         className={cn(
-          "  w-full max-w-4xl bg-white p-8 rounded-xl overflow-y-scroll no-scrollbar",
+          "w-full z-50 bg-white p-8 rounded-xl overflow-y-scroll no-scrollbar max-h-dvh",
           {
-            " absolute -right-3 -bottom-3 shadow-lg ": !isMobile,
+            "absolute -bottom-2 -right-2 mx-auto max-w-4xl   md:mx-0 shadow-lg":
+              !isMobile,
+            "mx-auto max-w-4xl": isMobile,
           }
         )}
       >
@@ -231,6 +263,52 @@ const Signup = () => {
                   )}
                 />
               </div>
+            </div>
+
+            {/* EULA Agreement Checkbox */}
+            <div className="mt-6">
+              <FormField
+                control={form.control}
+                name="agreementAccepted"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md p-4 border">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel className="text-sm font-normal text-gray-700">
+                        I have read and agree to the{" "}
+                        <Dialog open={eulaOpen} onOpenChange={setEulaOpen}>
+                          <DialogTrigger asChild>
+                            <button
+                              type="button"
+                              className="text-primary-blue font-medium hover:underline"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setEulaOpen(true);
+                              }}
+                            >
+                              End User License Agreement
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>
+                                End User License Agreement
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="text-sm space-y-4 py-4"></div>
+                          </DialogContent>
+                        </Dialog>
+                      </FormLabel>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
 
             {/* Submit button and messages - full width */}

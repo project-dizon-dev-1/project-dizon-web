@@ -22,13 +22,16 @@ const baseSchema = z.object({
   confirmPassword: z.string().min(1, "Please confirm your password"),
 });
 
-const signupSchema = baseSchema.refine(
-  (data) => data.userPassword === data.confirmPassword,
-  {
+const signupSchema = baseSchema
+  .extend({
+    agreementAccepted: z.boolean().refine((val) => val === true, {
+      message: "You must accept the terms and conditions to continue.",
+    }),
+  })
+  .refine((data) => data.userPassword === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
-  }
-);
+  });
 
 const loginSchema = baseSchema
   .omit({
@@ -87,6 +90,15 @@ const profileSchema = z.object({
     .optional(),
 });
 
+const contactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  subject: z.string().min(1, "Subject is required"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+type ContactFormValues = z.infer<typeof contactFormSchema>;
+
 type ProfileFormValues = z.infer<typeof profileSchema>;
 type RecoveryFormValues = z.infer<typeof recoverySchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
@@ -94,6 +106,7 @@ type loginType = z.infer<typeof loginSchema>;
 type signupType = z.infer<typeof signupSchema>;
 
 export {
+  contactFormSchema,
   loginSchema,
   signupSchema,
   passwordSchema,
@@ -102,6 +115,7 @@ export {
 };
 
 export type {
+  ContactFormValues,
   loginType,
   signupType,
   PasswordFormValues,

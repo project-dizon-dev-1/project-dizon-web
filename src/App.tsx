@@ -23,6 +23,7 @@ import FeedbackForm from "./pages/FeedbackForm";
 import SendResetPassword from "./pages/SendResetPassword";
 import PasswordRecovery from "./pages/PasswordRecovery";
 import Homepage from "./pages/Homepage";
+import Contact from "./pages/Contact";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
       <Routes>
         <Route element={<GuestRoute />}>
           <Route path="/" element={<Homepage />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/reset-password" element={<SendResetPassword />} />
