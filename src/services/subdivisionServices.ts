@@ -18,7 +18,7 @@ const fetchSubdivisionDashboard = async (): Promise<
 > => {
   return await axiosGet("/subdivision/dashboard");
 };
-const fetchUserFixedDue = async (): Promise<fixedDueType | null> => {
+const fetchFixedDue = async (): Promise<fixedDueType | null> => {
   return await axiosGet("/subdivision/collection/fixed-due");
 };
 
@@ -181,7 +181,7 @@ export {
   fetchSubdivisionSummary,
   fetchSubdivisionDashboard,
   upsertFixedDue,
-  fetchUserFixedDue,
+  fetchFixedDue,
   addPhase,
   addBlock,
   addStreet,

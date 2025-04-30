@@ -159,11 +159,7 @@ const AlertDialogActionNoClose = React.forwardRef<
 >(({ className, variant = "default", onClick, ...props }, ref) => (
   <button
     ref={ref}
-    className={cn(
-      buttonVariants({ variant }),
-      "flex-1 rounded-lg bg-primary-blue hover:bg-primary-blue hover:opacity-90",
-      className
-    )}
+    className={cn(buttonVariants({ variant }), "flex-1 rounded-lg", className)}
     onClick={onClick}
     {...props}
   />
