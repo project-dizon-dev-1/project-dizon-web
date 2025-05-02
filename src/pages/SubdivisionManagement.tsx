@@ -253,23 +253,21 @@ const SubdivisionManagement = () => {
 
       {/* Blocks Column */}
       {(blocks || blocksLoading) && !isMobile && (
-        <div>
-          <SubdivisionColumn
-            title={"Streets"}
-            FormComponent={StreetForm}
-            childExist={!!streets}
-            data={streets}
-            setParams={handleStreetClick}
-            deleteDialogOpen={deleteDialogOpen}
-            setDeleteDialogOpen={setDeleteDialogOpen}
-            handleDeleteData={handleDeleteStreet}
-            loading={streetsLoading}
-            deleteMessage={
-              "This action cannot be undone. This will permanently delete your street and all the blocks and lots in this street."
-            }
-            queryParamsKey="streetId"
-          />
-        </div>
+        <SubdivisionColumn
+          title={"Blocks"}
+          FormComponent={BlockForm}
+          childExist={!!blocks}
+          data={blocks}
+          setParams={handleBlockClick}
+          deleteDialogOpen={deleteDialogOpen}
+          setDeleteDialogOpen={setDeleteDialogOpen}
+          handleDeleteData={handleDeleteBlock}
+          loading={blocksLoading}
+          deleteMessage={
+            "This action cannot be undone. This will permanently delete your block and all the lots in this block."
+          }
+          queryParamsKey="blockId"
+        />
       )}
       {/* Block Mobile View */}
       {isMobile && (blocks || blocksLoading) && (
