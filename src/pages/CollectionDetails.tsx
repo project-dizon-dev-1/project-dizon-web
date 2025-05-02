@@ -35,6 +35,7 @@ import {
   fetchStreetsByPhase,
 } from "@/services/subdivisionServices";
 import useUserContext from "@/hooks/useUserContext";
+import { Badge } from "@/components/ui/badge";
 
 const CollectionDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -324,9 +325,21 @@ const CollectionDetails = () => {
                       (new Date(house.house_latest_payment).getMonth() ===
                         new Date().getMonth() ||
                         new Date(house.house_latest_payment).getMonth() >
-                          new Date().getMonth())
-                        ? "Paid"
-                        : "Unpaid"}
+                          new Date().getMonth()) ? (
+                        <Badge
+                          variant={"outline"}
+                          className="bg-green-100 text-green-800"
+                        >
+                          Paid
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant={"outline"}
+                          className="bg-red-100 text-red-800"
+                        >
+                          Unpaid
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell
                       className={cn(

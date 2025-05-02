@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addPhase, editPhase } from "@/services/subdivisionServices";
@@ -39,17 +39,20 @@ const PhaseForm = ({
 }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const edittingPhase = id ? true : false;
+  const isEditing = !!id;
 
   const phaseForm = useForm<PhaseFormValues>({
     resolver: zodResolver(phaseSchema),
     defaultValues: {
       name: name || "",
     },
-    values: {
-      name: name || "",
-    },
   });
+
+  useEffect(() => {
+    if (dialogOpen && isEditing) {
+      phaseForm.reset({ name: name || "" });
+    }
+  }, [dialogOpen, isEditing, name, phaseForm]);
 
   const addPhaseMutation = useMutation({
     mutationFn: addPhase,
@@ -91,7 +94,7 @@ const PhaseForm = ({
   });
 
   const onSubmit = async (data: PhaseFormValues) => {
-    if (edittingPhase) {
+    if (isEditing) {
       editPhaseMutation.mutate({ phaseId: id, data });
     } else {
       addPhaseMutation.mutate(data);
@@ -99,7 +102,11 @@ const PhaseForm = ({
   };
 
   const handleOpenDialog = () => {
-    phaseForm.reset({ name: name || "" });
+    if (isEditing) {
+      phaseForm.reset({ name: name || "" });
+    } else {
+      phaseForm.reset({ name: "" });
+    }
     setDialogOpen(true);
   };
 
@@ -107,26 +114,25 @@ const PhaseForm = ({
     <AlertDialog
       open={dialogOpen}
       onOpenChange={(open) => {
-        if (open) handleOpenDialog();
-        else setDialogOpen(false);
+        if (open) {
+          handleOpenDialog();
+        } else {
+          setDialogOpen(false);
+        }
       }}
     >
-      <AlertDialogTrigger
-        asChild
-        onClick={(e) => {
-          e.preventDefault();
-          handleOpenDialog();
-        }}
-      >
-        {children}
+      <AlertDialogTrigger asChild>
+        <button type="button" onClick={(e) => e.stopPropagation()}>
+          {children}
+        </button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="z-50">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {edittingPhase ? "Edit Phase" : "Add New Phase"}
+            {isEditing ? "Edit Phase" : "Add New Phase"}
           </AlertDialogTitle>
           <AlertDialogDescription>
-            {edittingPhase
+            {isEditing
               ? "Update the details of this phase"
               : "Add a new phase to your subdivision"}
           </AlertDialogDescription>
@@ -145,7 +151,11 @@ const PhaseForm = ({
                   <FormItem>
                     <FormLabel>Phase Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Phase 1" {...field} />
+                      <Input
+                        placeholder="e.g. Phase 1"
+                        {...field}
+                        className="z-50 relative"
+                      />
                     </FormControl>
                     <FormDescription>
                       Enter a unique name for this phase
@@ -159,7 +169,7 @@ const PhaseForm = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogActionNoClose type="submit">
-                {edittingPhase ? "Edit Phase" : "Add Phase"}
+                {isEditing ? "Update Phase" : "Add Phase"}
               </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>

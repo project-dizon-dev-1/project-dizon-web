@@ -215,6 +215,7 @@ const Dashboard = () => {
                 Payment Summary
               </CardTitle>
               <Badge
+                variant={"outline"}
                 className={
                   paymentStatus === "Fully Paid"
                     ? "bg-green-100 text-green-800"
