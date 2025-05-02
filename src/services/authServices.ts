@@ -58,7 +58,7 @@ const signup = async (userData: signupType) => {
       user_last_name: userLastName,
       user_email: userEmail,
       contact_number: userContact,
-      role: "resident", // Default role for new signups
+      role: "resident",
     },
   ]);
 

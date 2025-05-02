@@ -63,7 +63,7 @@ const BlockForm = ({
         description: "Block has been successfully created",
       });
       queryClient.invalidateQueries({
-        queryKey: ["blocks", params.get("streetId")],
+        queryKey: ["blocks", params.get("phaseId")],
       });
     },
     onError: (error) => {

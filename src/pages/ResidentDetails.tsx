@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { getHouse, getHouseVehicle } from "@/services/houseServices";
+import { getHouse } from "@/services/houseServices";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -33,14 +33,14 @@ const ResidentDetails = () => {
     queryFn: async () => await getHouse(houseId),
   });
 
-  const {
-    data: vehicles,
-    isLoading: vehiclesLoading,
-    isError: vehiclesError,
-  } = useQuery({
-    queryKey: ["vehicle", houseId],
-    queryFn: async () => await getHouseVehicle(houseId),
-  });
+  // const {
+  //   data: vehicles,
+  //   isLoading: vehiclesLoading,
+  //   isError: vehiclesError,
+  // } = useQuery({
+  //   queryKey: ["vehicle", houseId],
+  //   queryFn: async () => await getHouseVehicle(houseId),
+  // });
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -153,7 +153,7 @@ const ResidentDetails = () => {
       <Separator className="my-8 bg-[#45495A]/[.12]" />
 
       {/* Vehicles table */}
-      <h1 className="font-bold mb-3">Vehicles</h1>
+      {/* <h1 className="font-bold mb-3">Vehicles</h1>
       <Table>
         <TableHeader>
           <TableRow>
@@ -223,7 +223,7 @@ const ResidentDetails = () => {
             </TableRow>
           )}
         </TableBody>
-      </Table>
+      </Table> */}
     </div>
   );
 };

@@ -35,7 +35,7 @@ const Contact = () => {
     },
   });
 
-  const onSubmit = (_data: ContactFormValues) => {
+  const onSubmit = (data: ContactFormValues) => {
     setIsSubmitting(true);
 
     // Simulating form submission

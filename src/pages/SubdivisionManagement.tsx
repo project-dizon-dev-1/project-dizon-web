@@ -134,7 +134,7 @@ const SubdivisionManagement = () => {
         description: "Block has been deleted successfully",
       });
       queryClient.invalidateQueries({
-        queryKey: ["blocks", params.get("streetId")],
+        queryKey: ["blocks", params.get("phaseId")],
       });
     },
     onError: (error) => {
@@ -253,21 +253,23 @@ const SubdivisionManagement = () => {
 
       {/* Blocks Column */}
       {(blocks || blocksLoading) && !isMobile && (
-        <SubdivisionColumn
-          title={"Blocks"}
-          FormComponent={BlockForm}
-          childExist={!!blocks}
-          data={blocks}
-          setParams={handleBlockClick}
-          deleteDialogOpen={deleteDialogOpen}
-          setDeleteDialogOpen={setDeleteDialogOpen}
-          handleDeleteData={handleDeleteBlock}
-          loading={blocksLoading}
-          deleteMessage={
-            "This action cannot be undone. This will permanently delete your block and all the lots in this block."
-          }
-          queryParamsKey="blockId"
-        />
+        <div>
+          <SubdivisionColumn
+            title={"Streets"}
+            FormComponent={StreetForm}
+            childExist={!!streets}
+            data={streets}
+            setParams={handleStreetClick}
+            deleteDialogOpen={deleteDialogOpen}
+            setDeleteDialogOpen={setDeleteDialogOpen}
+            handleDeleteData={handleDeleteStreet}
+            loading={streetsLoading}
+            deleteMessage={
+              "This action cannot be undone. This will permanently delete your street and all the blocks and lots in this street."
+            }
+            queryParamsKey="streetId"
+          />
+        </div>
       )}
       {/* Block Mobile View */}
       {isMobile && (blocks || blocksLoading) && (
@@ -276,7 +278,7 @@ const SubdivisionManagement = () => {
           onOpenChange={(open) => {
             if (!open) {
               const newParams = new URLSearchParams();
-              newParams.set("phaseId", params.get("phaseId") || "");
+              newParams.delete("phaseId");
 
               setParams(newParams);
             }
@@ -329,7 +331,8 @@ const SubdivisionManagement = () => {
             if (!open) {
               const newParams = new URLSearchParams();
               newParams.set("phaseId", params.get("phaseId") || "");
-              newParams.set("streetId", params.get("streetId") || "");
+              newParams.delete("blockId");
+              newParams.delete("streetId");
               setParams(newParams);
             }
           }}

@@ -117,7 +117,8 @@ const SubdivisionColumn = ({
                     5 Streets
                   </p>
                 </div>
-                <Popover modal={true}>
+
+                <Popover>
                   <PopoverTrigger
                     onClick={(e) => {
                       e.stopPropagation();
@@ -135,7 +136,14 @@ const SubdivisionColumn = ({
                         name={item.name}
                         id={item.id}
                       >
-                        <Button variant="ghost" className="rounded-none">
+                        <Button
+                          variant="ghost"
+                          className="rounded-none"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent parent row click
+                          }}
+                          type="button"
+                        >
                           Edit
                         </Button>
                       </FormComponent>
@@ -148,9 +156,7 @@ const SubdivisionColumn = ({
                       >
                         <AlertDialogTrigger asChild>
                           <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
+                            onClick={(e) => e.stopPropagation()}
                             variant="ghost"
                             className="rounded-none"
                           >
