@@ -266,11 +266,6 @@ const AnnouncementForm = ({
     // Cleanup function that runs when component unmounts
     return () => {
       revokeObjectURLs();
-
-      //reset input value to allow re-uploading the same file
-      if (inputRef.current) {
-        inputRef.current.value = "";
-      }
     };
   }, []); // Empty dependency array means this runs on unmount only
 
