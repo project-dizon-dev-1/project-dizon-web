@@ -71,7 +71,7 @@ export default [
           varsIgnorePattern: "^_",
           ignoreRestSiblings: true,
           // This helps with type definitions
-          args: "none",
+          args: "all",
           varsIgnorePattern: "^React$",
           caughtErrors: "none",
         },
