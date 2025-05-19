@@ -79,6 +79,15 @@ const signup = async (userData: signupType) => {
   if (linkError) {
     throw new Error(`Error linking user to house: ${linkError.message}`);
   }
+
+  // delete the house code after use
+  const { error: deleteError } = await supabase
+    .from("house-code")
+    .delete()
+    .eq("code", houseCode);
+  if (deleteError) {
+    throw new Error(`Error deleting house code: ${deleteError.message}`);
+  }
 };
 
 const login = async (userData: loginType) => {

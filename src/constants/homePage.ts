@@ -16,12 +16,7 @@ const features = [
     description: "Manage Lots in your subdivision with ease. ",
     icon: "mingcute:building-4-fill",
   },
-  //   {
-  //     title: "Audit Logs",
-  //     description:
-  //       "Keep track of all activities within the system for transparency and accountability.",
-  //     icon: "mingcute:file-search-fill",
-  //   },
+
 ];
 
 const FAQS = [

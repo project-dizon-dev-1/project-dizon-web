@@ -25,6 +25,7 @@ import {
   AlertDialogActionNoClose,
 } from "@/components/ui/alert-dialog";
 import React, { useState } from "react";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const DuesForm = ({
   data,
@@ -36,7 +37,7 @@ const DuesForm = ({
   children: React.ReactNode;
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { onSubmit, form } = useDues(data);
+  const { onSubmit, form, isPending } = useDues(data);
 
   return (
     <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -58,7 +59,7 @@ const DuesForm = ({
             <form
               id="due-form"
               onSubmit={form.handleSubmit((data) => {
-                onSubmit(data, categoryId), setIsDialogOpen(false);
+                onSubmit(data, setIsDialogOpen, categoryId);
               })} // Add categoryId to the onSubmit function
               className="space-y-2"
             >
@@ -118,8 +119,22 @@ const DuesForm = ({
           <AlertDialogCancel asChild>
             <Button variant="secondary">Cancel</Button>
           </AlertDialogCancel>
-          <AlertDialogActionNoClose form="due-form" type="submit">
-            Submit
+          <AlertDialogActionNoClose
+            form="due-form"
+            type="submit"
+            disabled={isPending}
+          >
+            {isPending ? (
+              <>
+                <Icon 
+                  icon="mingcute:loading-fill"
+                  className="h-4 w-4 animate-spin mr-2"
+                />
+                Submitting...
+              </>
+            ) : (
+              "Submit"
+            )}
           </AlertDialogActionNoClose>
         </AlertDialogFooter>
       </AlertDialogContent>

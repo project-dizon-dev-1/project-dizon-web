@@ -152,7 +152,7 @@ const StreetForm = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogActionNoClose type="submit">
-                Add Street
+                {edittingStreet ? "Update" : "Create"}
               </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>

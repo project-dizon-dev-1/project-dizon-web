@@ -39,7 +39,6 @@ import { addTransaction } from "@/services/transactionServices";
 import { toast } from "@/hooks/use-toast";
 import useUserContext from "@/hooks/useUserContext";
 
-// Schema for the payment form
 const paymentSchema = z.object({
   payment_method_type: z.enum(PAYMENT_METHOD_VALUES),
   transactionProof: z
@@ -209,11 +208,14 @@ const PayDueButton = ({
                           <SelectValue placeholder="Select payment method" />
                         </SelectTrigger>
                         <SelectContent>
-                          {PAYMENT_METHOD_VALUES.map((method) => (
+                          <SelectItem key={"CASH"} value={"CASH" as const}>
+                            {"CASH"}
+                          </SelectItem>
+                          {/* {PAYMENT_METHOD_VALUES.map((method) => (
                             <SelectItem key={method} value={method}>
                               {method.charAt(0) + method.slice(1).toLowerCase()}
                             </SelectItem>
-                          ))}
+                          ))} */}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -240,7 +242,7 @@ const PayDueButton = ({
                           if (file) {
                             const url = URL.createObjectURL(file);
                             setImagePreview(url);
-                            field.onChange(file); // Use field.onChange directly
+                            field.onChange(file);
                           }
                         }}
                       />

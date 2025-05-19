@@ -301,7 +301,8 @@ const CollectionForm = ({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogActionNoClose
             disabled={
-              housePaymentAmount !== amountToPay
+              housePaymentAmount !== amountToPay ||
+              updatePaymentMutation.isPending
               // || (housePaymentAmount > amountToPay
             }
             type="submit"

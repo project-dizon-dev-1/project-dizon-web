@@ -96,10 +96,10 @@ const AnnouncementForm = ({
 
   const addAnnouncementMutation = useMutation({
     mutationFn: addAnnouncement,
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error",
-        description: "Error adding announcement",
+        description: `${error.message}`,
       });
     },
     onSuccess: () => {
@@ -306,7 +306,7 @@ const AnnouncementForm = ({
         }
       }}
     >
-      <AlertDialogTrigger className="w-full" onClick={handleOpenDialog}>
+      <AlertDialogTrigger asChild className="w-full" onClick={handleOpenDialog}>
         {children}
       </AlertDialogTrigger>
       <AlertDialogContent className="max-h-[80%] w-full overflow-y-scroll no-scrollbar">
@@ -644,9 +644,12 @@ const AnnouncementForm = ({
             className="flex-1"
             form="form"
             type="submit"
-            disabled={announcement && (isPhaseLoading || isPhaseError)}
+            disabled={
+              addAnnouncementMutation.isPending ||
+              editAnnouncementMutation.isPending
+            }
           >
-            Submit
+            {addAnnouncementMutation.isPending ? "Submitting..." : "Submit"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

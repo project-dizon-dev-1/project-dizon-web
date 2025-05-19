@@ -43,6 +43,7 @@ const Announcements = () => {
       });
     },
     initialPageParam: "1",
+
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.hasNextPage) return undefined;
       return lastPage.currentPage + 1;

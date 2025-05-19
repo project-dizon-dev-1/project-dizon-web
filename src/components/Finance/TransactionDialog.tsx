@@ -33,7 +33,7 @@ import useDuesCategory from "@/hooks/useDuesCategory";
 import {
   transactionSchema,
   TransactionType,
-  PAYMENT_METHOD_VALUES,
+  // PAYMENT_METHOD_VALUES,
 } from "@/validations/transactionSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -217,9 +217,9 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                                   <SelectItem value="Club House Booking">
                                     Club House Booking
                                   </SelectItem>
-                                  <SelectItem value="Resident Payment">
+                                  {/* <SelectItem value="Resident Payment">
                                     Resident Payment
-                                  </SelectItem>
+                                  </SelectItem> */}
                                   <SelectItem value="Other">
                                     Other Income
                                   </SelectItem>
@@ -251,10 +251,7 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                           placeholder="Enter amount"
                           {...field}
                           onChange={(e) => {
-                            const value =
-                              e.target.value === ""
-                                ? 0
-                                : parseFloat(e.target.value);
+                            const value = parseFloat(e.target.value);
                             field.onChange(value);
                           }}
                         />
@@ -281,12 +278,13 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                             <SelectValue placeholder="Select payment method" />
                           </SelectTrigger>
                           <SelectContent>
-                            {PAYMENT_METHOD_VALUES.map((method) => (
+                            <SelectItem value="CASH">Cash</SelectItem>
+                            {/* {PAYMENT_METHOD_VALUES.map((method) => (
                               <SelectItem key={method} value={method}>
                                 {method.charAt(0) +
                                   method.slice(1).toLowerCase()}
                               </SelectItem>
-                            ))}
+                            ))} */}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -395,8 +393,19 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
           <AlertDialogActionNoClose
             onClick={() => form.handleSubmit(onSubmit)()}
             type="submit"
+            disabled={addTransactionMutation.isPending}
           >
-            Submit Transaction
+            {addTransactionMutation.isPending ? (
+              <>
+                <Icon
+                  icon="mingcute:loading-fill"
+                  className="h-4 w-4 animate-spin mr-2"
+                />
+                Processing...
+              </>
+            ) : (
+              " Record Transaction"
+            )}
           </AlertDialogActionNoClose>
         </AlertDialogFooter>
       </AlertDialogContent>

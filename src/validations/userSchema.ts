@@ -52,8 +52,8 @@ const passwordSchema = z
       .string()
       .min(6, "Password must be at least 6 characters")
       .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must include uppercase, lowercase and a number"
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+        "Password must include uppercase, lowercase and a number and special character"
       ),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })

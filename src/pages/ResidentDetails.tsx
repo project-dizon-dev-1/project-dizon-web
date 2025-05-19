@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
-import { getHouse } from "@/services/houseServices";
+import { createCode, getHouse } from "@/services/houseServices";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import {
   Table,
@@ -19,6 +19,7 @@ import { toast } from "@/hooks/use-toast";
 const ResidentDetails = () => {
   const { houseId } = useParams();
   const navigate = useNavigate();
+  const queryClient = new QueryClient();
 
   const goBack = () => {
     navigate(-1);
@@ -41,6 +42,27 @@ const ResidentDetails = () => {
   //   queryKey: ["vehicle", houseId],
   //   queryFn: async () => await getHouseVehicle(houseId),
   // });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async () => await createCode(houseId),
+    onSuccess: () => {
+      toast({
+        title: "Access code generated successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error generating access code",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      // Invalidate the query to refresh the house data
+      queryClient.invalidateQueries({ queryKey: ["house", houseId] });
+    },
+  });
+
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -130,20 +152,36 @@ const ResidentDetails = () => {
               </TableRow>
               <TableRow className="h-[45px]">
                 <TableCell className="text-sm font-medium">
-                  House Code
+                  Access Code
                 </TableCell>
-                <TableCell className="text-sm font-medium flex items-center gap-2">
-                  {data?.house_code[0].code || "N/A"}
-                  {data?.house_code[0].code && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopy(data?.house_code[0].code)}
-                    >
-                      Copy
-                    </Button>
-                  )}
-                </TableCell>
+                {
+                  <TableCell className="text-sm font-medium flex items-center gap-2">
+                    {!data?.house_code[0]?.code && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() => mutate()}
+                      >
+                        {isPending ? "Generating..." : "Generate Code"}
+                      </Button>
+                    )}
+                    {data?.house_code[0]?.code && (
+                      <p className="text-sm font-medium">
+                        {data?.house_code[0]?.code}
+                      </p>
+                    )}
+                    {data?.house_code[0]?.code && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleCopy(data?.house_code[0]?.code)}
+                      >
+                        Copy
+                      </Button>
+                    )}
+                  </TableCell>
+                }
               </TableRow>
             </>
           )}

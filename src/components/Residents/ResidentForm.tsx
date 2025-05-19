@@ -45,6 +45,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Lot, Phase } from "@/types/subdivisionTypes";
 import { houseSchema, HouseSchemaType } from "@/validations/residentSchema";
+import { Input } from "../ui/input";
 
 const ResidentForm = () => {
   const { phases } = usePhaseContext();
@@ -56,6 +57,7 @@ const ResidentForm = () => {
   const form = useForm<HouseSchemaType>({
     resolver: zodResolver(houseSchema),
     defaultValues: {
+      familyName: "",
       phase: "",
       street: "",
       block: "",
@@ -216,6 +218,25 @@ const ResidentForm = () => {
           >
             <AlertDialogBody>
               <div className="grid gap-4">
+                <FormField
+                  control={form.control}
+                  name="familyName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Family Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="Enter family name"
+                          className="input"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="phase"

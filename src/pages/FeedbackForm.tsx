@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import useUserContext from "@/hooks/useUserContext";
@@ -26,24 +25,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { submitFeedback } from "@/services/feedbackServices";
-
-const feedbackSchema = z.object({
-  feedback: z
-    .string()
-    .min(10, "Please provide at least 10 characters of feedback")
-    .max(1000, "Feedback must be less than 1000 characters"),
-});
-
-type FeedbackFormValues = z.infer<typeof feedbackSchema>;
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  feedbackSchema,
+  FeedbackSchemaType,
+} from "@/validations/feedbackSchema";
 
 const FeedbackForm = () => {
   const { user } = useUserContext();
+  const [currentFiles, setCurrentFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [characterCount, setCharacterCount] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const form = useForm<FeedbackFormValues>({
+  const form = useForm<FeedbackSchemaType>({
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
       feedback: "",
+      files: [],
     },
   });
 
@@ -63,17 +63,34 @@ const FeedbackForm = () => {
       form.reset();
       setCharacterCount(0);
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Submission failed",
-        description: "Please try again later.",
+        description: `${error.message}`,
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: FeedbackFormValues) => {
-    feedbackMutation.mutate({ feedback: data.feedback, userId: user?.id });
+  const handleRemoveFile = (index: number) => {
+    const updatedFiles = [...currentFiles];
+    const updatedPreviews = [...filePreviews];
+
+    updatedFiles.splice(index, 1);
+    updatedPreviews.splice(index, 1);
+
+    setCurrentFiles(updatedFiles);
+    setFilePreviews(updatedPreviews);
+  };
+
+  const onSubmit = (data: FeedbackSchemaType) => {
+    const formData = new FormData();
+    formData.append("feedback", data.feedback);
+    data?.files?.map((file) => {
+      formData.append("files", file);
+    });
+
+    feedbackMutation.mutate({ data: formData, userId: user?.id });
   };
 
   return (
@@ -115,7 +132,7 @@ const FeedbackForm = () => {
                       </FormControl>
                       <div className="flex justify-between">
                         <FormDescription>
-                          Please be specific about what you`&apos`d like to see
+                          Please be specific about what you&apos;d like to see
                           improved.
                         </FormDescription>
                         <span
@@ -134,6 +151,78 @@ const FeedbackForm = () => {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="files"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Upload Files (optional)</FormLabel>
+                      <FormControl>
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              id="file-input"
+                              type="file"
+                              multiple
+                              className="hidden"
+                              ref={inputRef}
+                              accept=".jpg, .jpeg, .png,"
+                              onChange={(e) => {
+                                const files = Array.from(e.target.files || []);
+
+                                if (files && files.length > 0) {
+                                  field.onChange([...currentFiles, ...files]);
+                                  setCurrentFiles((prev) => [
+                                    ...prev,
+                                    ...files,
+                                  ]);
+
+                                  setFilePreviews((prevState) => [
+                                    ...prevState,
+                                    ...files.map((item) =>
+                                      URL.createObjectURL(item)
+                                    ),
+                                  ]);
+                                  //reset input value to allow re-uploading the same file
+                                  if (inputRef.current) {
+                                    inputRef.current.value = "";
+                                  }
+                                }
+                              }}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex max-h-[110px] w-full max-w-[420px] gap-3 overflow-x-scroll">
+                  {filePreviews.map((url, index) => (
+                    <div
+                      key={index}
+                      className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
+                    >
+                      <img
+                        className="object-cover object-center"
+                        src={url}
+                        alt="an image"
+                      />
+                      <Icon
+                        onClick={() => handleRemoveFile(index)}
+                        className="absolute right-1 top-1 text-xl hover:cursor-pointer"
+                        icon={"mingcute:close-circle-fill"}
+                      />
+                    </div>
+                  ))}
+                  <Label htmlFor="file-input">
+                    <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
+                      <Icon className="h-9 w-9" icon={"mingcute:add-line"} />
+                    </div>
+                  </Label>
+                </div>
               </div>
 
               <div className="rounded-lg bg-blue-50 p-4 border border-blue-100">
@@ -148,7 +237,7 @@ const FeedbackForm = () => {
                   <li>Suggestions to improve existing functionalities</li>
                   <li>Reports of confusing or difficult to use interfaces</li>
                   <li>
-                    Ideas for new features or reports you`&apos`d like to see
+                    Ideas for new features or reports you`&apos;`d like to see
                   </li>
                 </ul>
               </div>

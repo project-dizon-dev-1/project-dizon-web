@@ -53,7 +53,7 @@ const COMMON_LINKS = {
   manageSubdivision: {
     label: "Subdivision",
     link: "/subdivision",
-    icon: "mingcute:file-check-line",
+    icon: "mingcute:building-1-line",
   },
 };
 

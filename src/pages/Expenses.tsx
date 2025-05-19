@@ -258,7 +258,7 @@ const Dues = () => {
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <div onClick={(e) => e.stopPropagation()}>
+                          <div>
                             <CategoryForm
                               categoryId={category.id}
                               categoryName={category.name}
@@ -267,7 +267,6 @@ const Dues = () => {
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8"
-                                onClick={(e) => e.stopPropagation()}
                               >
                                 <Icon
                                   icon="mingcute:edit-line"

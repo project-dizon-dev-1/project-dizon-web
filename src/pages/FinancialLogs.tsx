@@ -38,6 +38,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { TransactionDataType } from "@/services/transantionTypes";
+import ImageLoader from "@/lib/ImageLoader";
 
 const FinancialLogs = () => {
   const { user } = useUserContext();
@@ -48,14 +49,14 @@ const FinancialLogs = () => {
     mutationFn: approveTransaction,
     onSuccess: () => {
       toast({
-        title: "Transaction approved successfully",
+        title: "Transaction confirmed successfully",
       });
       // Refetch transactions data to update the UI
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
     onError: () => {
       toast({
-        title: "Error approving transaction",
+        title: "Error confirming transaction",
         variant: "destructive",
       });
     },
@@ -187,7 +188,7 @@ const FinancialLogs = () => {
                             : "bg-yellow-100 text-yellow-800"
                         )}
                       >
-                        {transaction.approved_by ? "Approved" : "Pending"}
+                        {transaction.approved_by ? "Confirmed" : "Pending"}
                       </span>
                     </TableCell>
 
@@ -241,8 +242,8 @@ const FinancialLogs = () => {
                               <p>{formatDate(transaction.created_at)}</p>
                               <p>
                                 {transaction.approved_by
-                                  ? "Approved"
-                                  : "Pending Approval"}
+                                  ? "Confirmed"
+                                  : "Pending Confirmation"}
                               </p>
                             </div>
                           </div>
@@ -259,7 +260,7 @@ const FinancialLogs = () => {
                                 Proof of Transaction:
                               </h2>
                               <div className="w-full border rounded-md overflow-hidden mb-4">
-                                <img
+                                <ImageLoader
                                   src={transaction.proof_url}
                                   alt="Transaction Proof"
                                   className="w-full h-auto max-h-48 object-contain"
@@ -290,11 +291,11 @@ const FinancialLogs = () => {
                             <div className="flex-1">
                               {transaction.approved_by ? (
                                 <h3 className="text-green-600 text-sm font-medium">
-                                  Approved By:
+                                  Confirmed By:
                                 </h3>
                               ) : (
                                 <h3 className="text-yellow-600 text-sm font-medium">
-                                  Pending Approval
+                                  Pending Confirmation
                                 </h3>
                               )}
                               {transaction?.approved_by_details && (
@@ -339,8 +340,8 @@ const FinancialLogs = () => {
                                       className="mr-1 h-4 w-4 text-green-600"
                                     />
                                     {approveMutation.isPending
-                                      ? "Approving..."
-                                      : "Approve Transaction"}
+                                      ? "Confirming..."
+                                      : "Confirm Transaction"}
                                   </Button>
                                 )}
                             </div>

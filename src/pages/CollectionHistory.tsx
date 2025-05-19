@@ -20,8 +20,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   useInfiniteQuery,
-  useMutation,
-  useQueryClient,
+  // useMutation,
+  // useQueryClient,
 } from "@tanstack/react-query";
 import Loading from "@/components/Loading";
 import { DueLog } from "@/types/DueTypes";
@@ -44,39 +44,39 @@ import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/useDebounce";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { fetchDueLogs } from "@/services/dueServices";
-import useUserContext from "@/hooks/useUserContext";
-import { toast } from "@/hooks/use-toast";
+// import useUserContext from "@/hooks/useUserContext";
+// import { toast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
-import { approveCollection } from "@/services/houseServices";
+// import { approveCollection } from "@/services/houseServices";
 import { usePhaseContext } from "@/context/phaseContext";
 import { Phase } from "@/types/subdivisionTypes";
 
 const PaymentHistory = () => {
   const { phases } = usePhaseContext();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user } = useUserContext();
-  const queryClient = useQueryClient();
+  // const { user } = useUserContext();
+  // const queryClient = useQueryClient();
   const [searchInput, setSearchInput] = useState(
     searchParams.get("query") || ""
   );
 
   // Add approve transaction mutation
-  const confirmMutation = useMutation({
-    mutationFn: approveCollection,
-    onSuccess: () => {
-      toast({
-        title: "Transaction approved successfully",
-      });
-      // Refetch transactions data to update the UI
-      queryClient.invalidateQueries({ queryKey: ["paymentHistory"] });
-    },
-    onError: () => {
-      toast({
-        title: "Error approving transaction",
-        variant: "destructive",
-      });
-    },
-  });
+  // const confirmMutation = useMutation({
+  //   mutationFn: approveCollection,
+  //   onSuccess: () => {
+  //     toast({
+  //       title: "Transaction approved successfully",
+  //     });
+  //     // Refetch transactions data to update the UI
+  //     queryClient.invalidateQueries({ queryKey: ["paymentHistory"] });
+  //   },
+  //   onError: () => {
+  //     toast({
+  //       title: "Error approving transaction",
+  //       variant: "destructive",
+  //     });
+  //   },
+  // });
   const debouncedSearch = useDebounce(searchInput, 500);
 
   const {
@@ -199,7 +199,7 @@ const PaymentHistory = () => {
             ))}
           </SelectContent>
         </Select>
-        <Select
+        {/* <Select
           value={searchParams.get("status") || ""}
           onValueChange={(value) => updateParams("status", value)}
         >
@@ -213,7 +213,7 @@ const PaymentHistory = () => {
             <SelectItem value="Fully_Paid">Fully Paid</SelectItem>
             <SelectItem value="Partially_Paid">Partially Paid</SelectItem>
           </SelectContent>
-        </Select>
+        </Select> */}
         <Button onClick={clearFilters} variant={"ghost"}>
           Clear Filters
         </Button>
@@ -380,9 +380,9 @@ const PaymentHistory = () => {
                             Additional Details:
                           </h2>
                           <p className=" font-medium text-sm">{due.details}</p>
-                          <Separator className="my-6 " />
+                          {/* <Separator className="my-6 " /> */}
 
-                          <div className="flex">
+                          {/* <div className="flex">
                             <div className="flex-1">
                               <h3 className="text-[#287EFF] text-sm font-medium">
                                 Received By:
@@ -436,10 +436,10 @@ const PaymentHistory = () => {
                                   </Button>
                                 )}
                             </div>
-                          </div>
+                          </div> */}
                         </AlertDialogBody>
                         <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogCancel>Close</AlertDialogCancel>
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>

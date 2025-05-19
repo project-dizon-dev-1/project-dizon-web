@@ -72,7 +72,6 @@ const LotForm = ({
         variant: "destructive",
       });
     },
-    
   });
 
   const updateLotMutation = useMutation({
@@ -170,7 +169,7 @@ const LotForm = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogActionNoClose type="submit">
-                Add Lot
+                {edittingLot ? "Update" : "Create"}
               </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>

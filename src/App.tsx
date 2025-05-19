@@ -8,7 +8,7 @@ import NotFound from "./pages/NotFound";
 import Residents from "@/pages/Residents";
 import Dashboard from "./pages/Dashboard";
 import Collection from "@/pages/Collection";
-import Dues from "./pages/Dues";
+import Expenses from "./pages/Expenses";
 import CollectionHistory from "./pages/CollectionHistory";
 import Announcements from "./pages/Announcements";
 import ResidentDetails from "./pages/ResidentDetails";
@@ -47,7 +47,7 @@ const App = () => {
             <Route path="/history" element={<CollectionHistory />} />
             <Route path="/payment-history" element={<PaymentHistory />} />
             <Route path="/finance-overview" element={<FinanceOverview />} />
-            <Route path="/expenses" element={<Dues />} />
+            <Route path="/expenses" element={<Expenses />} />
             <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/subdivision" element={<ManageSubdivision />} />
             <Route path="/financial-logs" element={<FinancialLogs />} />

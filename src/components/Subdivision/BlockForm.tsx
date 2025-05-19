@@ -169,7 +169,7 @@ const BlockForm = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogActionNoClose type="submit">
-                Add Block
+                {edittingBlock ? "Update" : "Create"}
               </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>

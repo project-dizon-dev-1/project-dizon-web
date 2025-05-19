@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { categorySchema, CategoryType } from "@/validations/duesSchema";
 import useDuesCategory from "@/hooks/useDuesCategory";
 import useUserContext from "@/hooks/useUserContext";
+import { useEffect } from "react";
 
 const useCategoryForm = (categoryName?: string, categoryId?: string) => {
   const { user } = useUserContext();
@@ -14,6 +15,11 @@ const useCategoryForm = (categoryName?: string, categoryId?: string) => {
       categoryName: categoryName || "",
     },
   });
+  useEffect(() => {
+    if (categoryName !== undefined) {
+      form.reset({ categoryName });
+    }
+  }, [categoryName, form]);
 
   const onSubmit = (
     data: CategoryType,
@@ -36,7 +42,7 @@ const useCategoryForm = (categoryName?: string, categoryId?: string) => {
         userName: `${user?.user_first_name} ${user?.user_last_name}`,
       });
     }
-
+    form.reset();
     setIsDialogOpen(false);
   };
 

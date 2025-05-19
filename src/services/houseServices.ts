@@ -65,6 +65,9 @@ const getHouseVehicle = async (
 const addHouse = async (data: HouseSchemaType) => {
   return await axiosPost("/houses/add", data);
 };
+const createCode = async (houseId: string | undefined) => {
+  return await axiosPost(`/houses/create-code/${houseId}`);
+};
 
 const updateHousePayment = async ({
   houseId,
@@ -93,23 +96,24 @@ const updateHousePayment = async ({
   return await axiosPut(`/houses/update/payment/${houseId}`, formData);
 };
 
-const approveCollection = async ({
-  dueId,
-  userId,
-}: {
-  dueId: string | undefined;
-  userId: string | undefined;
-}) => {
-  return await axiosPut(`/houses/${dueId}/confirm`, { userId });
-};
+// const approveCollection = async ({
+//   dueId,
+//   userId,
+// }: {
+//   dueId: string | undefined;
+//   userId: string | undefined;
+// }) => {
+//   return await axiosPut(`/houses/${dueId}/confirm`, { userId });
+// };
 
 export {
+  createCode,
   getHouses,
   getHouseVehicle,
   getHouse,
   getHousesSummary,
   updateHousePayment,
   addHouse,
-  approveCollection,
+  // approveCollection,
   getHouseSummary,
 };

@@ -121,11 +121,7 @@ const PhaseForm = ({
         }
       }}
     >
-      <AlertDialogTrigger asChild>
-        <button type="button" onClick={(e) => e.stopPropagation()}>
-          {children}
-        </button>
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent className="z-50">
         <AlertDialogHeader>
           <AlertDialogTitle>
@@ -169,7 +165,7 @@ const PhaseForm = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogActionNoClose type="submit">
-                {isEditing ? "Update Phase" : "Add Phase"}
+                {isEditing ? "Update" : "Add Phase"}
               </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>

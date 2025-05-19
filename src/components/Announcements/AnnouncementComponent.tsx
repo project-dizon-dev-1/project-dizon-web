@@ -42,6 +42,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import ImageLoader from "@/lib/ImageLoader";
 
 const AnnouncementComponent = ({ announcements }: Announcement) => {
   const [searchParams] = useSearchParams();
@@ -202,12 +203,13 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
       <Dialog>
         <DialogTrigger asChild>
           <div className="flex w-full gap-2 justify-center">
-            {announcements.announcement_files.length > 0 &&
+            {announcements?.announcement_files &&
+              announcements.announcement_files.length > 0 &&
               announcements.announcement_files[0]?.type?.startsWith(
                 "image"
               ) && (
                 <div className="flex w-full gap-2">
-                  {announcements.announcement_files
+                  {announcements?.announcement_files
                     .slice(0, 3)
                     .map((file, i) => {
                       const isFirst = i === 0;
@@ -232,13 +234,15 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                             }
                           )}
                         >
-                          <img
-                            className={cn("h-[223px] w-full object-cover", {
-                              "opacity-45": hasMoreImages,
-                            })}
-                            src={file.url}
-                            alt="file"
-                          />
+                          {file.url && (
+                            <ImageLoader
+                              src={file.url}
+                              alt="an image of announcement"
+                              className={cn(" w-full object-cover", {
+                                "opacity-45 h-[223px]": hasMoreImages,
+                              })}
+                            />
+                          )}
                           {hasMoreImages && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                               <p className="text-base font-semibold text-white">

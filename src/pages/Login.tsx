@@ -84,7 +84,7 @@ const Login = () => {
             className="text-center w-14 h-14"
             icon={"mingcute:attachment-line"}
           /> */}
-          <h1 className="text-5xl font-bold tracking-tight text-primary-blue">
+          <h1 className="text-5xl font-medium tracking-tight text-primary-blue">
             GEMS
           </h1>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">

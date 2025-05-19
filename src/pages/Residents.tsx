@@ -50,9 +50,9 @@ const Residents = () => {
 
   // Fetch blocks based on selected phase
   const { data: blocks, isLoading: blocksLoading } = useQuery({
-    queryKey: ["blocks", selectedStreet],
-    queryFn: async () => await fetchBlocksByPhase(selectedStreet),
-    enabled: !!selectedStreet,
+    queryKey: ["blocks", selectedPhase],
+    queryFn: async () => await fetchBlocksByPhase(selectedPhase),
+    enabled: !!selectedPhase,
   });
 
   // Fetch streets based on selected phase

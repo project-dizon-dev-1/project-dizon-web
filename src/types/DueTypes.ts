@@ -9,7 +9,7 @@ type Due = Database["public"]["Tables"]["dues-list"]["Row"];
 type EditDue = {
   dueId: string;
   dueCost: number;
-  dueDescription?: string | null;
+  dueDescription?: string | undefined;
   dueName: string;
 };
 
@@ -55,7 +55,7 @@ type DueCategoryType = ({
   dues_list: {
     id: string;
     due_name: string;
-    due_description: string | null;
+    due_description: string | undefined;
     due_cost: number;
     due_is_active: boolean;
     latest_paid_month: Date | null;

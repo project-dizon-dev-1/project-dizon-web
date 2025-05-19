@@ -13,6 +13,7 @@ import {
   updateDues,
 } from "@/services/dueServices";
 import useUserContext from "./useUserContext";
+import React, { useEffect } from "react";
 
 const useDues = (data?: EditDue) => {
   const queryClient = useQueryClient();
@@ -33,6 +34,16 @@ const useDues = (data?: EditDue) => {
       // dueIsActive: data?.due_is_active ?? true,
     },
   });
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        dueName: data?.dueName,
+        dueDescription: data?.dueDescription,
+        dueCost: data?.dueCost,
+        // dueIsActive: data?.due_is_active,
+      });
+    }
+  }, [data, form]);
 
   const duesAddMutation = useMutation({
     mutationFn: addDues,
@@ -55,6 +66,7 @@ const useDues = (data?: EditDue) => {
       queryClient.invalidateQueries({
         queryKey: ["duesCategories"],
       });
+      form.reset();
     },
   });
 
@@ -91,27 +103,45 @@ const useDues = (data?: EditDue) => {
     },
   });
 
-  const onSubmit = (formData: dueType, categoryId?: string) => {
+  const onSubmit = (
+    formData: dueType,
+    setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    categoryId?: string
+  ) => {
     if (data) {
-      duesEditMutation.mutate({
-        dueId: data.dueId,
-        payload: {
-          ...formData,
-          userId: user?.id,
-          userName: `${user?.user_first_name} ${user?.user_last_name}`,
+      duesEditMutation.mutate(
+        {
+          dueId: data.dueId,
+          payload: {
+            ...formData,
+            userId: user?.id,
+            userName: `${user?.user_first_name} ${user?.user_last_name}`,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            setIsDialogOpen(false);
+          },
+        }
+      );
       return;
     }
     if (categoryId) {
-      duesAddMutation.mutate({
-        categoryId,
-        formData: {
-          ...formData,
-          userId: user?.id,
-          userName: `${user?.user_first_name} ${user?.user_last_name}`,
+      duesAddMutation.mutate(
+        {
+          categoryId,
+          formData: {
+            ...formData,
+            userId: user?.id,
+            userName: `${user?.user_first_name} ${user?.user_last_name}`,
+          },
         },
-      });
+        {
+          onSuccess: () => {
+            setIsDialogOpen(false);
+          },
+        }
+      );
     }
   };
 
@@ -177,6 +207,7 @@ const useDues = (data?: EditDue) => {
     totalDueData,
     deleteDuesMutation,
     toggleActivateMutation,
+    isPending: duesAddMutation.isPending,
   };
 };
 

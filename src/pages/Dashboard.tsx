@@ -42,6 +42,7 @@ const Dashboard = () => {
   const { data: fixedDue } = useQuery({
     queryKey: ["userFixedDue"],
     queryFn: fetchFixedDue,
+    enabled: !!user,
   });
   // Calculate payment status
   const currentMonthDue = fixedDue?.amount || 0;

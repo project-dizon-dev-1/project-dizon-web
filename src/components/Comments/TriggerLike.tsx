@@ -17,7 +17,6 @@ const TriggerLike = ({
     user_id,
     announcement_id,
   });
-  // console.log(commentStatus);
   return (
     <Button
       className={cn(
@@ -38,10 +37,9 @@ const TriggerLike = ({
       }
     >
       <div
-        className={cn(
-          "flex items-center justify-center rounded-3xl ",
-          { "bg-[#2394FE]": commentStatus?.isLiked }
-        )}
+        className={cn("flex items-center justify-center rounded-3xl ", {
+          "bg-[#2394FE]": commentStatus?.isLiked,
+        })}
       >
         <Icon
           icon={"mingcute:thumb-up-fill"}
