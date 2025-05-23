@@ -69,7 +69,7 @@ const FinancialLogs = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedDataType<TransactionDataType>, Error>({
+  } = useInfiniteQuery<PaginatedDataType<TransactionDataType>>({
     queryKey: ["transactions"],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
@@ -147,7 +147,7 @@ const FinancialLogs = () => {
                     className={cn(
                       i % 2 === 0 ? "h-[45px] rounded-xl" : "bg-white/60"
                     )}
-                    key={`${transaction.category}-${i}`}
+                    key={transaction.id}
                   >
                     <TableCell
                       className={cn(
@@ -263,7 +263,7 @@ const FinancialLogs = () => {
                                 <ImageLoader
                                   src={transaction.proof_url}
                                   alt="Transaction Proof"
-                                  className="w-full h-auto max-h-48 object-contain"
+                                  className="w-full h-48 max-h-48 object-contain"
                                 />
                               </div>
                             </>

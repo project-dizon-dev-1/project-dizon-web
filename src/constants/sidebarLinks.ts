@@ -46,7 +46,7 @@ const COMMON_LINKS = {
     icon: "mingcute:shield-line",
   },
   financeLogs: {
-    label: "Transaction History",
+    label: "Transactions",
     link: "/financial-logs",
     icon: "mingcute:book-2-line",
   },
@@ -72,11 +72,11 @@ export const SIDEBAR_LINKS = Object.freeze({
   ],
   finance: [
     COMMON_LINKS.financeOverview,
+    COMMON_LINKS.financeLogs,
     COMMON_LINKS.expenses,
     COMMON_LINKS.paymentCollection,
     COMMON_LINKS.collectionHistory,
     COMMON_LINKS.auditLogs,
-    COMMON_LINKS.financeLogs,
   ],
   // resident: [COMMON_LINKS.announcements, COMMON_LINKS.schedule],
 });

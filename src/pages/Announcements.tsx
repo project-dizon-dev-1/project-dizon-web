@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router";
 import useInterObserver from "@/hooks/useIntersectObserver";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { Icon } from "@iconify/react/dist/iconify.js";
 
 const Announcements = () => {
   const { isMobile } = useSidebar();
@@ -83,7 +84,10 @@ const Announcements = () => {
 
         {/* Announcements List */}
         {!isLoading && data?.pages[0]?.items?.length === 0 ? (
-          <p>No announcement yet</p>
+          <div className="flex flex-col items-center justify-center h-full">
+            <p className="  ">No announcement yet</p>
+            <Icon className="w-96 h-96" icon={"mingcute:paper-fill"} />
+          </div>
         ) : null}
 
         {isLoading

@@ -34,9 +34,9 @@ const Dashboard = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: houseSummary, isLoading } = useQuery({
-    queryKey: ["userHouseSummary", user],
+    queryKey: ["userHouseSummary", user?.house_id],
     queryFn: async () => getHouseSummary(user?.house_id),
-    enabled: !!user,
+    enabled: !!user?.house_id,
   });
 
   const { data: fixedDue } = useQuery({

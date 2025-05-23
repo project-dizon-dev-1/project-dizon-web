@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { cn } from "@/lib/utils";
 
-interface ImageLoaderProps {
+type ImageLoaderProps = {
   src: string;
   alt: string;
   className?: string;
-}
+};
 
-const ImageLoader: React.FC<ImageLoaderProps> = ({ src, alt, className }) => {
+const ImageLoader = ({ src, alt, className }: ImageLoaderProps) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <div className="relative">
       {!loaded && (
-        <div className="absolute inset-0 bg-gray-200 animate-pulse h-80 rounded-md" />
+        <div className="absolute inset-0 bg-gray-200 animate-pulse h-full rounded-md" />
       )}
       <img
         src={src}

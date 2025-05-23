@@ -49,6 +49,7 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
   const { user } = useUserContext();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
+  const [selectedImage, setSelectedImage] = useState(0);
 
   const deleteAnnouncementMutation = useMutation({
     mutationFn: deleteAnnouncements,
@@ -171,18 +172,17 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                         delete your announcement.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
+                    <Separator />
 
                     <AlertDialogFooter>
                       <AlertDialogCancel
                         onClick={() => setDeleteDialogOpen(false)}
-                        variant={"default"}
                       >
                         Cancel
                       </AlertDialogCancel>
                       <AlertDialogActionNoClose
                         variant={"destructive"}
                         onClick={handleDelete}
-                        className="bg-red-500 hover:bg-red-600"
                       >
                         Delete
                       </AlertDialogActionNoClose>
@@ -225,8 +225,11 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                       return (
                         <div
                           key={i}
+                          onClick={() => {
+                            setSelectedImage(i);
+                          }}
                           className={cn(
-                            "flex-1 overflow-hidden rounded-md hover:cursor-pointer",
+                            "flex-1 aspect-square overflow-hidden rounded-md hover:cursor-pointer",
                             {
                               "rounded-l-xl": isFirst,
                               "rounded-r-xl": isLast,
@@ -238,9 +241,12 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
                             <ImageLoader
                               src={file.url}
                               alt="an image of announcement"
-                              className={cn(" w-full object-cover", {
-                                "opacity-45 h-[223px]": hasMoreImages,
-                              })}
+                              className={cn(
+                                "aspect-square w-full object-cover",
+                                {
+                                  "opacity-45 ": hasMoreImages,
+                                }
+                              )}
                             />
                           )}
                           {hasMoreImages && (
@@ -261,7 +267,7 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
 
         {announcements.announcement_files.length > 0 &&
           announcements.announcement_files[0]?.type?.startsWith("video") && (
-            <div className="border border-primary-outline">
+            <div className="border border-primary-outline  rounded-lg overflow-hidden">
               <video
                 className="h-fit w-full"
                 controls
@@ -293,14 +299,19 @@ const AnnouncementComponent = ({ announcements }: Announcement) => {
             <DialogTitle className="sr-only"></DialogTitle>
             <DialogDescription className="sr-only"></DialogDescription>
           </DialogHeader>
-          <Carousel className="w-full max-w-5xl">
+          <Carousel
+            opts={{
+              startIndex: selectedImage,
+            }}
+            className="w-full max-w-5xl"
+          >
             <CarouselContent className="-ml-1">
               {announcements.announcement_files.map((file, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
                     <Card className="border-none bg-transparent">
                       <CardContent className="flex aspect-square items-center justify-center bg-transparent bg-contain p-6">
-                        <img
+                        <ImageLoader
                           className="h-[100dvh] w-full object-contain"
                           src={file.url}
                           alt="an image of announcement"

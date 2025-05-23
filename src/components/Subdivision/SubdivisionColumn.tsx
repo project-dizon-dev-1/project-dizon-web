@@ -70,7 +70,10 @@ const SubdivisionColumn = ({
       })}
     >
       <div className="flex justify-between py-[18px] pl-[32px] pr-[24px] border-b border-[#45495A/0.12]">
-        <h1 className="font-semibold">{title}</h1>
+        <div className=" flex items-center justify-center gap-1">
+          <h1 className="font-semibold">{title}</h1>{" "}
+          <p className=" text-xs font-medium">({data?.length})</p>
+        </div>
         <FormComponent>
           <button className="bg-primary-blue p-1 px-2 rounded-full text-xs text-white flex items-center gap-1">
             <Icon icon={"mingcute:add-fill"} className="h-3 w-3" />
@@ -106,16 +109,6 @@ const SubdivisionColumn = ({
               >
                 <div>
                   <p>{item.name}</p>
-                  <p
-                    className={cn(
-                      "text-2xs group-hover:text-white",
-                      isSelected && title !== "Lots"
-                        ? "text-white"
-                        : "text-[#45495ABF]"
-                    )}
-                  >
-                    5 Streets
-                  </p>
                 </div>
 
                 <Popover>

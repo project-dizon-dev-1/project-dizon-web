@@ -26,7 +26,7 @@ const Profile = () => {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["profile", user?.id],
     queryFn: async () => getHouse(user?.house_id),
-    enabled: !!user,
+    enabled: !!user?.house_id && !!user?.id,
   });
 
   const isEmailChangeConfirmation = location.hash.includes("type=email_change");

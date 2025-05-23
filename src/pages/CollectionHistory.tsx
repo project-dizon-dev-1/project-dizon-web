@@ -145,8 +145,12 @@ const PaymentHistory = () => {
   }, []);
 
   const updateParams = (key: string, value: string) => {
-    searchParams.set(key, value);
-    setSearchParams(searchParams);
+    if (searchParams.get(key) === "all") {
+      searchParams.delete(key);
+    } else {
+      searchParams.set(key, value);
+      setSearchParams(searchParams);
+    }
   };
 
   const { ref } = useInterObserver(fetchNextPage);
@@ -174,6 +178,7 @@ const PaymentHistory = () => {
             />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Phase</SelectItem>
             {phases.map((phase: Phase) => (
               <SelectItem key={phase.id} value={phase.id}>
                 {phase.name}

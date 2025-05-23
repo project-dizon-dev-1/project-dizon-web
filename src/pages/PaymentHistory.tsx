@@ -65,7 +65,7 @@ const PaymentHistory = () => {
       }
       return lastPage.currentPage + 1;
     },
-    enabled: !!user,
+    enabled: !!user?.house_id,
   });
 
   const { ref } = useInterObserver(fetchNextPage);

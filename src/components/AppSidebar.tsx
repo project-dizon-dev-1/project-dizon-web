@@ -19,7 +19,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { ChevronUp } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { Icon } from "@iconify/react";

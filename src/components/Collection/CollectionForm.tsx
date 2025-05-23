@@ -45,6 +45,7 @@ const CollectionForm = ({
   houseLatestPayment: Date | null;
   // arrears: number;
 }) => {
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [amountToPay, setAmountToPay] = useState<number>(0);
   const [monthsPaying, setMonthsPaying] = useState<string[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -63,6 +64,7 @@ const CollectionForm = ({
       housePaymentRemarks: "",
       paymentProof: undefined,
     },
+    mode: "all",
   });
 
   useEffect(() => {
@@ -86,6 +88,11 @@ const CollectionForm = ({
       });
     },
     onMutate: () => {
+      form.reset();
+      setImagePreview(null);
+      setMonthsPaying([]);
+      setAmountToPay(0);
+      setDialogOpen(false);
       toast({
         title: "Updating payment...",
         description: "Please wait while we update the payment.",
@@ -143,7 +150,7 @@ const CollectionForm = ({
   }, [fixedDue, housePaymentsMonthCurVal, houseLatestPayment]);
 
   return (
-    <AlertDialog>
+    <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <AlertDialogTrigger asChild>
         <Button>Add Payment</Button>
       </AlertDialogTrigger>
@@ -199,7 +206,19 @@ const CollectionForm = ({
                         onChange={(e) => {
                           const value = parseInt(e.target.value);
 
-                          field.onChange(value);
+                          if (value > 12) {
+                            form.setError("housePaymentMonths", {
+                              type: "manual",
+                              message: "Maximum 12 months",
+                            });
+                          } else if (value < 1) {
+                            form.setError("housePaymentMonths", {
+                              type: "manual",
+                              message: "Minimum 1 month",
+                            });
+                          } else {
+                            field.onChange(value);
+                          }
                         }}
                       />
                     </FormControl>
@@ -298,7 +317,9 @@ const CollectionForm = ({
         </AlertDialogBody>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={() => form.reset()}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogActionNoClose
             disabled={
               housePaymentAmount !== amountToPay ||

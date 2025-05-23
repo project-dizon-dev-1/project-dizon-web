@@ -5,9 +5,13 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useState } from "react";
 import { Link } from "react-router";
 
+type AppRole = keyof typeof SIDEBAR_LINKS;
+
 const MobileNavigation = () => {
   const { user } = useUserContext();
   const [navOpen, setNavOpen] = useState(false);
+
+  console.log("user", user?.role as AppRole);
 
   const toggleNav = () => {
     setNavOpen(!navOpen);
@@ -27,29 +31,13 @@ const MobileNavigation = () => {
           }
         )}
       >
-        {SIDEBAR_LINKS[user?.role === "admin" ? "admin" : "resident"].map(
-          (link) => (
-            <Link
-              key={link.label}
-              to={link.link}
-              onClick={toggleNav}
-              className={cn(
-                " opacity-0 flex-col items-center gap-2 text-2xs font-semibold py-2 text-nowrap flex transition-all duration-1000 ",
-                { "opacity-100 ": navOpen }
-              )}
-            >
-              <Icon icon={link.icon} className="w-5 h-5" />
-              {link.label}
-            </Link>
-          )
-        )}
-        {SIDEBAR_LINKS["finance"].map((link) => (
+        {SIDEBAR_LINKS[user?.role as AppRole]?.map((link) => (
           <Link
             key={link.label}
             to={link.link}
             onClick={toggleNav}
             className={cn(
-              "opacity-0 flex-col items-center gap-2 text-2xs font-semibold py-2 text-nowrap flex transition-all duration-1000 ",
+              " opacity-0 flex-col items-center gap-2 text-2xs font-semibold py-2 text-nowrap flex transition-all duration-1000 ",
               { "opacity-100 ": navOpen }
             )}
           >
@@ -57,6 +45,21 @@ const MobileNavigation = () => {
             {link.label}
           </Link>
         ))}
+        {user?.role === "admin" &&
+          SIDEBAR_LINKS["finance"].map((link) => (
+            <Link
+              key={link.label}
+              to={link.link}
+              onClick={toggleNav}
+              className={cn(
+                "opacity-0 flex-col items-center gap-2 text-2xs font-semibold py-2 text-nowrap flex transition-all duration-1000 ",
+                { "opacity-100 ": navOpen }
+              )}
+            >
+              <Icon icon={link.icon} className="w-5 h-5" />
+              {link.label}
+            </Link>
+          ))}
       </div>
       <button
         onClick={toggleNav}

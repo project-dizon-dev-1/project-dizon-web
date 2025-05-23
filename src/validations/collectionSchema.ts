@@ -6,8 +6,14 @@ const collectionSchema = z.object({
   houseLatestPaymentAmount: z.coerce
     .number()
     .positive("Amount must be positive")
-    .min(1, "Amount must be greater than 0"), // z.coerce.number() ensures string input is converted to a number
-  housePaymentMonths: z.number().min(1, ""),
+    .int("Amount must be a whole number")
+    .min(1, "Amount must be greater than 0"),
+  housePaymentMonths: z
+    .number()
+    .positive("Months must be positive")
+    .int("Months must be a whole number")
+    .min(1, " At least 1 month is required")
+    .max(12, "Maximum 12 months"),
   housePaymentRemarks: z.string().optional(),
   paymentProof: z
     .instanceof(File)

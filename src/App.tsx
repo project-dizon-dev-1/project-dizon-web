@@ -24,6 +24,7 @@ import SendResetPassword from "./pages/SendResetPassword";
 import PasswordRecovery from "./pages/PasswordRecovery";
 import Homepage from "./pages/Homepage";
 import Contact from "./pages/Contact";
+import AuthorizeByRole from "./components/AuthorizeByRole";
 
 const App = () => {
   return (
@@ -38,19 +39,27 @@ const App = () => {
         </Route>
         <Route element={<CheckAuth />}>
           <Route element={<MainLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/collection" element={<Collection />} />
-            <Route path="/collection/:phase" element={<CollectionDetails />} />
-            <Route path="/residents" element={<Residents />} />
-            <Route path="residents/:houseId" element={<ResidentDetails />} />
-            <Route path="/announcements" element={<Announcements />} />
-            <Route path="/history" element={<CollectionHistory />} />
-            <Route path="/payment-history" element={<PaymentHistory />} />
-            <Route path="/finance-overview" element={<FinanceOverview />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/audit-logs" element={<AuditLogs />} />
-            <Route path="/subdivision" element={<ManageSubdivision />} />
-            <Route path="/financial-logs" element={<FinancialLogs />} />
+            <Route element={<AuthorizeByRole roles={["admin", "resident"]} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/payment-history" element={<PaymentHistory />} />
+              <Route path="/announcements" element={<Announcements />} />
+            </Route>
+            <Route element={<AuthorizeByRole roles={["admin"]} />}>
+              <Route path="/collection" element={<Collection />} />
+              <Route
+                path="/collection/:phase"
+                element={<CollectionDetails />}
+              />
+              <Route path="/residents" element={<Residents />} />
+              <Route path="residents/:houseId" element={<ResidentDetails />} />
+              <Route path="/history" element={<CollectionHistory />} />
+              <Route path="/finance-overview" element={<FinanceOverview />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/audit-logs" element={<AuditLogs />} />
+              <Route path="/subdivision" element={<ManageSubdivision />} />
+              <Route path="/financial-logs" element={<FinancialLogs />} />
+            </Route>
+
             <Route path="/profile" element={<Profile />} />
             <Route path="/send-feedback" element={<FeedbackForm />} />
             <Route path="/password-recovery" element={<PasswordRecovery />} />

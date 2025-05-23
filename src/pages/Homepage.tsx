@@ -79,7 +79,7 @@ const Homepage = () => {
   };
 
   return (
-    <div className="container h-dvh mx-auto px-8 md:px-12 lg:px-24 py-8 overflow-scroll no-scrollbar bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="w-full h-dvh mx-auto px-8 md:px-12 lg:px-24 py-8 overflow-scroll no-scrollbar bg-blue-50">
       <div className="max-w-5xl mx-auto space-y-16">
         {/* Hero Section with animations */}
         <MotionDiv

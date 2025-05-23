@@ -45,6 +45,7 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { Label } from "../ui/label";
 import { usePhaseContext } from "@/context/phaseContext";
 import { Phase } from "@/types/subdivisionTypes";
+import ImageLoader from "@/lib/ImageLoader";
 
 const AnnouncementForm = ({
   announcement,
@@ -53,15 +54,24 @@ const AnnouncementForm = ({
   announcement?: Announcement["announcements"];
   children: React.ReactNode;
 }) => {
+  const announcementFileType =
+    announcement?.announcement_files[0]?.type.startsWith("application")
+      ? "Document"
+      : announcement?.announcement_files[0]?.type.startsWith("video")
+      ? "Video"
+      : announcement?.announcement_files[0]?.type.startsWith("image")
+      ? "Image"
+      : "None";
+
   const { phases } = usePhaseContext();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const [selectedPDF, setSelectedPDF] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [selectedFileType, setSelectedFileType] = useState(
-    announcement?.announcement_files ? "Image(s)" : "None"
+    announcementFileType ?? "None"
   );
   const queryClient = useQueryClient();
   const { user } = useUserContext();
@@ -70,7 +80,7 @@ const AnnouncementForm = ({
     { icon: "minus-circle-fill", value: "None" },
     { icon: "photo-album-fill", value: "Image(s)" },
     { icon: "video-fill", value: "Video" },
-    { icon: "file-fill", value: "PDF Document" },
+    { icon: "attachment-fill", value: "Document" },
   ];
 
   // Query for fetching announcement phases with loading and error states
@@ -96,6 +106,12 @@ const AnnouncementForm = ({
 
   const addAnnouncementMutation = useMutation({
     mutationFn: addAnnouncement,
+    onMutate: () => {
+      setDialogOpen(false);
+      toast({
+        title: "Adding Announcement... ",
+      });
+    },
     onError: (error) => {
       toast({
         title: "Error",
@@ -107,17 +123,23 @@ const AnnouncementForm = ({
         title: "Success",
         description: "Announcement added",
       });
-      setDialogOpen(false);
     },
     onSettled: () => {
       queryClient.invalidateQueries({
         queryKey: ["announcements"],
       });
+      form.reset();
     },
   });
 
   const editAnnouncementMutation = useMutation({
     mutationFn: editAnnouncement,
+    onMutate: () => {
+      setDialogOpen(false);
+      toast({
+        title: "Adding Announcement... ",
+      });
+    },
     onError: () => {
       toast({
         title: "Error",
@@ -162,7 +184,7 @@ const AnnouncementForm = ({
     };
 
     const fetchFiles = async () => {
-      if (announcement?.announcement_files?.length) {
+      if (announcement?.announcement_files) {
         const files = await Promise.all(
           announcement.announcement_files.map((file) =>
             urlToFile(file.url, file.name)
@@ -173,6 +195,15 @@ const AnnouncementForm = ({
         setFilePreviews(files.map((file) => URL.createObjectURL(file)));
       }
     };
+
+    // load video
+    if (announcement?.announcement_files?.[0]?.type.startsWith("video")) {
+      setSelectedVideo(announcement?.announcement_files[0]?.url);
+    }
+    // load document
+    if (announcement?.announcement_files?.[0]?.type.startsWith("application")) {
+      setSelectedDocument(announcement?.announcement_files[0]?.url);
+    }
 
     fetchFiles();
   }, [announcement, form, dialogOpen]);
@@ -224,9 +255,9 @@ const AnnouncementForm = ({
     });
 
     // Cleanup PDF URL if exists
-    if (selectedPDF) {
+    if (selectedDocument) {
       try {
-        URL.revokeObjectURL(selectedPDF);
+        URL.revokeObjectURL(selectedDocument);
       } catch (error) {
         console.error("Error revoking PDF URL:", error);
       }
@@ -251,7 +282,7 @@ const AnnouncementForm = ({
     setDialogOpen(false);
     setCurrentFiles([]);
     setFilePreviews([]);
-    setSelectedPDF(null);
+    setSelectedDocument(null);
     setSelectedVideo(null);
     setSelectedFileType(announcement?.announcement_files ? "Image(s)" : "None");
     form.reset();
@@ -277,7 +308,7 @@ const AnnouncementForm = ({
     // Reset states
     setFilePreviews([]);
     setCurrentFiles([]);
-    setSelectedPDF(null);
+    setSelectedDocument(null);
     setSelectedVideo(null);
     setSelectedFileType(newType);
     form.setValue("files", []);
@@ -438,7 +469,7 @@ const AnnouncementForm = ({
                                 ? "image/*"
                                 : selectedFileType === "Video"
                                 ? "video/*"
-                                : "application/pdf"
+                                : "application/*"
                             }
                             multiple={selectedFileType === "Image(s)"}
                             onChange={(e) => {
@@ -472,8 +503,8 @@ const AnnouncementForm = ({
                                   const file = files[0];
                                   const url = URL.createObjectURL(file);
 
-                                  if (file.type === "application/pdf") {
-                                    setSelectedPDF(url);
+                                  if (file.type.startsWith("application")) {
+                                    setSelectedDocument(url);
                                   } else {
                                     setSelectedVideo(url);
                                   }
@@ -515,16 +546,16 @@ const AnnouncementForm = ({
                                 {filePreviews.map((url, index) => (
                                   <div
                                     key={index}
-                                    className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
+                                    className="relative flex justify-center h-[100px] w-[100px] bg-red-300 flex-shrink-0 rounded-md"
                                   >
-                                    <img
-                                      className="object-cover object-center"
+                                    <ImageLoader
+                                      className="object-cover w-full h-full rounded-md"
                                       src={url}
                                       alt="an image"
                                     />
                                     <Icon
                                       onClick={() => handleRemoveFile(index)}
-                                      className="absolute right-1 top-1 text-xl hover:cursor-pointer"
+                                      className="absolute right-1 top-1 text-xl hover:cursor-pointer text-red-300"
                                       icon={"mingcute:close-circle-fill"}
                                     />
                                   </div>
@@ -542,11 +573,22 @@ const AnnouncementForm = ({
 
                             {selectedFileType === "Video" &&
                               (selectedVideo ? (
-                                <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
-                                  <div className="relative flex h-[100px] w-[100px] flex-shrink-0 rounded-md">
+                                <div className="flex items-center aspect-video no-scrollbar w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
+                                  <div className="relative flex h-fit w-fit flex-shrink-0 rounded-md">
                                     <video
+                                      className=" rounded-lg"
                                       controls={true}
                                       src={selectedVideo}
+                                    />
+                                    <Icon
+                                      onClick={() => {
+                                        setSelectedVideo(null);
+                                        if (inputRef.current) {
+                                          inputRef.current.value = "";
+                                        }
+                                      }}
+                                      className="absolute right-1 top-1 text-xl hover:cursor-pointer text-red-300"
+                                      icon={"mingcute:close-circle-fill"}
                                     />
                                   </div>
                                 </div>
@@ -566,30 +608,40 @@ const AnnouncementForm = ({
                                 </Label>
                               ))}
 
-                            {selectedFileType === "PDF Document" &&
-                              (selectedPDF ? (
-                                <div className="flex max-h-[110px] w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
-                                  <div className="flex items-center flex-col relative h-[100px] w-[100px] flex-shrink-0 rounded-md">
+                            {selectedFileType === "Document" &&
+                              (selectedDocument ? (
+                                <div className="flex  justify-center items-center">
+                                  <div className="flex justify-center border border-[#DEEDFF] items-center flex-col relative h-[100px] w-[200px]  rounded-md">
                                     <Icon
                                       className="h-11 w-11 text-[#DEEDFF]"
-                                      icon={"mingcute:pdf-fill"}
+                                      icon={"mingcute:attachment-fill"}
                                     />
-                                    <p className="text-2xs text-[#DEEDFF]">
+                                    <Icon
+                                      onClick={() => {
+                                        setSelectedDocument(null);
+                                        if (inputRef.current) {
+                                          inputRef.current.value = "";
+                                        }
+                                      }}
+                                      className="absolute right-1 top-1 text-xl hover:cursor-pointer text-red-300"
+                                      icon={"mingcute:close-circle-fill"}
+                                    />
+                                    <p className="text-xs text-center text-[#DEEDFF]">
                                       {form.getValues("files")?.[0]?.name}
                                     </p>
                                   </div>
                                 </div>
                               ) : (
                                 <Label htmlFor="file-input">
-                                  <div className="flex h-[110px] flex-col items-center justify-center hover:cursor-pointer">
+                                  <div className="flex h-[100px] w-full  flex-col items-center justify-center hover:cursor-pointer">
                                     <div className="flex flex-shrink-0 items-center justify-center rounded-md">
                                       <Icon
                                         className="h-11 w-11 text-[#DEEDFF]"
-                                        icon={"mingcute:pdf-fill"}
+                                        icon={"mingcute:attachment-fill"}
                                       />
                                     </div>
                                     <p className="text-[12px] font-semibold text-[#DEEDFF]">
-                                      Upload PDF
+                                      Upload Document
                                     </p>
                                   </div>
                                 </Label>
@@ -649,7 +701,10 @@ const AnnouncementForm = ({
               editAnnouncementMutation.isPending
             }
           >
-            {addAnnouncementMutation.isPending ? "Submitting..." : "Submit"}
+            {addAnnouncementMutation.isPending ||
+            editAnnouncementMutation.isPending
+              ? "Submitting..."
+              : "Submit"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

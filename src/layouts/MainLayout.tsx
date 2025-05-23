@@ -3,6 +3,7 @@ import { Outlet } from "react-router";
 import { AppSidebar } from "@/components/AppSidebar";
 import { cn } from "@/lib/utils";
 import MobileNavigation from "@/components/MobileNavigation";
+import MobileHeader from "@/components/MobileHeader";
 
 const MainLayout = () => {
   const { isMobile } = useSidebar();
@@ -19,10 +20,12 @@ const MainLayout = () => {
             { "p-1 overflow-y-scroll no-scrollbar": isMobile }
           )}
         >
+          {/*Mobile Header*/}
+          {isMobile && <MobileHeader />}
           <Outlet />
         </SidebarInset>
       </div>
-      {/* Footer remains at the bottom */}
+      {/* Footer  */}
       <div className=" flex items-center w-full min-h-[34px]">
         <p className="text-xs text-[#1C1D2180] leading-none ml-6">
           Developed by A2K Group Corporation © {new Date().getFullYear()}

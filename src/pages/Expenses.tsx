@@ -424,16 +424,20 @@ const Dues = () => {
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <Badge
-                                        variant="outline"
-                                        className="bg-green-50 text-green-700"
-                                      >
-                                        <Icon
-                                          icon="mingcute:check-circle-fill"
-                                          className="mr-1 h-3.5 w-3.5"
-                                        />
-                                        Paid
-                                      </Badge>
+                                      <span>
+                                        {" "}
+                                        {/* Wrapper element that can accept refs */}
+                                        <Badge
+                                          variant="outline"
+                                          className="bg-green-50 text-green-700"
+                                        >
+                                          <Icon
+                                            icon="mingcute:check-circle-fill"
+                                            className="mr-1 h-3.5 w-3.5"
+                                          />
+                                          Paid
+                                        </Badge>
+                                      </span>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                       Paid for this month

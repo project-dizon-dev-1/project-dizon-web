@@ -1,24 +1,41 @@
 import { supabase } from "@/services/supabaseClient";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 let accessToken: string | null = null;
+let refreshInProgress = false;
+let refreshPromise: Promise<string | null> | null = null;
 
 // Function to get the latest access token
 const updateAccessToken = async () => {
-  try {
-    const { data } = await supabase.auth.getSession();
-    accessToken = data?.session?.access_token || null;
-    return accessToken;
-  } catch (error) {
-    console.warn("Failed to get session token:", error);
-    accessToken = null;
-    return null;
+  if (refreshInProgress && refreshPromise) {
+    return refreshPromise;
   }
+
+  refreshInProgress = true;
+  refreshPromise = (async () => {
+    try {
+      // Force refresh the session
+      const { data, error } = await supabase.auth.refreshSession();
+
+      if (error) throw error;
+
+      accessToken = data?.session?.access_token || null;
+      return accessToken;
+    } catch (error) {
+      console.warn("Failed to refresh session token:", error);
+      accessToken = null;
+      return null;
+    } finally {
+      refreshInProgress = false;
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 };
 
-// Initialize token on app startup (but don't throw errors)
+// Initialize token on app startup
 updateAccessToken().catch(() => {
-  // Silently fail on initial token fetch
   accessToken = null;
 });
 
@@ -51,49 +68,46 @@ api.interceptors.request.use(
       }
     } catch (error) {
       console.warn("Error updating access token:", error);
-      // Continue with request even without token
     }
 
     return config;
   },
   (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      console.error(
-        "Request error:",
-        error.response?.data?.message || error.message || "Unknown error"
-      );
-    } else {
-      console.error("Unexpected error:", error);
-    }
     return Promise.reject(error);
   }
 );
 
-// Axios response interceptor to handle errors globally
+// Add response interceptor to handle token expiration
 api.interceptors.response.use(
   (response) => response,
-  (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      const responseData = error.response?.data;
-      const errorMessage =
-        responseData?.message || error.message || "Unknown error occurred";
-      const errorDetails = responseData?.errors
-        ? JSON.stringify(responseData.errors, null, 2)
-        : null;
+  async (error: unknown) => {
+    const originalRequest = (error as AxiosError).config;
 
-      console.error("Response error:", errorMessage);
-      if (errorDetails) {
-        console.error("Error details:", errorDetails);
+    // Check if error is due to expired token
+    if (
+      axios.isAxiosError(error) &&
+      error.response?.status === 401 &&
+      originalRequest &&
+      !(originalRequest as any)._retry
+    ) {
+      (originalRequest as any)._retry = true;
+
+      try {
+        // Force token refresh
+        await updateAccessToken();
+
+        // Update the authorization header
+        if (accessToken) {
+          originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+        }
+
+        // Retry the request with new token
+        return axios(originalRequest);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
       }
-
-      throw new Error(
-        errorDetails
-          ? `${errorMessage} - Details: ${errorDetails}`
-          : errorMessage
-      );
-    } else {
-      console.error("Unexpected error:", error);
     }
+
     return Promise.reject(error);
   }
 );
