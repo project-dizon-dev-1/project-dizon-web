@@ -33,17 +33,16 @@ import { toast } from "@/hooks/use-toast";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Label } from "../ui/label";
 import { fetchFixedDue } from "@/services/dueServices";
+import { formatAmount } from "@/lib/utils";
 
 const CollectionForm = ({
   houseId,
   familyName,
   houseLatestPayment,
-}: // arrears = 0,
-{
+}: {
   familyName: string;
   houseId: string;
   houseLatestPayment: Date | null;
-  // arrears: number;
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [amountToPay, setAmountToPay] = useState<number>(0);
@@ -189,7 +188,7 @@ const CollectionForm = ({
               {/* Number of Months */}
               <div>
                 <p className="text-sm font-normal">
-                  Amount to pay: {amountToPay.toLocaleString("en-PH")} ₱
+                  Amount to pay: {formatAmount(amountToPay)}
                 </p>
               </div>
               <FormField

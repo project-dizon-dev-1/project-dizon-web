@@ -24,6 +24,7 @@ import useUserContext from "@/hooks/useUserContext";
 import { CommentDetailsPropTypes } from "@/types/commentTypes";
 import TriggerLike from "./TriggerLike";
 import { Skeleton } from "../ui/skeleton";
+import AutoLinkText from "@/lib/AutoLinkText";
 
 const CommentDetails = ({
   announcement_id,
@@ -133,7 +134,10 @@ const CommentDetails = ({
                 </button>
               </div>
             </div>
-            <div>{comment.comment}</div>
+            <AutoLinkText
+              className="block whitespace-pre-wrap break-all text-start leading-5 "
+              text={comment.comment}
+            />
 
             <div className="flex items-center">
               <TriggerLike

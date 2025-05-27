@@ -1,7 +1,7 @@
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { EditCommentFormPropsType } from "@/types/commentTypes";
+import { Textarea } from "../ui/textarea";
 
 const EditCommentForm = ({
   comment_id,
@@ -21,7 +21,7 @@ const EditCommentForm = ({
       })}
       className="mb-2 flex p-1 w-full flex-col gap-2"
     >
-      <Input {...register("comment", { required: true })} name="comment" />
+      <Textarea {...register("comment", { required: true })} name="comment" />
       <div className="flex justify-end gap-2">
         <Button
           type="button"

@@ -1,8 +1,8 @@
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { EditReplyFormPropsType } from "@/types/commentTypes";
+import { Textarea } from "../ui/textarea";
 
 const EditReplyForm = ({
   comment_id,
@@ -23,16 +23,17 @@ const EditReplyForm = ({
       )}
       className="mb-2 flex p-1 w-full flex-col gap-2"
     >
-      <Input {...register("comment", { required: true })} name="comment" />
+      <Textarea {...register("comment", { required: true })} name="comment" />
       <div className="flex justify-end gap-2">
         <Button
           type="button"
           variant={"outline"}
+          className="rounded-xl"
           onClick={() => setEditting(false)}
         >
           Cancel
         </Button>
-        <Button type="submit" className=" hover:bg-blue-500">
+        <Button type="submit" className=" rounded-xl hover:bg-blue-500">
           Save
         </Button>
       </div>

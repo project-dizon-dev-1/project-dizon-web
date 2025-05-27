@@ -20,7 +20,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 
-import { cn } from "@/lib/utils";
+import { cn, formatAmount } from "@/lib/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import CategoryForm from "@/components/Dues/CategoryForm";
 import { Button } from "@/components/ui/button";
@@ -199,8 +199,8 @@ const Dues = () => {
                     Amount Paid
                   </span>
                   <span className="text-sm font-medium">
-                    ₱{overallMetrics.paidAmount.toLocaleString()} / ₱
-                    {overallMetrics.totalAmount.toLocaleString()}
+                    {formatAmount(overallMetrics.paidAmount)} /
+                    {formatAmount(overallMetrics.totalAmount)}
                   </span>
                 </div>
                 <Progress
@@ -210,10 +210,10 @@ const Dues = () => {
                 />
                 <div className="flex justify-between text-xs">
                   <span className="text-green-600 font-medium">
-                    ₱{overallMetrics.paidAmount.toLocaleString()} paid
+                    {formatAmount(overallMetrics.paidAmount)} paid
                   </span>
                   <span className="text-amber-600 font-medium">
-                    ₱{overallMetrics.unpaidAmount.toLocaleString()} pending
+                    {formatAmount(overallMetrics.unpaidAmount)} pending
                   </span>
                 </div>
               </div>
@@ -245,12 +245,6 @@ const Dues = () => {
                   <AccordionTrigger className="hover:no-underline">
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-bold">{category.name}</span>
-                      {/* <Badge
-                        variant="outline"
-                        className="bg-blue-50 text-blue-700"
-                      >
-                        ₱{category.total_expenses.toLocaleString()}
-                      </Badge> */}
                     </div>
                   </AccordionTrigger>
 
@@ -381,7 +375,7 @@ const Dues = () => {
                             )}
                             <span className="font-medium">{due.due_name}</span>
                             <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200">
-                              ₱{due.due_cost.toLocaleString()}
+                              {formatAmount(due.due_cost)}
                             </Badge>
                             {due.due_description && (
                               <TooltipProvider>

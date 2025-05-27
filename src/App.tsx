@@ -15,7 +15,6 @@ import ResidentDetails from "./pages/ResidentDetails";
 import CollectionDetails from "./pages/CollectionDetails";
 import FinanceOverview from "./pages/FinanceOverview";
 import AuditLogs from "./pages/AuditLogs";
-import FinancialLogs from "./pages/FinancialLogs";
 import PaymentHistory from "./pages/PaymentHistory";
 import ManageSubdivision from "./pages/SubdivisionManagement";
 import Profile from "./pages/Profile";
@@ -25,6 +24,7 @@ import PasswordRecovery from "./pages/PasswordRecovery";
 import Homepage from "./pages/Homepage";
 import Contact from "./pages/Contact";
 import AuthorizeByRole from "./components/AuthorizeByRole";
+import TransactionHistory from "./pages/TransactionHistory";
 
 const App = () => {
   return (
@@ -57,7 +57,7 @@ const App = () => {
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/audit-logs" element={<AuditLogs />} />
               <Route path="/subdivision" element={<ManageSubdivision />} />
-              <Route path="/financial-logs" element={<FinancialLogs />} />
+              <Route path="/financial-logs" element={<TransactionHistory />} />
             </Route>
 
             <Route path="/profile" element={<Profile />} />

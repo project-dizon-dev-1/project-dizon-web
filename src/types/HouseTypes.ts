@@ -119,6 +119,10 @@ type HouseSummary = {
     user_first_name: string;
     user_last_name: string;
   } | null;
+  totalOutstanding: number;
+  arrears: number;
+  currentMonthDue: number;
+  paymentStatus: string;
 };
 
 type FetchHouseCollectionQueryParams = {

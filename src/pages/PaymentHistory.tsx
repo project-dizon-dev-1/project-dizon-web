@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { cn, formatAmount, formatDate } from "@/lib/utils";
 import useInterObserver from "@/hooks/useIntersectObserver";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Badge } from "@/components/ui/badge";
@@ -162,17 +162,13 @@ const PaymentHistory = () => {
                         i % 2 === 0 ? "font-medium" : "rounded-l-xl"
                       )}
                     >
-                      {new Date(payment.created_at).toLocaleDateString()}
+                      {formatDate(payment.created_at)}
                     </TableCell>
                     <TableCell>
-                      {payment.date &&
-                        new Date(payment.date).toLocaleDateString("en-US", {
-                          month: "long",
-                          year: "numeric",
-                        })}
+                      {payment.date && formatDate(payment.date)}
                     </TableCell>
                     <TableCell className="font-medium">
-                      ₱{payment.amount?.toLocaleString("en-PH") ?? 0}
+                      {formatAmount(payment.amount ?? 0)}
                     </TableCell>
                     <TableCell>
                       {payment.amount_status === "Fully_Paid" ? (
@@ -204,14 +200,7 @@ const PaymentHistory = () => {
                           <AlertDialogTitle>Payment Details</AlertDialogTitle>
                           <AlertDialogDescription>
                             Transaction information for your{" "}
-                            {payment.date &&
-                              new Date(payment.date).toLocaleDateString(
-                                "en-US",
-                                {
-                                  month: "long",
-                                  year: "numeric",
-                                }
-                              )}{" "}
+                            {payment.date && formatDate(payment?.date)}
                             payment
                           </AlertDialogDescription>
                         </AlertDialogHeader>
@@ -224,23 +213,10 @@ const PaymentHistory = () => {
                               <p>Payment Status</p>
                             </div>
                             <div>
-                              <p>
-                                {payment.date &&
-                                  new Date(payment.date).toLocaleDateString(
-                                    "en-PH",
-                                    {
-                                      month: "long",
-                                      year: "numeric",
-                                    }
-                                  )}
-                              </p>
-                              <p>
-                                {new Date(
-                                  payment.created_at
-                                ).toLocaleDateString()}
-                              </p>
+                              <p>{payment.date && formatDate(payment?.date)}</p>
+                              <p>{formatDate(payment.created_at)}</p>
                               <p className="font-medium">
-                                ₱{payment.amount?.toLocaleString() ?? 0}
+                                {formatAmount(payment.amount ?? 0)}
                               </p>
                               {payment.amount_status === "Fully_Paid" ? (
                                 <Badge className="bg-green-100 text-green-800 shadow-none hover:bg-green-100">
@@ -292,7 +268,7 @@ const PaymentHistory = () => {
                                 {payment?.receiver?.user_last_name}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {new Date(payment.created_at).toLocaleString()}
+                                {formatDate(payment.created_at)}
                               </p>
                             </div>
 

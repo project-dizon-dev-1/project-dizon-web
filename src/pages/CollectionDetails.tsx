@@ -23,7 +23,7 @@ import CollectionForm from "@/components/Collection/CollectionForm";
 import Loading from "@/components/Loading";
 
 import useHouseSearchParams from "@/hooks/useHouseSearchParams";
-import { cn } from "@/lib/utils";
+import { cn, formatAmount, formatDate } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -301,24 +301,14 @@ const CollectionDetails = () => {
                     </TableCell>
                     <TableCell>
                       {house.house_latest_payment
-                        ? new Date(house.house_latest_payment).toLocaleString(
-                            "en-PH",
-                            {
-                              year: "numeric",
-                              month: "2-digit",
-                              day: "2-digit",
-                            }
-                          )
+                        ? formatDate(house.house_latest_payment)
                         : "No Payment Yet"}
                     </TableCell>
                     <TableCell>
-                      {house.house_latest_payment_amount?.toLocaleString(
-                        "en-PH"
-                      ) ?? 0}{" "}
-                      ₱
+                      {formatAmount(house.house_latest_payment_amount ?? 0)}
                     </TableCell>
                     <TableCell>
-                      {house.house_arrears?.toLocaleString("en-PH") ?? 0} ₱
+                      {formatAmount(house.house_arrears ?? 0)}
                     </TableCell>
                     <TableCell>
                       {house.house_latest_payment &&

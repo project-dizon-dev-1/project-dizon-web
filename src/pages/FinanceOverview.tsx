@@ -15,6 +15,7 @@ import { FinancialChartData } from "@/components/BarChart";
 import { Button } from "@/components/ui/button";
 import TransactionDialog from "@/components/Finance/TransactionDialog";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { formatAmount } from "@/lib/utils";
 
 const FinanceOverview = () => {
   const {
@@ -65,7 +66,7 @@ const FinanceOverview = () => {
               <div className="h-8 bg-gray-200 animate-pulse rounded-md"></div>
             ) : (
               <div className="text-2xl font-bold text-blue-500">
-                ₱{summaryData?.total_income?.toLocaleString() || 0}
+                {formatAmount(summaryData?.total_income || 0)}
               </div>
             )}
           </CardContent>
@@ -83,7 +84,7 @@ const FinanceOverview = () => {
               <div className="h-8 bg-gray-200 animate-pulse rounded-md"></div>
             ) : (
               <div className="text-2xl font-bold text-red-500">
-                ₱{summaryData?.total_expense?.toLocaleString() || 0}
+                {formatAmount(summaryData?.total_expense || 0)}
               </div>
             )}
           </CardContent>
@@ -104,7 +105,7 @@ const FinanceOverview = () => {
                     : "text-red-500"
                 }`}
               >
-                ₱{summaryData?.net_total?.toLocaleString() || 0}
+                {formatAmount(summaryData?.net_total || 0)}
               </div>
             )}
           </CardContent>

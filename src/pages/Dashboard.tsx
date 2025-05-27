@@ -28,6 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { formatAmount, formatDate, getDaySuffix } from "@/lib/utils";
 
 const Dashboard = () => {
   const { user } = useUserContext();
@@ -44,65 +45,9 @@ const Dashboard = () => {
     queryFn: fetchFixedDue,
     enabled: !!user,
   });
-  // Calculate payment status
-  const currentMonthDue = fixedDue?.amount || 0;
-  const arrears = houseSummary?.house_arrears || 0;
 
-  //  determining if current month is paid
-  const isCurrentMonthPaid = () => {
-    if (!houseSummary?.house_latest_payment) return false;
+  // Format date function
 
-    const latestPaymentDate = new Date(houseSummary.house_latest_payment);
-    const currentDate = new Date();
-
-    // Get year and month for comparison (converts to YYYYMM format)
-    const latestPaymentYearMonth =
-      latestPaymentDate.getFullYear() * 100 + latestPaymentDate.getMonth() + 1;
-    const currentYearMonth =
-      currentDate.getFullYear() * 100 + currentDate.getMonth() + 1;
-
-    // If latest payment is for current month or future month, it's paid
-    return latestPaymentYearMonth >= currentYearMonth;
-  };
-
-  // Calculate total outstanding based on payment status
-  const isPaidThisMonth = isCurrentMonthPaid();
-  const totalOutstanding = isPaidThisMonth
-    ? arrears
-    : currentMonthDue + arrears;
-
-  // Get payment status based on the updated logic
-  const getPaymentStatus = () => {
-    if (isPaidThisMonth && arrears === 0) return "Fully Paid";
-    if (isPaidThisMonth && arrears > 0) return "Partially Paid";
-    return "Unpaid";
-  };
-
-  const paymentStatus = getPaymentStatus();
-
-  // Format date function using native JS
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  // Helper function for ordinal suffixes (1st, 2nd, 3rd, etc.)
-  const getDaySuffix = (day: number): string => {
-    switch (day) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
-  };
   const { data: paymentStatusData, isSuccess } = useQuery({
     queryKey: ["paymentStatus"],
     queryFn: fetchPaymentStatus,
@@ -120,7 +65,7 @@ const Dashboard = () => {
     const timeDiff = currentDate.getTime() - lastShownDate.getTime();
     const hoursPassed = timeDiff / (1000 * 60 * 60);
 
-    return hoursPassed >= 24;
+    return hoursPassed >= 24; // 24 hours
   };
   useEffect(() => {
     if (
@@ -196,11 +141,7 @@ const Dashboard = () => {
 
                 <div className="font-medium text-gray-500">Last Amount</div>
                 <div>
-                  {houseSummary?.house_latest_payment_amount
-                    ? `₱${houseSummary.house_latest_payment_amount.toLocaleString(
-                        "en-PH"
-                      )}`
-                    : "—"}
+                  {formatAmount(houseSummary?.house_latest_payment_amount ?? 0)}
                 </div>
               </div>
             </div>
@@ -218,14 +159,14 @@ const Dashboard = () => {
               <Badge
                 variant={"outline"}
                 className={
-                  paymentStatus === "Fully Paid"
+                  houseSummary?.paymentStatus === "Fully Paid"
                     ? "bg-green-100 text-green-800"
-                    : paymentStatus === "Partially Paid"
+                    : houseSummary?.paymentStatus === "Partially Paid"
                     ? "bg-amber-100 text-amber-800"
                     : "bg-red-100 text-red-800"
                 }
               >
-                {paymentStatus}
+                {houseSummary?.paymentStatus}
               </Badge>
             </div>
           </CardHeader>
@@ -233,13 +174,20 @@ const Dashboard = () => {
             <div className="space-y-3 bg-[#DFF0FF6B] p-4 rounded-md">
               <div className="flex justify-between items-center">
                 <span className="font-medium">Current Month Due</span>
-                <span>₱{currentMonthDue.toLocaleString("en-PH")}</span>
+                <span>{formatAmount(houseSummary?.currentMonthDue ?? 0)}</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <span className="font-medium">Previous Balance</span>
-                <span className={arrears > 0 ? "text-red-600" : ""}>
-                  ₱{arrears.toLocaleString("en-PH")}
+                <span
+                  className={
+                    houseSummary?.house_arrears &&
+                    houseSummary?.house_arrears > 0
+                      ? "text-red-600"
+                      : ""
+                  }
+                >
+                  {formatAmount(houseSummary?.house_arrears ?? 0)}
                 </span>
               </div>
 
@@ -249,10 +197,13 @@ const Dashboard = () => {
                 <span>Total Outstanding</span>
                 <span
                   className={
-                    totalOutstanding > 0 ? "text-red-600" : "text-green-600"
+                    houseSummary?.house_arrears &&
+                    houseSummary?.totalOutstanding > 0
+                      ? "text-red-600"
+                      : "text-green-600"
                   }
                 >
-                  ₱{totalOutstanding.toLocaleString("en-PH")}
+                  {formatAmount(houseSummary?.totalOutstanding ?? 0)}
                 </span>
               </div>
 

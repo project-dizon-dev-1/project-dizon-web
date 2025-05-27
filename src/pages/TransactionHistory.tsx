@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
 import Loading from "@/components/Loading";
-import { cn } from "@/lib/utils";
+import { cn, formatAmount, formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import {
@@ -40,7 +40,7 @@ import {
 import { TransactionDataType } from "@/services/transantionTypes";
 import ImageLoader from "@/lib/ImageLoader";
 
-const FinancialLogs = () => {
+const TransactionHistory = () => {
   const { user } = useUserContext();
   const queryClient = useQueryClient();
 
@@ -51,7 +51,7 @@ const FinancialLogs = () => {
       toast({
         title: "Transaction confirmed successfully",
       });
-      // Refetch transactions data to update the UI
+      // Refetch transactions data
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
     onError: () => {
@@ -85,20 +85,6 @@ const FinancialLogs = () => {
 
   // Intersection observer for infinite loading
   const { ref } = useInterObserver(fetchNextPage);
-
-  // Format amount with currency symbol
-  const formatAmount = (amount: number) => {
-    return `₱${amount.toLocaleString("en-PH")}`;
-  };
-
-  // Format date to readable format
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-PH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   if (isError) {
     return <p>Error fetching transaction data</p>;
@@ -378,4 +364,4 @@ const FinancialLogs = () => {
   );
 };
 
-export default FinancialLogs;
+export default TransactionHistory;

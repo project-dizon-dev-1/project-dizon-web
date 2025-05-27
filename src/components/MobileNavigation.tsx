@@ -11,8 +11,6 @@ const MobileNavigation = () => {
   const { user } = useUserContext();
   const [navOpen, setNavOpen] = useState(false);
 
-  console.log("user", user?.role as AppRole);
-
   const toggleNav = () => {
     setNavOpen(!navOpen);
   };

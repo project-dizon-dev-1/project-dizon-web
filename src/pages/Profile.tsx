@@ -63,7 +63,7 @@ const Profile = () => {
     checkSessionAndHandleEmailChange();
   }, [isEmailChangeConfirmation, user, queryClient]);
 
-  if (isLoading) {
+  if (isLoading || !user || !data) {
     return (
       <div className="p-6 space-y-6">
         <Card>
@@ -91,7 +91,7 @@ const Profile = () => {
     );
   }
 
-  if (isError || !data) {
+  if (isError) {
     return (
       <div className="p-6 ">
         <Card>

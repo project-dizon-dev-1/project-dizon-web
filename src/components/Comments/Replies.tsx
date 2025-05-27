@@ -20,6 +20,7 @@ import { RepliesPropTypes } from "@/types/commentTypes";
 import TriggerLikeIcon from "./TriggerLike";
 import useUserContext from "@/hooks/useUserContext";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import AutoLinkText from "@/lib/AutoLinkText";
 
 const Replies = ({
   reply,
@@ -134,7 +135,10 @@ const Replies = ({
               </div>
             </div>
             <div>
-              <p className="text-sm ">{reply.comment}</p>
+              <AutoLinkText
+                className="block whitespace-pre-wrap break-all text-start leading-5 "
+                text={reply.comment}
+              />
               <div className="flex items-center">
                 {/* <TriggerDislikeIcon
                   className="absolute -bottom-4 right-2 w-14 rounded-3xl bg-white p-1"

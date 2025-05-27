@@ -1,11 +1,11 @@
 import { getInitial } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import useUserContext from "@/hooks/useUserContext";
 import { ReplyFormInputs, ReplyInputPropType } from "@/types/commentTypes";
 import useReply from "@/hooks/useReply";
+import { Textarea } from "../ui/textarea";
 
 const ReplyInput = ({
   comment_id,
@@ -45,8 +45,9 @@ ReplyInputPropType) => {
                 {getInitial(user?.user_first_name)}
               </AvatarFallback>
             </Avatar>
-            <Input
+            <Textarea
               {...register("reply", { required: true })}
+              className="rounded-2xl h-9 max-h-9  bg-default focus:border-none resize-none focus:outline-none"
               name="reply"
               placeholder="Type your reply here"
             />
@@ -56,12 +57,15 @@ ReplyInputPropType) => {
             <div className="flex gap-2">
               <Button
                 type="button"
+                className="rounded-xl"
                 onClick={() => setIsReplying(false)}
                 variant="outline"
               >
                 Cancel
               </Button>
-              <Button type="submit">Reply</Button>
+              <Button className="rounded-xl" type="submit">
+                Reply
+              </Button>
             </div>
           </div>
         </div>

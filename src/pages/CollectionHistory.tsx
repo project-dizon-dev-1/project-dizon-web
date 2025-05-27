@@ -38,7 +38,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useSearchParams } from "react-router";
-import { cn } from "@/lib/utils";
+import { cn, formatAmount, formatDate } from "@/lib/utils";
 import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -279,20 +279,10 @@ const PaymentHistory = () => {
                     <TableCell className="text-nowrap">
                       {`${due.house_list?.phases.name}, ${due.house_list?.streets.name}, ${due.house_list?.blocks.name}, ${due.house_list?.lots?.name}`}
                     </TableCell>
-                    <TableCell>
-                      {new Date(due.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {due.date &&
-                        new Date(due.date).toLocaleDateString("en-US", {
-                          month: "long",
-                          year: "numeric",
-                        })}
-                    </TableCell>
+                    <TableCell>{formatDate(due.created_at)}</TableCell>
+                    <TableCell>{due.date && formatDate(due.date)}</TableCell>
                     {/* <TableCell>{due.details}</TableCell> */}
-                    <TableCell>
-                      {due.amount?.toLocaleString("en-PH") ?? 0}
-                    </TableCell>
+                    <TableCell>{formatAmount(due.amount ?? 0)}</TableCell>
                     <TableCell>
                       {due.amount_status === "Fully_Paid" ? (
                         <Badge
@@ -350,19 +340,8 @@ const PaymentHistory = () => {
                               <p>Bill Status</p>
                             </div>
                             <div>
-                              <p>
-                                {due.date &&
-                                  new Date(due.date).toLocaleDateString(
-                                    "en-PH",
-                                    {
-                                      month: "long",
-                                      year: "numeric",
-                                    }
-                                  )}
-                              </p>
-                              <p>
-                                {new Date(due.created_at).toLocaleDateString()}
-                              </p>
+                              <p>{due.date && formatDate(due.date)}</p>
+                              <p>{formatDate(due.created_at)}</p>
                               <p>{due.amount?.toLocaleString()}</p>
                               {due.amount_status === "Fully_Paid" ? (
                                 <Badge
