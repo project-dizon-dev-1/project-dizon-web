@@ -68,15 +68,18 @@ const Announcements = () => {
 
   return (
     <div
-      className={cn("flex justify-center max-h-full h-full gap-12 ", {
-        "flex-col-reverse overflow-y-scroll gap-4 w-full no-scrollbar":
-          isMobile,
-      })}
+      className={cn(
+        "flex justify-center  max-h-full h-full no-scrollbar overflow-y-scroll gap-12 ",
+        {
+          "flex-col-reverse overflow-y-scroll gap-4 w-full no-scrollbar":
+            isMobile,
+        }
+      )}
     >
       {/* Main Content */}
       <div
         ref={announcementsContainerRef}
-        className="grow flex flex-col overflow-y-scroll lg:max-w-[530px] no-scrollbar "
+        className="grow flex flex-col  lg:max-w-[530px]  "
       >
         {user?.role === "admin" && (
           <AnnouncementHeader first_name={user?.user_first_name} />

@@ -90,13 +90,17 @@ const BlockForm = ({
       toast({
         title: "Error",
         description: error.message,
+        variant: "destructive",
       });
     },
   });
 
   const onSubmit = async (data: BlockFormValues) => {
     if (edittingBlock) {
-      editBlockMutation.mutate({ data, blockId: id! });
+      editBlockMutation.mutate({
+        data: { ...data, phaseId: params.get("phaseId")! },
+        blockId: id!,
+      });
     } else {
       const payload = {
         ...data,

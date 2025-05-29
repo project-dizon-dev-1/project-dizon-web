@@ -27,9 +27,11 @@ const useDuesCategory = () => {
         title: "Adding Category...",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error Adding Category",
+        description: error.message || "Unknown error",
+        variant: "destructive",
       });
     },
     onSettled: () => {
@@ -46,9 +48,11 @@ const useDuesCategory = () => {
         title: "Category Updated Successfully",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error Updating Category",
+        description: error.message || "Unknown error",
+        variant: "destructive",
       });
     },
     onSettled: () => {
@@ -70,9 +74,11 @@ const useDuesCategory = () => {
         title: "Deleting Category...",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error Deleting Category",
+        description: error.message || "Unknown error",
+        variant: "destructive",
       });
     },
     onSettled: () => {

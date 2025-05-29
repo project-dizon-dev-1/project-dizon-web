@@ -186,7 +186,6 @@ const SubdivisionManagement = () => {
 
   return (
     <div className="bg-white flex rounded-xl h-full">
-      {/* Phases Column */}
       <SubdivisionColumn
         title={"Phases"}
         FormComponent={PhaseForm}
@@ -198,11 +197,10 @@ const SubdivisionManagement = () => {
         handleDeleteData={handleDeletePhase}
         loading={isLoading}
         deleteMessage={
-          "This action cannot be undone. This will permanently delete your phase and all the streets, blocks, and lots in this phase."
+          "This action will permanently remove the selected phase along with all associated streets, blocks, lots, and their corresponding data. All addresses linked to lots within this phase will also be deleted."
         }
         queryParamsKey="phaseId"
       />
-
       {/* Streets Column */}
       {(streets || streetsLoading) && !isMobile && (
         <SubdivisionColumn
@@ -216,11 +214,13 @@ const SubdivisionManagement = () => {
           handleDeleteData={handleDeleteStreet}
           loading={streetsLoading}
           deleteMessage={
-            "This action cannot be undone. This will permanently delete your street and all the blocks and lots in this street."
+            "This action will permanently delete your street and all the blocks and lots in this street. All addresses linked to lots within this street will also be deleted."
           }
           queryParamsKey="streetId"
         />
       )}
+
+      {/* Street Mobile View */}
       {isMobile && (streets || streetsLoading) && (
         <Sheet
           open={!!streets}
@@ -230,7 +230,7 @@ const SubdivisionManagement = () => {
             }
           }}
         >
-          <SheetContent className="w-full  sm:max-w-full sm:w-full md:max-w-full ">
+          <SheetContent className="flex flex-col  w-full sm:max-w-full sm:w-full md:max-w-full ">
             <SubdivisionColumn
               title={"Streets"}
               FormComponent={StreetForm}
@@ -242,14 +242,60 @@ const SubdivisionManagement = () => {
               handleDeleteData={handleDeleteStreet}
               loading={streetsLoading}
               deleteMessage={
-                "This action cannot be undone. This will permanently delete your street and all the blocks and lots in this street."
+                "This action will permanently delete your street and all the blocks and lots in this street. All addresses linked to lots within this street will also be deleted."
               }
               queryParamsKey="streetId"
+            />
+            <SubdivisionColumn
+              title={"Blocks"}
+              FormComponent={BlockForm}
+              childExist={!!blocks}
+              data={blocks}
+              setParams={handleBlockClick}
+              deleteDialogOpen={deleteDialogOpen}
+              setDeleteDialogOpen={setDeleteDialogOpen}
+              handleDeleteData={handleDeleteBlock}
+              loading={blocksLoading}
+              deleteMessage={
+                "This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted."
+              }
+              queryParamsKey="blockId"
             />
           </SheetContent>
         </Sheet>
       )}
-      {/* Street Mobile View */}
+      {/* Block Mobile View */}
+      {/* {isMobile && (blocks || blocksLoading) && (
+          <Sheet
+            open={!!blocks}
+            onOpenChange={(open) => {
+              if (!open) {
+                const newParams = new URLSearchParams();
+                newParams.delete("phaseId");
+
+                setParams(newParams);
+              }
+            }}
+          >
+            <SheetContent className="w-full h-[50%]  sm:max-w-full sm:w-full md:max-w-full ">
+              <SubdivisionColumn
+                title={"Blocks"}
+                FormComponent={BlockForm}
+                childExist={!!blocks}
+                data={blocks}
+                setParams={handleBlockClick}
+                deleteDialogOpen={deleteDialogOpen}
+                setDeleteDialogOpen={setDeleteDialogOpen}
+                handleDeleteData={handleDeleteBlock}
+                loading={blocksLoading}
+                deleteMessage={
+                  "This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted."
+                }
+                queryParamsKey="blockId"
+              />
+            </SheetContent>
+          </Sheet>
+        )} */}
 
       {/* Blocks Column */}
       {(blocks || blocksLoading) && !isMobile && (
@@ -264,42 +310,10 @@ const SubdivisionManagement = () => {
           handleDeleteData={handleDeleteBlock}
           loading={blocksLoading}
           deleteMessage={
-            "This action cannot be undone. This will permanently delete your block and all the lots in this block."
+            "This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted."
           }
           queryParamsKey="blockId"
         />
-      )}
-      {/* Block Mobile View */}
-      {isMobile && (blocks || blocksLoading) && (
-        <Sheet
-          open={!!blocks}
-          onOpenChange={(open) => {
-            if (!open) {
-              const newParams = new URLSearchParams();
-              newParams.delete("phaseId");
-
-              setParams(newParams);
-            }
-          }}
-        >
-          <SheetContent className="w-full  sm:max-w-full sm:w-full md:max-w-full ">
-            <SubdivisionColumn
-              title={"Blocks"}
-              FormComponent={BlockForm}
-              childExist={!!blocks}
-              data={blocks}
-              setParams={handleBlockClick}
-              deleteDialogOpen={deleteDialogOpen}
-              setDeleteDialogOpen={setDeleteDialogOpen}
-              handleDeleteData={handleDeleteBlock}
-              loading={blocksLoading}
-              deleteMessage={
-                "This action cannot be undone. This will permanently delete your block and all the lots in this block."
-              }
-              queryParamsKey="blockId"
-            />
-          </SheetContent>
-        </Sheet>
       )}
 
       {/* Lots Column */}
@@ -315,12 +329,11 @@ const SubdivisionManagement = () => {
           handleDeleteData={handleDeleteLot}
           loading={lotsLoading}
           deleteMessage={
-            "This action cannot be undone. This will permanently delete your lot."
+            "This action will permanently delete your lot. All addresses linked to this lot will also be deleted."
           }
           queryParamsKey="lotId"
         />
       )}
-
       {/* Lot Mobile View */}
       {isMobile && (lots || lotsLoading) && (
         <Sheet
@@ -347,7 +360,7 @@ const SubdivisionManagement = () => {
               handleDeleteData={handleDeleteLot}
               loading={lotsLoading}
               deleteMessage={
-                "This action cannot be undone. This will permanently delete your lot."
+                "This action will permanently delete your lot. All addresses linked to this lot will also be deleted."
               }
               queryParamsKey="lotId"
             />

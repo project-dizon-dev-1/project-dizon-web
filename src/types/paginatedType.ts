@@ -13,6 +13,7 @@ type paginatedParams = {
   status?: string | null;
   phase?: string | null;
   query?: string | null;
+  year?: string | null;
   page?: string;
   pageSize?: string;
 };

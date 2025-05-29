@@ -202,7 +202,7 @@ const Residents = () => {
       <div className="flex gap-4 mb-4 flex-wrap">
         <Input
           className="w-[428px]  rounded-xl bg-white h-[42px]"
-          placeholder="Search Household Units"
+          placeholder="Search Household Units by Family Name"
           value={searchInput}
           onChange={handleSearchChange}
         />

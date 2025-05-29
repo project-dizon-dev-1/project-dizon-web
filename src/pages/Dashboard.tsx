@@ -197,7 +197,7 @@ const Dashboard = () => {
                 <span>Total Outstanding</span>
                 <span
                   className={
-                    houseSummary?.house_arrears &&
+                    houseSummary?.totalOutstanding &&
                     houseSummary?.totalOutstanding > 0
                       ? "text-red-600"
                       : "text-green-600"

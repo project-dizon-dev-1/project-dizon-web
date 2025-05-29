@@ -11,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import TransactionLineChart from "@/components/LineChart";
-import { FinancialChartData } from "@/components/BarChart";
 import { Button } from "@/components/ui/button";
 import TransactionDialog from "@/components/Finance/TransactionDialog";
 import { Icon } from "@iconify/react/dist/iconify.js";
@@ -31,7 +30,7 @@ const FinanceOverview = () => {
     data: chartData,
     isLoading: chartLoading,
     error: chartError,
-  } = useQuery<FinancialChartData[]>({
+  } = useQuery({
     queryKey: ["financeChartData"],
     queryFn: fetchSubdivisionDashboard,
   });

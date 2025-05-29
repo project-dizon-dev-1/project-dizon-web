@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { createCode, getHouse } from "@/services/houseServices";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import {
   Table,
@@ -19,7 +19,7 @@ import { toast } from "@/hooks/use-toast";
 const ResidentDetails = () => {
   const { houseId } = useParams();
   const navigate = useNavigate();
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   const goBack = () => {
     navigate(-1);
@@ -30,8 +30,9 @@ const ResidentDetails = () => {
     isLoading: houseLoading,
     isError: houseError,
   } = useQuery({
-    queryKey: ["house", houseId],
+    queryKey: ["housedetails", houseId],
     queryFn: async () => await getHouse(houseId),
+    enabled: !!houseId,
   });
 
   // const {
@@ -59,7 +60,7 @@ const ResidentDetails = () => {
     },
     onSettled: () => {
       // Invalidate the query to refresh the house data
-      queryClient.invalidateQueries({ queryKey: ["house", houseId] });
+      queryClient.invalidateQueries({ queryKey: ["housedetails", houseId] });
     },
   });
 

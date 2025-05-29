@@ -135,7 +135,7 @@ const CommentDetails = ({
               </div>
             </div>
             <AutoLinkText
-              className="block whitespace-pre-wrap break-all text-start leading-5 "
+              className="block whitespace-pre-wrap break-words text-start leading-5 "
               text={comment.comment}
             />
 

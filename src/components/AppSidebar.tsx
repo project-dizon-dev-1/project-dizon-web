@@ -80,7 +80,8 @@ export const AppSidebar = () => {
         <SidebarContent className="no-scrollbar">
           <SidebarGroup className="p-3">
             <img
-              className="p-0 w-[110px] mx-auto mt-[10px] mb-[20px]"
+              onClick={() => navigate("/")}
+              className="p-0 cursor-pointer w-[110px] mx-auto mt-[10px] mb-[20px]"
               src="/icons/dizon.svg"
               alt="an icon"
             />

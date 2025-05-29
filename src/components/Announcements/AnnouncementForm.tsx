@@ -60,7 +60,7 @@ const AnnouncementForm = ({
       : announcement?.announcement_files[0]?.type.startsWith("video")
       ? "Video"
       : announcement?.announcement_files[0]?.type.startsWith("image")
-      ? "Image"
+      ? "Image(s)"
       : "None";
 
   const { phases } = usePhaseContext();
@@ -218,9 +218,14 @@ const AnnouncementForm = ({
 
     // Update filePreviews state
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
+    //set the right image for inputref
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
   };
 
   const onSubmit = (values: AnnouncementSchemaType) => {
+    console.log(values.files);
     const formData = new FormData();
 
     formData.append("title", values.title);
@@ -546,7 +551,7 @@ const AnnouncementForm = ({
                                 {filePreviews.map((url, index) => (
                                   <div
                                     key={index}
-                                    className="relative flex justify-center h-[100px] w-[100px] bg-red-300 flex-shrink-0 rounded-md"
+                                    className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
                                   >
                                     <ImageLoader
                                       className="object-cover w-full h-full rounded-md"
@@ -573,16 +578,17 @@ const AnnouncementForm = ({
 
                             {selectedFileType === "Video" &&
                               (selectedVideo ? (
-                                <div className="flex items-center aspect-video no-scrollbar w-full max-w-[420px] justify-center gap-3 overflow-x-scroll">
-                                  <div className="relative flex h-fit w-fit flex-shrink-0 rounded-md">
+                                <div className="flex items-center justify-center w-full aspect-video overflow-hidden">
+                                  <div className="flex  items-center justify-center relative h-full aspect-video flex-shrink-0">
                                     <video
-                                      className=" rounded-lg"
+                                      className="h-full rounded-lg object-contain"
                                       controls={true}
                                       src={selectedVideo}
                                     />
                                     <Icon
                                       onClick={() => {
                                         setSelectedVideo(null);
+                                        form.setValue("files", []);
                                         if (inputRef.current) {
                                           inputRef.current.value = "";
                                         }

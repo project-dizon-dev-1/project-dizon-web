@@ -1,6 +1,6 @@
 import {
   AlertDialog,
-  AlertDialogAction,
+  AlertDialogActionNoClose,
   AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
@@ -56,6 +56,7 @@ const ConfigureCollectionForm = ({
       toast({
         title: "Error updating collection",
         description: error.message,
+        variant: "destructive",
       });
     },
     onMutate: () => {
@@ -72,6 +73,10 @@ const ConfigureCollectionForm = ({
       queryClient.invalidateQueries({
         queryKey: ["houseSummary"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["userFixedDue"],
+      });
+      setIsOpen(false);
     },
   });
 
@@ -184,15 +189,9 @@ const ConfigureCollectionForm = ({
 
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                type="submit"
-                onClick={(e) => {
-                  e.preventDefault();
-                  form.handleSubmit(onSubmit)();
-                }}
-              >
+              <AlertDialogActionNoClose>
                 {"Save Changes"}
-              </AlertDialogAction>
+              </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>
         </Form>

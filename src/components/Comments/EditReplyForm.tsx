@@ -18,9 +18,10 @@ const EditReplyForm = ({
 
   return (
     <form
-      onSubmit={handleSubmit((inputs) =>
-        handleUpdateReply({ comment: inputs.comment, comment_id })
-      )}
+      onSubmit={handleSubmit((inputs) => {
+        handleUpdateReply({ comment: inputs.comment, comment_id });
+        setEditting(false);
+      })}
       className="mb-2 flex p-1 w-full flex-col gap-2"
     >
       <Textarea {...register("comment", { required: true })} name="comment" />

@@ -66,7 +66,8 @@ const editBlock = async ({
   data,
 }: {
   blockId?: string;
-  data: { name: string };
+  phaseId?: string;
+  data: { name: string; phaseId: string };
 }) => {
   return await axiosPut(`/subdivision/blocks/${blockId}/edit`, data);
 };
@@ -76,7 +77,8 @@ const editStreet = async ({
   data,
 }: {
   streetId?: string;
-  data: { name: string };
+  phaseId?: string;
+  data: { name: string; phaseId: string };
 }) => {
   return await axiosPut(`/subdivision/streets/${streetId}/edit`, data);
 };

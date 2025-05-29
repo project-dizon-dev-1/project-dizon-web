@@ -62,6 +62,9 @@ const FeedbackForm = () => {
       });
       form.reset();
       setCharacterCount(0);
+      setCurrentFiles([]);
+      setFilePreviews([]);
+      inputRef.current!.value = "";
     },
     onError: (error) => {
       toast({
@@ -93,192 +96,204 @@ const FeedbackForm = () => {
     feedbackMutation.mutate({ data: formData, userId: user?.id });
   };
 
+  const resetForm = () => {
+    form.reset();
+    setCharacterCount(0);
+    setCurrentFiles([]);
+    setFilePreviews([]);
+    inputRef.current!.value = "";
+  };
+
   return (
-    <div className="container mx-auto max-w-3xl overflow-y-scroll no-scrollbar">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Share Your Feedback</h1>
-        <p className="text-muted-foreground">
-          Help us improve the system by sharing your suggestions
-        </p>
-      </div>
+    <div className="w-full overflow-y-scroll no-scrollbar">
+      <div className="container mx-auto max-w-3xl ">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">Share Your Feedback</h1>
+          <p className="text-muted-foreground">
+            Help us improve the system by sharing your suggestions
+          </p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Feedback Form</CardTitle>
-          <CardDescription>
-            Your feedback is valuable in helping us enhance your experience.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="feedback"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Your Feedback</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Share your suggestions for improvement..."
-                          className="min-h-[220px] resize-none"
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            setCharacterCount(e.target.value.length);
-                          }}
-                        />
-                      </FormControl>
-                      <div className="flex justify-between">
-                        <FormDescription>
-                          Please be specific about what you&apos;d like to see
-                          improved.
-                        </FormDescription>
-                        <span
-                          className={`text-xs ${
-                            characterCount > 900
-                              ? "text-red-600"
-                              : characterCount > 0
-                              ? "text-green-600"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {characterCount}/1000
-                        </span>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+        <Card>
+          <CardHeader>
+            <CardTitle>Feedback Form</CardTitle>
+            <CardDescription>
+              Your feedback is valuable in helping us enhance your experience.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="feedback"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your Feedback</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Share your suggestions for improvement..."
+                            className="min-h-[220px] resize-none"
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              setCharacterCount(e.target.value.length);
+                            }}
+                          />
+                        </FormControl>
+                        <div className="flex justify-between">
+                          <FormDescription>
+                            Please be specific about what you&apos;d like to see
+                            improved.
+                          </FormDescription>
+                          <span
+                            className={`text-xs ${
+                              characterCount > 900
+                                ? "text-red-600"
+                                : characterCount > 0
+                                ? "text-green-600"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {characterCount}/1000
+                          </span>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="files"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Upload Files (optional)</FormLabel>
-                      <FormControl>
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              id="file-input"
-                              type="file"
-                              multiple
-                              className="hidden"
-                              ref={inputRef}
-                              accept=".jpg, .jpeg, .png,"
-                              onChange={(e) => {
-                                const files = Array.from(e.target.files || []);
+                  <FormField
+                    control={form.control}
+                    name="files"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Upload Files (optional)</FormLabel>
+                        <FormControl>
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                id="file-input"
+                                type="file"
+                                multiple
+                                className="hidden"
+                                ref={inputRef}
+                                accept=".jpg, .jpeg, .png,"
+                                onChange={(e) => {
+                                  const files = Array.from(
+                                    e.target.files || []
+                                  );
 
-                                if (files && files.length > 0) {
-                                  field.onChange([...currentFiles, ...files]);
-                                  setCurrentFiles((prev) => [
-                                    ...prev,
-                                    ...files,
-                                  ]);
+                                  if (files && files.length > 0) {
+                                    field.onChange([...currentFiles, ...files]);
+                                    setCurrentFiles((prev) => [
+                                      ...prev,
+                                      ...files,
+                                    ]);
 
-                                  setFilePreviews((prevState) => [
-                                    ...prevState,
-                                    ...files.map((item) =>
-                                      URL.createObjectURL(item)
-                                    ),
-                                  ]);
-                                  //reset input value to allow re-uploading the same file
-                                  if (inputRef.current) {
-                                    inputRef.current.value = "";
+                                    setFilePreviews((prevState) => [
+                                      ...prevState,
+                                      ...files.map((item) =>
+                                        URL.createObjectURL(item)
+                                      ),
+                                    ]);
+                                    //reset input value to allow re-uploading the same file
+                                    if (inputRef.current) {
+                                      inputRef.current.value = "";
+                                    }
                                   }
-                                }
-                              }}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                                }}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="flex max-h-[110px] w-full max-w-[420px] gap-3 overflow-x-scroll">
-                  {filePreviews.map((url, index) => (
-                    <div
-                      key={index}
-                      className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
-                    >
-                      <img
-                        className="object-cover object-center"
-                        src={url}
-                        alt="an image"
-                      />
-                      <Icon
-                        onClick={() => handleRemoveFile(index)}
-                        className="absolute right-1 top-1 text-xl hover:cursor-pointer"
-                        icon={"mingcute:close-circle-fill"}
-                      />
-                    </div>
-                  ))}
-                  <Label htmlFor="file-input">
-                    <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
-                      <Icon className="h-9 w-9" icon={"mingcute:add-line"} />
-                    </div>
-                  </Label>
+                  <div className="flex max-h-[110px] w-full max-w-[420px] gap-3 overflow-x-scroll">
+                    {filePreviews.map((url, index) => (
+                      <div
+                        key={index}
+                        className="relative flex justify-center h-[100px] w-[100px] flex-shrink-0 rounded-md"
+                      >
+                        <img
+                          className="object-cover object-center"
+                          src={url}
+                          alt="an image"
+                        />
+                        <Icon
+                          onClick={() => handleRemoveFile(index)}
+                          className="absolute right-1 top-1 text-xl hover:cursor-pointer"
+                          icon={"mingcute:close-circle-fill"}
+                        />
+                      </div>
+                    ))}
+                    <Label htmlFor="file-input">
+                      <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md border border-primary-outline bg-[#DEEDFF] hover:cursor-pointer">
+                        <Icon className="h-9 w-9" icon={"mingcute:add-line"} />
+                      </div>
+                    </Label>
+                  </div>
                 </div>
-              </div>
 
-              <div className="rounded-lg bg-blue-50 p-4 border border-blue-100">
-                <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-1">
-                  <Icon icon="mingcute:bulb-fill" className="text-blue-600" />
-                  What kind of feedback is helpful?
-                </h4>
-                <ul className="text-xs text-blue-700 space-y-1 list-disc pl-4">
-                  <li>
-                    Feature requests that would make your experience better
-                  </li>
-                  <li>Suggestions to improve existing functionalities</li>
-                  <li>Reports of confusing or difficult to use interfaces</li>
-                  <li>
-                    Ideas for new features or reports you`&apos;`d like to see
-                  </li>
-                </ul>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Button
-            variant="outline"
-            onClick={() => {
-              form.reset();
-              setCharacterCount(0);
-            }}
-            disabled={feedbackMutation.isPending}
-          >
-            Reset Form
-          </Button>
-          <Button
-            onClick={form.handleSubmit(onSubmit)}
-            disabled={feedbackMutation.isPending}
-          >
-            {feedbackMutation.isPending ? (
-              <>
-                <Icon
-                  icon="mingcute:loading-line"
-                  className="mr-2 h-4 w-4 animate-spin"
-                />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <Icon
-                  icon="mingcute:send-plane-fill"
-                  className="mr-2 h-4 w-4"
-                />
-                Submit Feedback
-              </>
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
+                <div className="rounded-lg bg-blue-50 p-4 border border-blue-100">
+                  <h4 className="text-sm font-medium text-blue-800 mb-2 flex items-center gap-1">
+                    <Icon icon="mingcute:bulb-fill" className="text-blue-600" />
+                    What kind of feedback is helpful?
+                  </h4>
+                  <ul className="text-xs text-blue-700 space-y-1 list-disc pl-4">
+                    <li>
+                      Feature requests that would make your experience better
+                    </li>
+                    <li>Suggestions to improve existing functionalities</li>
+                    <li>Reports of confusing or difficult to use interfaces</li>
+                    <li>
+                      Ideas for new features or reports you&apos;d like to see
+                    </li>
+                  </ul>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex justify-between">
+            <Button
+              variant="outline"
+              onClick={resetForm}
+              disabled={feedbackMutation.isPending}
+            >
+              Reset Form
+            </Button>
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              disabled={feedbackMutation.isPending}
+            >
+              {feedbackMutation.isPending ? (
+                <>
+                  <Icon
+                    icon="mingcute:loading-line"
+                    className="mr-2 h-4 w-4 animate-spin"
+                  />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Icon
+                    icon="mingcute:send-plane-fill"
+                    className="mr-2 h-4 w-4"
+                  />
+                  Submit Feedback
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 };

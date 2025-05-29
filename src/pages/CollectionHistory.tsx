@@ -93,6 +93,7 @@ const PaymentHistory = () => {
       searchParams.get("status"),
       searchParams.get("phase"),
       searchParams.get("query"),
+      searchParams.get("year"),
     ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
@@ -101,6 +102,7 @@ const PaymentHistory = () => {
         status: searchParams.get("status"),
         query: searchParams.get("query"),
         phase: searchParams.get("phase"),
+        year: searchParams.get("year"),
         page,
         pageSize: "20",
       });
@@ -126,7 +128,7 @@ const PaymentHistory = () => {
   }, [debouncedSearch]);
 
   const clearFilters = () => {
-    setSearchParams({});
+    setSearchParams({ year: currentYear.toString() });
     setSearchInput("");
   };
 
@@ -143,7 +145,17 @@ const PaymentHistory = () => {
       };
     });
   }, []);
-
+  const currentYear = new Date().getFullYear();
+  const years = useMemo(() => {
+    // Create array of years spanning from 3 years ago to 3 years in the future
+    return Array.from({ length: 7 }, (_, i) => {
+      const year = currentYear - 3 + i;
+      return {
+        value: year.toString(),
+        label: year.toString(),
+      };
+    });
+  }, []);
   const updateParams = (key: string, value: string) => {
     if (searchParams.get(key) === "all") {
       searchParams.delete(key);
@@ -187,12 +199,29 @@ const PaymentHistory = () => {
           </SelectContent>
         </Select>
         <Select
+          value={searchParams.get("year") || currentYear.toString()}
+          onValueChange={(value) => updateParams("year", value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder={searchParams.get("year")} />
+          </SelectTrigger>
+          <SelectContent>
+            {years.map((year) => (
+              <SelectItem key={year.value} value={year.value}>
+                {year.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select
           value={searchParams.get("bill-month") || ""}
           onValueChange={(value) => updateParams("bill-month", value)}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
-              placeholder={searchParams.get("bill-month") || "All months"}
+              placeholder={
+                searchParams.get("bill-month") || "Select Billing Month"
+              }
             />
           </SelectTrigger>
           <SelectContent>
@@ -204,6 +233,7 @@ const PaymentHistory = () => {
             ))}
           </SelectContent>
         </Select>
+
         {/* <Select
           value={searchParams.get("status") || ""}
           onValueChange={(value) => updateParams("status", value)}

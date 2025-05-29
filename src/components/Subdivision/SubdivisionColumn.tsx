@@ -4,6 +4,7 @@ import React, { Dispatch } from "react";
 import {
   AlertDialog,
   AlertDialogActionNoClose,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -162,9 +163,18 @@ const SubdivisionColumn = ({
                               Are you absolutely sure?
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                              {deleteMessage}
+                              This action cannot be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
+                          <AlertDialogBody className="flex flex-col items-center">
+                            <Icon
+                              className=" text-red-500  w-72 h-72 text-center"
+                              icon={"mingcute:alert-fill"}
+                            ></Icon>
+                            <p className="font-bold text-red-500 text-justify">
+                              {deleteMessage}
+                            </p>
+                          </AlertDialogBody>
 
                           <AlertDialogFooter>
                             <AlertDialogCancel variant={"default"}>

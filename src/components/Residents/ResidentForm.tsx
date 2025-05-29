@@ -66,6 +66,7 @@ const ResidentForm = () => {
     },
     mode: "onChange",
   });
+  console.log(form.formState.errors);
 
   // Watch for lot changes to update the local state and set default mainLot if needed
   const watchedLots = form.watch("lot");
@@ -432,7 +433,9 @@ const ResidentForm = () => {
               </div>
             </AlertDialogBody>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={() => form.reset()}>
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogActionNoClose
                 type="submit"
                 disabled={addHouseMutation.isPending}

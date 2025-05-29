@@ -98,7 +98,10 @@ const StreetForm = ({
 
   const onSubmit = async (data: StreetFormValues) => {
     if (edittingStreet) {
-      editStreetMutation.mutate({ data, streetId: id });
+      editStreetMutation.mutate({
+        data: { ...data, phaseId: params.get("phaseId")! },
+        streetId: id,
+      });
     } else {
       const payload = {
         ...data,

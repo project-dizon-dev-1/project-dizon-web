@@ -120,7 +120,6 @@ type HouseSummary = {
     user_last_name: string;
   } | null;
   totalOutstanding: number;
-  arrears: number;
   currentMonthDue: number;
   paymentStatus: string;
 };

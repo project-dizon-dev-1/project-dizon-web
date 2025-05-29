@@ -143,7 +143,7 @@ const CollectionDetails = () => {
         />
         <Input
           className="w-full max-w-[300px] rounded-xl bg-white h-[42px]"
-          placeholder="Search Household Units"
+          placeholder="Search Household Units by Family Name"
           value={searchInput}
           onChange={handleSearchChange}
         />
@@ -312,10 +312,12 @@ const CollectionDetails = () => {
                     </TableCell>
                     <TableCell>
                       {house.house_latest_payment &&
-                      (new Date(house.house_latest_payment).getMonth() ===
-                        new Date().getMonth() ||
-                        new Date(house.house_latest_payment).getMonth() >
-                          new Date().getMonth()) ? (
+                      (new Date(house.house_latest_payment).getFullYear() >
+                        new Date().getFullYear() ||
+                        (new Date(house.house_latest_payment).getFullYear() ===
+                          new Date().getFullYear() &&
+                          new Date(house.house_latest_payment).getMonth() >=
+                            new Date().getMonth())) ? (
                         <Badge
                           variant={"outline"}
                           className="bg-green-100 text-green-800"
@@ -340,8 +342,12 @@ const CollectionDetails = () => {
                     >
                       {((house.house_arrears && house.house_arrears > 0) ||
                         !house.house_latest_payment ||
-                        new Date(house.house_latest_payment).getMonth() <
-                          new Date().getMonth()) &&
+                        new Date(house.house_latest_payment).getFullYear() <
+                          new Date().getFullYear() ||
+                        (new Date(house.house_latest_payment).getFullYear() ===
+                          new Date().getFullYear() &&
+                          new Date(house.house_latest_payment).getMonth() <
+                            new Date().getMonth())) &&
                         user?.id !== house?.house_main_poc_user?.id && (
                           <CollectionForm
                             // arrears={house.house_arrears ?? 0}

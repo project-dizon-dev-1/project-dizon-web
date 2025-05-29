@@ -7,24 +7,24 @@ const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB in bytes
 const checkFileType = (file: File) => {
   if (!file?.name) return false;
 
-  const fileType = file.name.split(".").pop()?.toLowerCase();
   const allowedTypes = [
-    "jpg",
-    "jpeg",
-    "png",
-    "gif",
-    "mp4",
-    "avi",
-    "mov",
-    "pdf",
-    "ppt",
-    "pptx",
-    "doc",
-    "docx",
-    "xlsx",
+    "image/jpg",
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/mp4",
+    "image/avi",
+    "image/mov",
+    "image/pdf",
+    "image/ppt",
+    "image/pptx",
+    "image/doc",
+    "image/docx",
+    "image/xlsx",
+    "image/webp",
   ];
 
-  return fileType ? allowedTypes.includes(fileType) : false;
+  return file ? allowedTypes.includes(file.type) : false;
 };
 
 const announcementSchema = z.object({
@@ -56,7 +56,7 @@ const announcementSchema = z.object({
     )
     .refine(
       (files) => !files || files.every((file) => checkFileType(file)),
-      "Invalid file type. Allowed: jpg, jpeg, png, gif, mp4, avi, mov, pdf, ppt, pptx, doc, docx, xlsx"
+      "Invalid file type. Allowed: jpg, jpeg, png, gif, mp4, avi, mov, pdf, ppt, pptx, doc, docx, xlsx, webp"
     ),
 });
 

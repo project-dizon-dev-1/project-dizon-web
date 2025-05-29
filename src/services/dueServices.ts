@@ -15,12 +15,13 @@ const fetchDueLogs = async ({
   month,
   status,
   phase,
+  year,
   query,
   page,
   pageSize,
 }: paginatedParams): Promise<PaginatedDataType<DueLog>> => {
   return await axiosGet("/dues/logs", {
-    params: { phase, month, status, query, page, pageSize },
+    params: { phase, month, year, status, query, page, pageSize },
   });
 };
 const fetchDueLogsByHouse = async ({
