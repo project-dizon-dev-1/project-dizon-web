@@ -66,7 +66,7 @@ const AnnouncementFilters = ({ containerRef }: AnnouncementFiltersProps) => {
   // Generate skeleton items for loading state
 
   return (
-    <div className="flex flex-col justify-between">
+    <div className="flex flex-col justify-between sticky top-0 h-full z-10">
       <div
         className={cn(
           "flex flex-col max-h-96 overflow-y-scroll w-[226px] max-w-[226px] bg-white rounded-md no-scrollbar",
