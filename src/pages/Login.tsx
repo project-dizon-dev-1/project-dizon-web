@@ -11,7 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { loginSchema, loginType } from "@/validations/userSchema";
-import { login } from "@/services/authServices";
+import { login, resendEmailConfirmation } from "@/services/authServices";
 import { Link, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import PasswordInput from "@/components/PasswordInput";
@@ -19,10 +19,13 @@ import BackGroundImage from "@/assets/BG.webp";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -38,11 +41,49 @@ const Login = () => {
       navigate("/dashboard", { replace: true });
     },
     onError: (error) => {
+      if (
+        error.message?.toLowerCase().includes("email not verified") ||
+        error.message?.toLowerCase().includes("email not confirmed")
+      ) {
+        setNeedsVerification(true);
+      }
+
       form.setError("root", {
         message: error.message,
       });
     },
   });
+
+  const resendConfirmationMutation = useMutation({
+    mutationFn: resendEmailConfirmation,
+    onSuccess: () => {
+      toast({
+        title: "Confirmation Email Sent",
+        description: "Please check your inbox and confirm your email to login.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Resend Email",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleResendConfirmation = () => {
+    const email = form.getValues("userEmail");
+    if (email) {
+      resendConfirmationMutation.mutate(email);
+    } else {
+      toast({
+        title: "Email Required",
+        description:
+          "Please enter your email address to resend the confirmation.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const onSubmit = (data: loginType) => {
     loginMutation.mutate({
@@ -99,7 +140,11 @@ const Login = () => {
                 <FormItem>
                   <FormLabel className="text-gray-700">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="JohnDoe@example.com" {...field} />
+                    <Input
+                      autoComplete="email"
+                      placeholder="JohnDoe@example.com"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
@@ -115,6 +160,7 @@ const Login = () => {
                     <PasswordInput
                       className="mb-1"
                       placeholder="Password"
+                      autoComplete="current-password"
                       {...field}
                     />
                   </FormControl>
@@ -126,6 +172,37 @@ const Login = () => {
             {form.formState.errors.root && (
               <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-md border border-red-200">
                 {form.formState.errors.root.message}
+
+                {needsVerification && (
+                  <div className="mt-2 flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResendConfirmation}
+                      disabled={resendConfirmationMutation.isPending}
+                      className="text-sm border-blue-500 text-blue-600 hover:bg-blue-50"
+                      type="button"
+                    >
+                      {resendConfirmationMutation.isPending ? (
+                        <>
+                          <Icon
+                            icon="mingcute:loading-fill"
+                            className="animate-spin mr-2 h-4 w-4"
+                          />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Icon
+                            icon="mingcute:mail-send-fill"
+                            className="mr-2 h-4 w-4"
+                          />
+                          Resend verification email
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 

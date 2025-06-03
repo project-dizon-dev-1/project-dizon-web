@@ -127,7 +127,7 @@ const updateEmail = async ({
 
 const sendPasswordResetLink = async (email: string) => {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/password-recovery`,
+    redirectTo: `$https://gems.a2kgroup.org/password-recovery`,
   });
 
   if (error) {

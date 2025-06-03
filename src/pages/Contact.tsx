@@ -26,6 +26,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useMutation } from "@tanstack/react-query";
+import { sendEmailInquiry } from "@/services/subdivisionServices";
 
 // Motion components - using motion.create() instead of motion()
 const MotionDiv = motion.div;
@@ -34,13 +36,11 @@ const MotionButton = motion.create(Button);
 const MotionH1 = motion.h1;
 
 const Contact = () => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
 
   const navigate = useNavigate();
 
-  const handleNavigation = (path: string, event: React.MouseEvent) => {
-    event.preventDefault();
+  const handleNavigation = (path: string) => {
     navigate(path);
   };
 
@@ -53,18 +53,28 @@ const Contact = () => {
       message: "",
     },
   });
-
-  const onSubmit = (_data: ContactFormValues) => {
-    setIsSubmitting(true);
-    setTimeout(() => {
+  const { mutate, isPending } = useMutation({
+    mutationFn: sendEmailInquiry,
+    onSuccess: () => {
       toast({
-        title: "Message Sent",
-        description: "We'll get back to you as soon as possible!",
-        variant: "default",
+        title: "Inquiry Sent",
+        description: "Your message has been sent successfully!",
       });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error Sending Inquiry",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
       form.reset();
-      setIsSubmitting(false);
-    }, 1500);
+    },
+  });
+
+  const onSubmit = (data: ContactFormValues) => {
+    mutate(data);
   };
 
   // Animation variants
@@ -112,7 +122,7 @@ const Contact = () => {
             variant="ghost"
             size="sm"
             className="gap-1 text-primary-blue hover:bg-blue-100"
-            onClick={(e) => handleNavigation("/", e)}
+            onClick={() => handleNavigation("/")}
           >
             <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
             Back to Home
@@ -207,7 +217,7 @@ const Contact = () => {
                 <Form {...form}>
                   <motion.form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-6" // Increased spacing
+                    className="space-y-6"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
@@ -291,11 +301,11 @@ const Contact = () => {
                       <MotionButton
                         type="submit"
                         className="w-full bg-primary-blue hover:bg-blue-700 transition-colors py-3 text-base"
-                        disabled={isSubmitting}
+                        disabled={isPending}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        {isSubmitting ? (
+                        {isPending ? (
                           <div className="flex items-center justify-center">
                             <Icon
                               icon="mingcute:loading-fill"
@@ -379,21 +389,21 @@ const Contact = () => {
               <Button
                 variant="link"
                 className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
-                onClick={(e) => handleNavigation("/contact", e)}
+                onClick={() => handleNavigation("/contact")}
               >
                 Contact
               </Button>
               <Button
                 variant="link"
                 className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
-                onClick={(e) => handleNavigation("/privacy", e)}
+                onClick={() => handleNavigation("/privacy")}
               >
                 Privacy
               </Button>
               <Button
                 variant="link"
                 className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
-                onClick={(e) => handleNavigation("/terms", e)}
+                onClick={() => handleNavigation("/terms")}
               >
                 Terms
               </Button>
