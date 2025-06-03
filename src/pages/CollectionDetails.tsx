@@ -311,19 +311,53 @@ const CollectionDetails = () => {
                       {formatAmount(house.house_arrears ?? 0)}
                     </TableCell>
                     <TableCell>
-                      {house.house_latest_payment &&
-                      (new Date(house.house_latest_payment).getFullYear() >
-                        new Date().getFullYear() ||
-                        (new Date(house.house_latest_payment).getFullYear() ===
-                          new Date().getFullYear() &&
-                          new Date(house.house_latest_payment).getMonth() >=
-                            new Date().getMonth())) ? (
-                        <Badge
-                          variant={"outline"}
-                          className="bg-green-100 text-green-800"
-                        >
-                          Paid
-                        </Badge>
+                      {house.house_latest_payment ? (
+                        house.finance_log && house.finance_log[0] ? (
+                          house.finance_log[0].status === "APPROVED" ? (
+                            new Date(house.house_latest_payment).getFullYear() >
+                              new Date().getFullYear() ||
+                            (new Date(
+                              house.house_latest_payment
+                            ).getFullYear() === new Date().getFullYear() &&
+                              new Date(house.house_latest_payment).getMonth() >=
+                                new Date().getMonth()) ? (
+                              <Badge
+                                variant={"outline"}
+                                className="bg-green-100 text-green-800"
+                              >
+                                Paid
+                              </Badge>
+                            ) : (
+                              <Badge
+                                variant={"outline"}
+                                className="bg-red-100 text-red-800"
+                              >
+                                Unpaid
+                              </Badge>
+                            )
+                          ) : house.finance_log[0].status === "PENDING" ? (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-yellow-100 text-yellow-800"
+                            >
+                              Pending
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-red-100 text-red-800"
+                            >
+                              Unpaid
+                            </Badge>
+                          )
+                        ) : (
+                          <Badge
+                            variant={"outline"}
+                            className="bg-red-100 text-red-800"
+                          >
+                            Unpaid
+                          </Badge>
+                        )
                       ) : (
                         <Badge
                           variant={"outline"}
@@ -340,22 +374,29 @@ const CollectionDetails = () => {
                           : "rounded-r-xl"
                       )}
                     >
-                      {((house.house_arrears && house.house_arrears > 0) ||
-                        !house.house_latest_payment ||
-                        new Date(house.house_latest_payment).getFullYear() <
-                          new Date().getFullYear() ||
-                        (new Date(house.house_latest_payment).getFullYear() ===
-                          new Date().getFullYear() &&
-                          new Date(house.house_latest_payment).getMonth() <
-                            new Date().getMonth())) &&
-                        user?.id !== house?.house_main_poc_user?.id && (
+                      {user?.id !== house?.house_main_poc_user?.id &&
+                        (house.finance_log &&
+                        house.finance_log[0] &&
+                        house.finance_log[0].status === "PENDING" ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled
+                            className="text-yellow-600 cursor-not-allowed opacity-70"
+                          >
+                            <Icon
+                              icon="mingcute:time-line"
+                              className="mr-1 h-4 w-4"
+                            />
+                            Payment Pending
+                          </Button>
+                        ) : (
                           <CollectionForm
-                            // arrears={house.house_arrears ?? 0}
                             houseLatestPayment={house.house_latest_payment}
                             familyName={house.house_family_name}
                             houseId={house.id}
                           />
-                        )}
+                        ))}
                     </TableCell>
                   </TableRow>
                 ))

@@ -66,7 +66,6 @@ const ResidentForm = () => {
     },
     mode: "onChange",
   });
-  console.log(form.formState.errors);
 
   // Watch for lot changes to update the local state and set default mainLot if needed
   const watchedLots = form.watch("lot");

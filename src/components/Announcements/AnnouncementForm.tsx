@@ -129,6 +129,15 @@ const AnnouncementForm = ({
         queryKey: ["announcements"],
       });
       form.reset();
+      setCurrentFiles([]);
+      setFilePreviews([]);
+      setSelectedDocument(null);
+      setSelectedVideo(null);
+      setSelectedFileType("None");
+      // Reset input value to allow re-uploading the same file
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     },
   });
 
@@ -225,7 +234,6 @@ const AnnouncementForm = ({
   };
 
   const onSubmit = (values: AnnouncementSchemaType) => {
-    console.log(values.files);
     const formData = new FormData();
 
     formData.append("title", values.title);

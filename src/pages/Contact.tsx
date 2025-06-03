@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { contactOptions, contactFAQs } from "@/constants/contactPage";
 import { contactFormSchema, ContactFormValues } from "@/validations/userSchema";
 import { motion } from "framer-motion";
@@ -27,15 +27,22 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Motion components
+// Motion components - using motion.create() instead of motion()
 const MotionDiv = motion.div;
-const MotionCard = motion(Card);
-const MotionButton = motion(Button);
+const MotionCard = motion.create(Card);
+const MotionButton = motion.create(Button);
 const MotionH1 = motion.h1;
 
 const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
+
+  const navigate = useNavigate();
+
+  const handleNavigation = (path: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    navigate(path);
+  };
 
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
@@ -93,7 +100,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="container h-dvh mx-auto px-8 md:px-12 lg:px-24 py-8 overflow-scroll no-scrollbar bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="w-full h-dvh mx-auto px-8 md:px-12 lg:px-24 py-8 overflow-scroll no-scrollbar bg-gradient-to-br from-slate-50 to-blue-50">
       <MotionDiv
         className="max-w-5xl mx-auto space-y-12"
         initial="hidden"
@@ -104,13 +111,11 @@ const Contact = () => {
           <Button
             variant="ghost"
             size="sm"
-            asChild
             className="gap-1 text-primary-blue hover:bg-blue-100"
+            onClick={(e) => handleNavigation("/", e)}
           >
-            <Link to="/">
-              <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
-              Back to Home
-            </Link>
+            <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
+            Back to Home
           </Button>
         </MotionDiv>
 
@@ -371,24 +376,27 @@ const Contact = () => {
               transition={{ delay: 0.3, duration: 0.4 }}
               viewport={{ once: true }}
             >
-              <Link
-                to="/contact" // Should this be different if already on contact page? Or to other pages like Privacy/Terms
-                className="text-primary-blue hover:text-blue-700 text-sm"
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation("/contact", e)}
               >
                 Contact
-              </Link>
-              <Link
-                to="/privacy" // Assuming you have these routes
-                className="text-primary-blue hover:text-blue-700 text-sm"
+              </Button>
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation("/privacy", e)}
               >
                 Privacy
-              </Link>
-              <Link
-                to="/terms" // Assuming you have these routes
-                className="text-primary-blue hover:text-blue-700 text-sm"
+              </Button>
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation("/terms", e)}
               >
                 Terms
-              </Link>
+              </Button>
             </motion.div>
           </div>
         </MotionDiv>

@@ -46,8 +46,6 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  // Format date function
-
   const { data: paymentStatusData, isSuccess } = useQuery({
     queryKey: ["paymentStatus"],
     queryFn: fetchPaymentStatus,
@@ -159,7 +157,7 @@ const Dashboard = () => {
               <Badge
                 variant={"outline"}
                 className={
-                  houseSummary?.paymentStatus === "Fully Paid"
+                  houseSummary?.paymentStatus === "Paid"
                     ? "bg-green-100 text-green-800"
                     : houseSummary?.paymentStatus === "Partially Paid"
                     ? "bg-amber-100 text-amber-800"

@@ -7,7 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "../ui/input";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertDialog,
@@ -55,13 +55,12 @@ const CollectionForm = ({
     queryFn: fetchFixedDue,
   });
 
-  const form = useForm({
+  const form = useForm<CollectionType>({
     resolver: zodResolver(collectionSchema),
     defaultValues: {
       houseLatestPaymentAmount: 0,
       housePaymentMonths: 1,
       housePaymentRemarks: "",
-      paymentProof: undefined,
     },
     mode: "all",
   });
@@ -109,35 +108,37 @@ const CollectionForm = ({
     },
   });
 
-  const onSubmit = (data: CollectionType) => {
-    updatePaymentMutation.mutate({ houseId, data });
+  const onSubmit: SubmitHandler<CollectionType> = (data) => {
+    if (data.paymentProof instanceof File) {
+      updatePaymentMutation.mutate({ houseId, data });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please upload a payment proof image",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
     if (fixedDue?.total_due && form.getValues("housePaymentMonths")) {
       setAmountToPay(fixedDue.total_due * form.getValues("housePaymentMonths"));
 
-      // Generate a list of months being paid for
       let startDate;
 
       if (houseLatestPayment) {
-        // If there's a latest payment, start from the month after that payment
         startDate = new Date(houseLatestPayment);
-        // Move to the next month
         startDate.setMonth(startDate.getMonth() + 1);
       } else {
-        // If no payment history, start from current month
         startDate = new Date();
       }
 
       const totalMonths = form.getValues("housePaymentMonths");
 
-      // Create an array of month names based on the number of months
       const monthsArray = Array.from({ length: totalMonths }, (_, i) => {
         const paymentDate = new Date(startDate);
         paymentDate.setMonth(startDate.getMonth() + i);
 
-        // Format as "Month Year" to avoid confusion when spanning multiple years
         return paymentDate.toLocaleString("default", {
           month: "long",
           year: "numeric",
@@ -185,7 +186,6 @@ const CollectionForm = ({
                   </FormItem>
                 )}
               />
-              {/* Number of Months */}
               <div>
                 <p className="text-sm font-normal">
                   Amount to pay: {formatAmount(amountToPay)}
@@ -226,10 +226,12 @@ const CollectionForm = ({
                 )}
               />
               <div className="flex flex-wrap gap-1 text-sm font-normal">
-                Months paying for:{" "}
-                {monthsPaying?.map((month) => (
-                  <p key={month}>{month}, </p>
-                ))}
+                Months paying for:
+                {monthsPaying.length > 1
+                  ? `${monthsPaying[0]} - ${
+                      monthsPaying[monthsPaying.length - 1]
+                    }`
+                  : monthsPaying[0]}
               </div>
 
               <FormField
@@ -243,7 +245,6 @@ const CollectionForm = ({
                     </FormLabel>
                     <FormControl>
                       <Textarea
-                        className="font-normal"
                         placeholder="Remarks regarding the payment"
                         {...field}
                       />
@@ -255,7 +256,7 @@ const CollectionForm = ({
               <FormField
                 control={form.control}
                 name="paymentProof"
-                render={({ field: { onChange } }) => (
+                render={({ field: { onChange, value, ...rest } }) => (
                   <FormItem>
                     <FormLabel className="font-bold">Payment Proof</FormLabel>
                     <FormControl>
@@ -267,12 +268,12 @@ const CollectionForm = ({
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
-                            // Create a preview of the image
                             const objectUrl = URL.createObjectURL(file);
                             setImagePreview(objectUrl);
                             onChange(file);
                           }
                         }}
+                        {...rest}
                       />
                     </FormControl>
                     {imagePreview ? (
@@ -286,9 +287,9 @@ const CollectionForm = ({
                           onClick={() => {
                             URL.revokeObjectURL(imagePreview);
                             setImagePreview(null);
-                            form.setValue("paymentProof", undefined);
+                            onChange(undefined);
                           }}
-                          className="absolute right-4 top-4 text-2xl  hover:cursor-pointer hover:text-red-600"
+                          className="absolute right-4 top-4 text-2xl hover:cursor-pointer hover:text-red-600"
                           icon={"mingcute:close-circle-fill"}
                         />
                       </div>
@@ -322,8 +323,8 @@ const CollectionForm = ({
           <AlertDialogActionNoClose
             disabled={
               housePaymentAmount !== amountToPay ||
-              updatePaymentMutation.isPending
-              // || (housePaymentAmount > amountToPay
+              updatePaymentMutation.isPending ||
+              !form.getValues("paymentProof")
             }
             type="submit"
             form="form"

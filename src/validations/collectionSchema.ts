@@ -2,6 +2,18 @@ import { z } from "zod";
 
 const allowedMimeTypes = ["image/jpeg", "image/png"];
 
+// Define a more specific schema for paymentProof
+const paymentProofSchema = z
+  .instanceof(File, { message: "Please upload a transaction proof document" })
+  .refine(
+    (file) => file.size <= 5 * 1024 * 1024,
+    "Image size must be less than 5MB"
+  )
+  .refine(
+    (file) => allowedMimeTypes.includes(file.type),
+    "Invalid file type. Allowed: JPG, PNG only"
+  );
+
 const collectionSchema = z.object({
   houseLatestPaymentAmount: z.coerce
     .number()
@@ -15,17 +27,7 @@ const collectionSchema = z.object({
     .min(1, " At least 1 month is required")
     .max(12, "Maximum 12 months"),
   housePaymentRemarks: z.string().optional(),
-  paymentProof: z
-    .instanceof(File)
-    .refine(
-      (file) => file.size <= 5 * 1024 * 1024,
-      "Image size must be less than 5MB"
-    )
-    .refine(
-      (file) => allowedMimeTypes.includes(file.type),
-      "Invalid file type. Allowed: jpg, jpeg, png"
-    )
-    .optional(),
+  paymentProof: paymentProofSchema,
 });
 
 const configureCollectionSchema = z

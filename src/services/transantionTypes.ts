@@ -4,12 +4,14 @@ type TransactionDataType = {
   amount: number;
   type: string;
   created_at: Date;
-  details: string;
-  approved_by: string | null;
-  approve_date: Date | null;
-  payment_method: string;
+  details: string | null;
+  response_by: string | null;
+  response_date: Date | null;
+  payment_method: string | null;
   proof_url: string | null;
-  approved_by_details: {
+  status: "PENDING" | "APPROVED" | "REJECTED";
+
+  response_by_details: {
     user_first_name: string | null;
     user_last_name: string | null;
   } | null;

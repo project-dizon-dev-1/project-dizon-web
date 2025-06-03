@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { loginSchema, loginType } from "@/validations/userSchema";
 import { login } from "@/services/authServices";
-import { useNavigate, Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import PasswordInput from "@/components/PasswordInput";
 import BackGroundImage from "@/assets/BG.webp";
@@ -53,14 +53,13 @@ const Login = () => {
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center bg-white w-full overflow-y-scroll no-scrollbar">
-      {/* Add Home Navigation Link */}
       <div className="absolute top-4 left-4 z-50">
-        <div className="flex justify-end mb-4">
-          <Button variant="ghost" size="sm" className="gap-1">
+        <Button variant="ghost" size="sm" className="gap-1" asChild>
+          <Link to="/">
             <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
-            <Link to="/">Back to Home</Link>
-          </Button>
-        </div>
+            Back to Home
+          </Link>
+        </Button>
       </div>
 
       {!isMobile && (
@@ -80,10 +79,6 @@ const Login = () => {
         })}
       >
         <div className="flex flex-col items-center space-y-2">
-          {/* <Icon
-            className="text-center w-14 h-14"
-            icon={"mingcute:attachment-line"}
-          /> */}
           <h1 className="text-5xl font-medium tracking-tight text-primary-blue">
             GEMS
           </h1>
@@ -134,12 +129,13 @@ const Login = () => {
               </div>
             )}
 
-            <Link
-              className=" text-sm hover:underline hover:text-blue-700"
-              to={"/reset-password"}
+            <Button
+              variant="link"
+              className="p-0 h-auto text-sm hover:underline hover:text-blue-700"
+              asChild
             >
-              Forgot Password?
-            </Link>
+              <Link to="/reset-password">Forgot Password?</Link>
+            </Button>
 
             <div>
               <Button
@@ -153,12 +149,13 @@ const Login = () => {
 
             <div className="text-center text-sm text-gray-500 mt-4">
               Don&apos;t have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-primary font-medium hover:underline"
+              <Button
+                variant="link"
+                className="p-0 h-auto text-primary font-medium hover:underline"
+                asChild
               >
-                Sign up
-              </Link>
+                <Link to="/signup">Sign up</Link>
+              </Button>
             </div>
           </form>
         </Form>

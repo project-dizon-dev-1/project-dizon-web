@@ -68,11 +68,12 @@ const Signup = () => {
 
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center w-full overflow-y-scroll no-scrollbar">
-      {/* Add Home Navigation Link */}
       <div className="absolute top-4 left-4 z-50">
-        <Button variant="ghost" size="sm" className="gap-1">
-          <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
-          <Link to="/">Back to Home</Link>
+        <Button variant="ghost" size="sm" className="gap-1" asChild>
+          <Link to="/">
+            <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
+            Back to Home
+          </Link>
         </Button>
       </div>
 
@@ -323,12 +324,13 @@ const Signup = () => {
 
               <div className="text-center text-sm text-gray-500">
                 Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="text-primary font-medium hover:underline"
+                <Button
+                  variant="link"
+                  className="p-0 h-auto text-primary font-medium hover:underline"
+                  asChild
                 >
-                  Login
-                </Link>
+                  <Link to="/login">Login</Link>
+                </Button>
               </div>
 
               {/* Display form-level errors */}

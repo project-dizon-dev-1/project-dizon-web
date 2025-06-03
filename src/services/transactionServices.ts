@@ -54,4 +54,19 @@ const approveTransaction = async ({
   return await axiosPut(`/transactions/${transactionId}/approve`, { userId });
 };
 
-export { addTransaction, fetchTransactions, approveTransaction };
+const rejectTransaction = async ({
+  transactionId,
+  userId,
+}: {
+  transactionId: string;
+  userId: string;
+}): Promise<any> => {
+  return await axiosPut(`/transactions/${transactionId}/reject`, { userId });
+};
+
+export {
+  addTransaction,
+  fetchTransactions,
+  approveTransaction,
+  rejectTransaction,
+};

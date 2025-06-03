@@ -1,24 +1,25 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { features, steps } from "@/constants/homePage";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 
-// Create motion components
+// Create motion components with motion.create() instead of motion()
 const MotionDiv = motion.div;
-const MotionBadge = motion(Badge);
-const MotionCard = motion(Card);
-const MotionButton = motion(Button);
+const MotionBadge = motion.create(Badge);
+const MotionCard = motion.create(Card);
+const MotionButton = motion.create(Button);
 const MotionH1 = motion.h1;
 const MotionH2 = motion.h2;
 
 const Homepage = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const navigate = useNavigate();
 
   const handleNext = () => {
     if (activeStep < steps.length - 1) {
@@ -30,6 +31,11 @@ const Homepage = () => {
     if (activeStep > 0) {
       setActiveStep((prevActiveStep) => prevActiveStep - 1);
     }
+  };
+
+  const handleNavigation = (path: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    navigate(path);
   };
 
   // Animation variants
@@ -124,8 +130,9 @@ const Homepage = () => {
               className="bg-primary-blue hover:bg-blue-700 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={(e) => handleNavigation("/login", e)}
             >
-              <Link to={"/login"}>Get Started</Link>
+              Get Started
             </MotionButton>
 
             <MotionButton
@@ -134,8 +141,9 @@ const Homepage = () => {
               className="border-primary-blue text-primary-blue hover:bg-blue-50"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={(e) => handleNavigation("/contact", e)}
             >
-              <Link to={"/contact"}>Contact Us</Link>
+              Contact Us
             </MotionButton>
           </motion.div>
         </MotionDiv>
@@ -374,18 +382,20 @@ const Homepage = () => {
                       className="bg-white text-primary-blue hover:bg-blue-50 transition-colors"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={(e) => handleNavigation("/signup", e)}
                     >
-                      <Link to={"/signup"}>Sign Up</Link>
+                      Sign Up
                     </MotionButton>
 
                     <MotionButton
                       size="lg"
                       variant="outline"
-                      className="border-white text-primary-blue hover:bg-white/10 hover:text-white transition-colors"
+                      className="bg-white text-primary-blue hover:bg-blue-50 hover:text-blue transition-colors"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={(e) => handleNavigation("/contact", e)}
                     >
-                      <Link to={"/contact"}>Contact Us</Link>
+                      Contact Us
                     </MotionButton>
                   </div>
                 </MotionDiv>
@@ -475,24 +485,27 @@ const Homepage = () => {
               transition={{ delay: 0.3 }}
               viewport={{ once: true }}
             >
-              <Link
-                to="/contact"
-                className="text-primary-blue hover:text-blue-700 text-sm"
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation("/contact", e)}
               >
                 Contact
-              </Link>
-              <Link
-                to="/privacy"
-                className="text-primary-blue hover:text-blue-700 text-sm"
+              </Button>
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation("/privacy", e)}
               >
                 Privacy
-              </Link>
-              <Link
-                to="/terms"
-                className="text-primary-blue hover:text-blue-700 text-sm"
+              </Button>
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation("/terms", e)}
               >
                 Terms
-              </Link>
+              </Button>
             </motion.div>
           </div>
         </MotionDiv>

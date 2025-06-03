@@ -314,19 +314,26 @@ const PaymentHistory = () => {
                     {/* <TableCell>{due.details}</TableCell> */}
                     <TableCell>{formatAmount(due.amount ?? 0)}</TableCell>
                     <TableCell>
-                      {due.amount_status === "Fully_Paid" ? (
+                      {due.finance_log.status === "APPROVED" ? (
                         <Badge
                           variant={"default"}
                           className=" bg-green-100 text-green-800 shadow-none hover:bg-green-100 "
                         >
-                          Fully Paid
+                          Approved
+                        </Badge>
+                      ) : due.finance_log.status === "REJECTED" ? (
+                        <Badge
+                          variant={"default"}
+                          className=" bg-red-100 text-red-800 shadow-none hover:bg-green-100 "
+                        >
+                          Rejected
                         </Badge>
                       ) : (
                         <Badge
                           variant={"default"}
                           className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
                         >
-                          Partially Paid
+                          Pending
                         </Badge>
                       )}
                     </TableCell>
@@ -373,19 +380,26 @@ const PaymentHistory = () => {
                               <p>{due.date && formatDate(due.date)}</p>
                               <p>{formatDate(due.created_at)}</p>
                               <p>{due.amount?.toLocaleString()}</p>
-                              {due.amount_status === "Fully_Paid" ? (
+                              {due.finance_log.status === "APPROVED" ? (
                                 <Badge
                                   variant={"default"}
                                   className=" bg-green-100 text-green-800 shadow-none hover:bg-green-100 "
                                 >
-                                  Fully Paid
+                                  Approved
                                 </Badge>
-                              ) : (
+                              ) : due.finance_log.status === "REJECTED" ? (
                                 <Badge
                                   variant={"default"}
                                   className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
                                 >
-                                  Partially Paid
+                                  Payment Rejected
+                                </Badge>
+                              ) : (
+                                <Badge
+                                  variant={"default"}
+                                  className=" bg-blue-100 text-blue-800 shadow-none hover:bg-green-100 "
+                                >
+                                  Pending
                                 </Badge>
                               )}
                             </div>

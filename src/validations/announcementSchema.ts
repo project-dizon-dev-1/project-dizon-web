@@ -35,7 +35,7 @@ const announcementSchema = z.object({
     .min(1, "At least one phase is required"),
   files: z
     .array(z.any())
-    .max(3, "maximum of 3 files")
+    .max(10, "maximum of 10 files")
     .optional()
     .refine(
       (files) => !files || files.every((file) => file instanceof File),

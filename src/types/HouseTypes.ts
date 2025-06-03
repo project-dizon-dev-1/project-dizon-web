@@ -31,6 +31,9 @@ type HouseDetails = {
   house_latest_payment_amount: number | null;
   house_latest_payment: Date | null;
   house_arrears: number | null;
+  finance_log: Array<{
+    status: "PENDING" | "APPROVED" | "REJECTED";
+  }>;
 };
 type HouseData = {
   house_family_name: string | null;

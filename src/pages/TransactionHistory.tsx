@@ -1,6 +1,7 @@
 import {
   fetchTransactions,
   approveTransaction,
+  rejectTransaction, // Add this import for the reject function
 } from "@/services/transactionServices";
 import { PaginatedDataType } from "@/types/paginatedType";
 import {
@@ -49,14 +50,32 @@ const TransactionHistory = () => {
     mutationFn: approveTransaction,
     onSuccess: () => {
       toast({
-        title: "Transaction confirmed successfully",
+        title: "Transaction approved successfully",
       });
       // Refetch transactions data
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
     },
     onError: () => {
       toast({
-        title: "Error confirming transaction",
+        title: "Error approving transaction",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Add reject transaction mutation
+  const rejectMutation = useMutation({
+    mutationFn: rejectTransaction,
+    onSuccess: () => {
+      toast({
+        title: "Transaction rejected successfully",
+      });
+      // Refetch transactions data
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+    },
+    onError: () => {
+      toast({
+        title: "Error rejecting transaction",
         variant: "destructive",
       });
     },
@@ -169,12 +188,18 @@ const TransactionHistory = () => {
                       <span
                         className={cn(
                           "px-2 py-1 rounded text-xs font-medium",
-                          transaction.approved_by
+                          transaction.status === "APPROVED"
                             ? "bg-green-100 text-green-800"
+                            : transaction.status === "REJECTED"
+                            ? "bg-red-100 text-red-800"
                             : "bg-yellow-100 text-yellow-800"
                         )}
                       >
-                        {transaction.approved_by ? "Confirmed" : "Pending"}
+                        {transaction.status === "APPROVED"
+                          ? "Approved"
+                          : transaction.status === "REJECTED"
+                          ? "Rejected"
+                          : "Pending"}
                       </span>
                     </TableCell>
 
@@ -227,9 +252,11 @@ const TransactionHistory = () => {
                               <p>{transaction.payment_method}</p>
                               <p>{formatDate(transaction.created_at)}</p>
                               <p>
-                                {transaction.approved_by
-                                  ? "Confirmed"
-                                  : "Pending Confirmation"}
+                                {transaction.status === "APPROVED"
+                                  ? "Approved"
+                                  : transaction.status === "REJECTED"
+                                  ? "Rejected"
+                                  : "Pending Approval"}
                               </p>
                             </div>
                           </div>
@@ -275,32 +302,36 @@ const TransactionHistory = () => {
                             </div>
 
                             <div className="flex-1">
-                              {transaction.approved_by ? (
+                              {transaction.status === "APPROVED" ? (
                                 <h3 className="text-green-600 text-sm font-medium">
-                                  Confirmed By:
+                                  Approved By:
+                                </h3>
+                              ) : transaction.status === "REJECTED" ? (
+                                <h3 className="text-red-600 text-sm font-medium">
+                                  Rejected By:
                                 </h3>
                               ) : (
                                 <h3 className="text-yellow-600 text-sm font-medium">
-                                  Pending Confirmation
+                                  Pending Approval
                                 </h3>
                               )}
-                              {transaction?.approved_by_details && (
+                              {transaction?.response_by_details && (
                                 <p>
-                                  {transaction?.approved_by_details
+                                  {transaction?.response_by_details
                                     ?.user_first_name || ""}{" "}
-                                  {transaction?.approved_by_details
+                                  {transaction?.response_by_details
                                     ?.user_last_name || ""}
                                 </p>
                               )}
 
-                              {transaction.approve_date && (
+                              {transaction.response_date && (
                                 <p className="text-xs text-gray-500">
-                                  {formatDate(transaction.approve_date)}
+                                  {formatDate(transaction.response_date)}
                                 </p>
                               )}
 
-                              {/* Add approve button for pending transactions */}
-                              {!transaction.approved_by &&
+                              {/* Show action buttons for pending transactions if user is admin and not the creator */}
+                              {transaction.status === "PENDING" &&
                                 user?.role === "admin" &&
                                 !(
                                   transaction.received_by_details
@@ -309,26 +340,55 @@ const TransactionHistory = () => {
                                   transaction.received_by_details
                                     ?.user_last_name === user?.user_last_name
                                 ) && (
-                                  <Button
-                                    className="mt-2"
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() =>
-                                      approveMutation.mutate({
-                                        transactionId: transaction.id,
-                                        userId: user.id,
-                                      })
-                                    }
-                                    disabled={approveMutation.isPending}
-                                  >
-                                    <Icon
-                                      icon="mingcute:check-circle-line"
-                                      className="mr-1 h-4 w-4 text-green-600"
-                                    />
-                                    {approveMutation.isPending
-                                      ? "Confirming..."
-                                      : "Confirm Transaction"}
-                                  </Button>
+                                  <div className="flex gap-2 mt-2">
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-green-500 text-green-600 hover:bg-green-50"
+                                      onClick={() =>
+                                        approveMutation.mutate({
+                                          transactionId: transaction.id,
+                                          userId: user.id,
+                                        })
+                                      }
+                                      disabled={
+                                        approveMutation.isPending ||
+                                        rejectMutation.isPending
+                                      }
+                                    >
+                                      <Icon
+                                        icon="mingcute:check-circle-line"
+                                        className="mr-1 h-4 w-4"
+                                      />
+                                      {approveMutation.isPending
+                                        ? "Approving..."
+                                        : "Approve"}
+                                    </Button>
+
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="border-red-500 text-red-600 hover:bg-red-50"
+                                      onClick={() =>
+                                        rejectMutation.mutate({
+                                          transactionId: transaction.id,
+                                          userId: user.id,
+                                        })
+                                      }
+                                      disabled={
+                                        approveMutation.isPending ||
+                                        rejectMutation.isPending
+                                      }
+                                    >
+                                      <Icon
+                                        icon="mingcute:close-circle-line"
+                                        className="mr-1 h-4 w-4"
+                                      />
+                                      {rejectMutation.isPending
+                                        ? "Rejecting..."
+                                        : "Reject"}
+                                    </Button>
+                                  </div>
                                 )}
                             </div>
                           </div>

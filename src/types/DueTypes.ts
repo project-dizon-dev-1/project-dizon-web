@@ -49,6 +49,9 @@ type DueLog = {
     };
   } | null;
   amount_status: "Partially_Paid" | "Fully_Paid" | null;
+  finance_log: {
+    status: "PENDING" | "APPROVED" | "REJECTED";
+  };
 };
 
 type DueCategoryType = ({
