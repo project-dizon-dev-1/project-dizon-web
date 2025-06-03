@@ -14,13 +14,23 @@ const updateAccessToken = async () => {
   refreshInProgress = true;
   refreshPromise = (async () => {
     try {
-      // Force refresh the session
-      const { data, error } = await supabase.auth.refreshSession();
+      // Check if there's an existing session first
+      const { data: sessionData } = await supabase.auth.getSession();
 
-      if (error) throw error;
+      // Only attempt to refresh if we have an existing session
+      if (sessionData?.session) {
+        // Force refresh the session
+        const { data, error } = await supabase.auth.refreshSession();
 
-      accessToken = data?.session?.access_token || null;
-      return accessToken;
+        if (error) throw error;
+
+        accessToken = data?.session?.access_token || null;
+        return accessToken;
+      } else {
+        // No session exists, so don't try to refresh
+        accessToken = null;
+        return null;
+      }
     } catch (error) {
       console.warn("Failed to refresh session token:", error);
       accessToken = null;
@@ -34,14 +44,20 @@ const updateAccessToken = async () => {
   return refreshPromise;
 };
 
-// Initialize token on app startup
-updateAccessToken().catch(() => {
-  accessToken = null;
-});
+// Initialize token on app startup - but don't log an error if no session exists
+(async () => {
+  try {
+    const { data } = await supabase.auth.getSession();
+    accessToken = data?.session?.access_token || null;
+  } catch (error) {
+    console.warn("Could not get initial session:", error);
+    accessToken = null;
+  }
+})();
 
 // Listen for token refresh events and update in memory
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === "TOKEN_REFRESHED" && session) {
+  if ((event === "TOKEN_REFRESHED" || event === "SIGNED_IN") && session) {
     accessToken = session.access_token;
   } else if (event === "SIGNED_OUT") {
     accessToken = null;

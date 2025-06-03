@@ -2,14 +2,14 @@ const contactOptions = [
   {
     icon: "mingcute:mail-send-fill",
     title: "Email",
-    value: "support@gems.com",
+    value: "info@a2kgroup.org",
     description: "Our team typically responds within 24 hours",
   },
   {
     icon: "mingcute:phone-fill",
     title: "Phone",
-    value: "+639 9999 9999",
-    description: "Available Monday to Friday, 9AM to 5PM",
+    value: "+63 927 801 2450",
+    description: "Available Monday to Friday, 8AM to 5PM",
   },
   {
     icon: "mingcute:location-fill",

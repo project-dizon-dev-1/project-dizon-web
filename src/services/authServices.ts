@@ -108,19 +108,44 @@ const login = async (userData: loginType) => {
     throw new Error(error.message);
   }
 
+  if (!data.user?.id) {
+    throw new Error("User authentication successful but user ID is missing");
+  }
+
+  // First, check if the user exists in users-list
+  const { data: userCheck, error: checkError } = await supabase
+    .from("users-list")
+    .select("id")
+    .eq("id", data.user.id);
+
+  if (checkError) {
+    throw new Error(`Error checking user existence: ${checkError.message}`);
+  }
+
+  if (!userCheck || userCheck.length === 0) {
+    throw new Error(
+      "User account exists but profile is missing. Please contact support."
+    );
+  }
+
+  // Now fetch the user details with error handling
   const { data: userDetails, error: fetchError } = await supabase
     .from("users-list")
     .select(
       `
       *,
-      house:"house-list"(id,phase_id)
+      house:house-list(id,phase_id)
     `
     )
     .eq("id", data.user.id)
-    .single();
+    .maybeSingle();
 
   if (fetchError) {
-    throw new Error(fetchError.message);
+    throw new Error(`Error fetching user details: ${fetchError.message}`);
+  }
+
+  if (!userDetails) {
+    throw new Error("User profile not found. Please contact support.");
   }
 
   return userDetails;
@@ -130,4 +155,19 @@ const logout = async () => {
   await supabase.auth.signOut();
 };
 
-export { signup, login, logout };
+const resendEmailConfirmation = async (email: string) => {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: "https://gems.a2kgroup.org/dashboard",
+    },
+  });
+  if (error) {
+    throw new Error(`Error resending email confirmation: ${error.message}`);
+  }
+
+  return { success: true };
+};
+
+export { signup, login, logout, resendEmailConfirmation };

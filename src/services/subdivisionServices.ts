@@ -177,6 +177,16 @@ const fetchPaymentStatus = async (): Promise<{
 }> => {
   return await axiosGet(`/subdivision/payment-status`);
 };
+const sendEmailInquiry = async (data: {
+  message: string;
+  subject: string;
+  email: string;
+  name: string;
+}): Promise<{
+  message: string;
+} | null> => {
+  return await axiosPost(`/subdivision/send-inquiry`, data);
+};
 
 export {
   fetchSubdivisionPhases,
@@ -185,6 +195,7 @@ export {
   upsertFixedDue,
   fetchFixedDue,
   addPhase,
+  sendEmailInquiry,
   addBlock,
   addStreet,
   addLot,

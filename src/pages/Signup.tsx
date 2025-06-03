@@ -12,7 +12,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { signup } from "@/services/authServices";
+import { signup, resendEmailConfirmation } from "@/services/authServices";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router";
 import PasswordInput from "@/components/PasswordInput";
@@ -29,10 +29,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
 
 const Signup = () => {
   const { isMobile } = useSidebar();
   const [eulaOpen, setEulaOpen] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState<string>("");
 
   const form = useForm({
     defaultValues: {
@@ -51,6 +53,7 @@ const Signup = () => {
   const signupMutation = useMutation({
     mutationFn: (data: signupType) => signup(data),
     onSuccess: () => {
+      setRegisteredEmail(form.getValues("userEmail"));
       form.reset();
     },
     onError: (error: any) => {
@@ -61,6 +64,38 @@ const Signup = () => {
       }
     },
   });
+
+  const resendConfirmationMutation = useMutation({
+    mutationFn: resendEmailConfirmation,
+    onSuccess: () => {
+      toast({
+        title: "Confirmation Email Sent",
+        description: "Please check your inbox for the confirmation email.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Resend Email",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleResendConfirmation = () => {
+    if (registeredEmail) {
+      resendConfirmationMutation.mutate(registeredEmail);
+    } else if (form.getValues("userEmail")) {
+      resendConfirmationMutation.mutate(form.getValues("userEmail"));
+    } else {
+      toast({
+        title: "Email Required",
+        description:
+          "Please enter your email address to resend the confirmation.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const onSubmit = (data: signupType) => {
     signupMutation.mutate(data);
@@ -166,6 +201,7 @@ const Signup = () => {
                         <Input
                           type="email"
                           placeholder="email@example.com"
+                          autoComplete="email"
                           className="w-full"
                           {...field}
                         />
@@ -235,6 +271,7 @@ const Signup = () => {
                       <FormControl>
                         <PasswordInput
                           placeholder="Create a strong password"
+                          autoComplete="new-password"
                           className="w-full pr-10"
                           {...field}
                         />
@@ -257,6 +294,7 @@ const Signup = () => {
                           placeholder="Confirm your password"
                           className="w-full pr-10"
                           {...field}
+                          autoComplete="new-password"
                         />
                       </FormControl>
                       <FormMessage className="text-red-500 text-xs" />
@@ -347,9 +385,38 @@ const Signup = () => {
               )}
 
               {signupMutation.isSuccess && (
-                <div className="text-green-500 text-sm font-medium bg-green-50 p-3 rounded-md border border-green-200">
-                  Account created successfully! Confirm Your Email to be able to
-                  log in.
+                <div className="text-green-500 text-sm font-medium bg-green-50 p-3 rounded-md border border-green-200 space-y-3">
+                  <p>
+                    Account created successfully! Please check your email for a
+                    confirmation link.
+                  </p>
+                  <div className="flex justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResendConfirmation}
+                      disabled={resendConfirmationMutation.isPending}
+                      className="text-sm border-green-500 text-green-600 hover:bg-green-50"
+                    >
+                      {resendConfirmationMutation.isPending ? (
+                        <>
+                          <Icon
+                            icon="mingcute:loading-fill"
+                            className="animate-spin mr-2 h-4 w-4"
+                          />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Icon
+                            icon="mingcute:mail-send-fill"
+                            className="mr-2 h-4 w-4"
+                          />
+                          Resend confirmation email
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

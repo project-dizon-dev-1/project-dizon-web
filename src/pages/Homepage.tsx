@@ -6,12 +6,9 @@ import { Separator } from "@/components/ui/separator";
 import { useNavigate } from "react-router";
 import { features, steps } from "@/constants/homePage";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 
-// Create motion components with motion.create() instead of motion()
 const MotionDiv = motion.div;
-const MotionBadge = motion.create(Badge);
 const MotionCard = motion.create(Card);
 const MotionButton = motion.create(Button);
 const MotionH1 = motion.h1;
@@ -94,13 +91,6 @@ const Homepage = () => {
           animate="visible"
           variants={containerVariants}
         >
-          <MotionBadge
-            className="mb-4 px-3 py-1 bg-blue-100 text-primary-blue border-primary-blue/20 text-sm"
-            variants={itemVariants}
-          >
-            Estate Management Simplified
-          </MotionBadge>
-
           <MotionH1
             className="text-5xl md:text-6xl font-medium bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent mb-6"
             variants={itemVariants}
