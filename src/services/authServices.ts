@@ -70,13 +70,10 @@ const signup = async (userData: signupType) => {
   if (!houseData.house_id) {
     throw new Error("House ID not found");
   }
-  console.log("Linking user to house with ID:", houseData.house_id);
-  const { data: houseUpdatedData, error: linkError } = await supabase
+  const { error: linkError } = await supabase
     .from("house-list")
     .update({ house_main_poc: data.user.id, house_family_name: userLastName })
     .eq("id", houseData.house_id);
-
-  console.log("House update result:", houseUpdatedData);
 
   if (linkError) {
     throw new Error(`Error linking user to house: ${linkError.message}`);
@@ -114,8 +111,6 @@ const login = async (userData: loginType) => {
     throw new Error("User authentication successful but user ID is missing");
   }
 
-  console.log("User ID to check:", data.user.id);
-
   // First, check if the user exists in users-list
   const { data: userCheck, error: checkError } = await supabase
     .from("users-list")
@@ -143,8 +138,6 @@ const login = async (userData: loginType) => {
     )
     .eq("id", data.user.id)
     .maybeSingle();
-
-  console.log("User Details query result:", userDetails);
 
   if (fetchError) {
     throw new Error(`Error fetching user details: ${fetchError.message}`);
