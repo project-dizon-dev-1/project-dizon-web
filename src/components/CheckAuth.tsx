@@ -20,6 +20,15 @@ const CheckAuth = () => {
       // Get the current session
       const { data: sessionData, error } = await supabase.auth.getSession();
 
+      supabase.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY") {
+          navigate("/reset-password", {
+            replace: true,
+            state: { from: location.pathname },
+          });
+        }
+      });
+
       if (error) {
         console.error("Error checking session:", error);
         navigate("/login", {

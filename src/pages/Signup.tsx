@@ -20,7 +20,7 @@ import BackGroundImage from "@/assets/BG.webp";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +34,31 @@ import { toast } from "@/hooks/use-toast";
 const Signup = () => {
   const { isMobile } = useSidebar();
   const [eulaOpen, setEulaOpen] = useState(false);
+  const [cooldownActive, setCooldownActive] = useState(false);
+  const [countdown, setCountdown] = useState(60);
   const [registeredEmail, setRegisteredEmail] = useState<string>("");
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    let timer: NodeJS.Timeout | undefined = undefined;
+
+    if (cooldownActive && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prevState) => prevState - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setCooldownActive(false);
+      if (timer) {
+        clearInterval(timer); // Clear the interval when countdown reaches 0
+      }
+    }
+
+    return () => {
+      if (timer) {
+        clearInterval(timer); // Clear the interval on component unmount
+      }
+    };
+  }, [countdown, cooldownActive]);
 
   const form = useForm({
     defaultValues: {
@@ -79,6 +103,10 @@ const Signup = () => {
         description: error.message,
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      setCooldownActive(true);
+      setCountdown(60);
     },
   });
 
@@ -394,8 +422,11 @@ const Signup = () => {
                     <Button
                       variant="outline"
                       size="sm"
+                      type="button"
                       onClick={handleResendConfirmation}
-                      disabled={resendConfirmationMutation.isPending}
+                      disabled={
+                        resendConfirmationMutation.isPending || cooldownActive
+                      }
                       className="text-sm border-green-500 text-green-600 hover:bg-green-50"
                     >
                       {resendConfirmationMutation.isPending ? (
@@ -412,7 +443,9 @@ const Signup = () => {
                             icon="mingcute:mail-send-fill"
                             className="mr-2 h-4 w-4"
                           />
-                          Resend confirmation email
+                          {cooldownActive
+                            ? `Resend in ${countdown}s`
+                            : "Resend Confirmation Email"}
                         </>
                       )}
                     </Button>

@@ -88,7 +88,6 @@ const sendChangeEmailVerification = async (email: string) => {
   }
 
   // Get the current origin for proper redirect URL
-  const origin = window.location.origin;
 
   const { error } = await supabase.auth.updateUser(
     {
@@ -96,7 +95,7 @@ const sendChangeEmailVerification = async (email: string) => {
     },
     {
       // Redirect to profile with the hash fragment to indicate email change
-      emailRedirectTo: `${origin}/profile#type=email_change`,
+      emailRedirectTo: `https://gems.a2kgroup.org/profile#type=email_change`,
     }
   );
 
@@ -127,7 +126,7 @@ const updateEmail = async ({
 
 const sendPasswordResetLink = async (email: string) => {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `$https://gems.a2kgroup.org/password-recovery`,
+    redirectTo: `https://gems.a2kgroup.org/password-recovery`,
   });
 
   if (error) {

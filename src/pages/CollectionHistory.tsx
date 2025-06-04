@@ -397,7 +397,7 @@ const PaymentHistory = () => {
                               ) : (
                                 <Badge
                                   variant={"default"}
-                                  className=" bg-blue-100 text-blue-800 shadow-none hover:bg-green-100 "
+                                  className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
                                 >
                                   Pending
                                 </Badge>

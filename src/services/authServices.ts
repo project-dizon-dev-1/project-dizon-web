@@ -70,7 +70,6 @@ const signup = async (userData: signupType) => {
   if (!houseData.house_id) {
     throw new Error("House ID not found");
   }
-
   const { error: linkError } = await supabase
     .from("house-list")
     .update({ house_main_poc: data.user.id, house_family_name: userLastName })
