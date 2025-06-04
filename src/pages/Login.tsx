@@ -20,12 +20,36 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Login = () => {
   const navigate = useNavigate();
   const { isMobile } = useSidebar();
   const [needsVerification, setNeedsVerification] = useState(false);
+  const [cooldownActive, setCooldownActive] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+
+  useEffect(() => {
+    // eslint-disable-next-line
+    let timer: NodeJS.Timeout | undefined = undefined;
+
+    if (cooldownActive && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prevState) => prevState - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setCooldownActive(false);
+      if (timer) {
+        clearInterval(timer); // Clear the interval when countdown reaches 0
+      }
+    }
+
+    return () => {
+      if (timer) {
+        clearInterval(timer); // Clear the interval on component unmount
+      }
+    };
+  }, [countdown, cooldownActive]);
 
   const form = useForm({
     defaultValues: {
@@ -68,6 +92,10 @@ const Login = () => {
         description: error.message,
         variant: "destructive",
       });
+    },
+    onSettled: () => {
+      setCooldownActive(true);
+      setCountdown(60);
     },
   });
 
@@ -179,8 +207,10 @@ const Login = () => {
                       variant="outline"
                       size="sm"
                       onClick={handleResendConfirmation}
-                      disabled={resendConfirmationMutation.isPending}
-                      className="text-sm border-blue-500 text-blue-600 hover:bg-blue-50"
+                      disabled={
+                        resendConfirmationMutation.isPending || cooldownActive
+                      }
+                      className="text-sm border-green-500 text-green-600 hover:bg-green-50"
                       type="button"
                     >
                       {resendConfirmationMutation.isPending ? (
@@ -197,7 +227,9 @@ const Login = () => {
                             icon="mingcute:mail-send-fill"
                             className="mr-2 h-4 w-4"
                           />
-                          Resend verification email
+                          {cooldownActive
+                            ? `Resend in ${countdown}s`
+                            : "Resend Confirmation Email"}
                         </>
                       )}
                     </Button>
