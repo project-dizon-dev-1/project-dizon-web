@@ -6,7 +6,6 @@ import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
-import { RefObject, useCallback } from "react";
 import { useSidebar } from "../ui/sidebar";
 
 // Define the Phase type based on the new structure
@@ -16,11 +15,7 @@ interface Phase {
   total_population: number;
 }
 
-interface AnnouncementFiltersProps {
-  containerRef: RefObject<HTMLDivElement>;
-}
-
-const AnnouncementFilters = ({ containerRef }: AnnouncementFiltersProps) => {
+const AnnouncementFilters = ({ scrollToTop }: { scrollToTop: () => void }) => {
   const { isMobile } = useSidebar();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPhaseId = searchParams.get("phase");
@@ -50,15 +45,6 @@ const AnnouncementFilters = ({ containerRef }: AnnouncementFiltersProps) => {
     setSearchParams(newParams);
   };
 
-  const scrollToTop = useCallback(() => {
-    if (containerRef?.current) {
-      containerRef.current.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    }
-  }, [containerRef]);
-
   if (isError) {
     return <p className="text-red-500">Failed to load phases</p>;
   }
@@ -66,7 +52,14 @@ const AnnouncementFilters = ({ containerRef }: AnnouncementFiltersProps) => {
   // Generate skeleton items for loading state
 
   return (
-    <div className="flex flex-col justify-between sticky top-0 h-full z-10">
+    <div
+      className={cn(
+        "flex flex-col justify-between  z-10 sticky top-0 h-full ",
+        {
+          "relative h-fit mb-2": isMobile,
+        }
+      )}
+    >
       <div
         className={cn(
           "flex flex-col max-h-96 overflow-y-scroll w-[226px] max-w-[226px] bg-white rounded-md no-scrollbar",
@@ -163,19 +156,21 @@ const AnnouncementFilters = ({ containerRef }: AnnouncementFiltersProps) => {
           )}
         </div>
       </div>
-      <Button
-        className={cn(
-          "rounded-xl w-full py-4 h-fit text-default hover:bg-[#DEEDFF] bg-white shadow-none",
-          {
-            "absolute bottom-5 justify-center items-center right-5 w-14 bg-[#DEEDFF]":
-              isMobile,
-          }
-        )}
-        onClick={scrollToTop}
-      >
-        <Icon icon="mingcute:arrow-up-fill" className="mr-1" />
-        {!isMobile && "Scroll Up"}
-      </Button>
+      {!isMobile && (
+        <Button
+          className={cn(
+            "rounded-xl w-full py-4 h-fit text-default hover:bg-[#DEEDFF] bg-white shadow-none"
+            // {
+            //   "absolute bottom-5 justify-center items-center right-5 w-14 bg-[#DEEDFF]":
+            //     isMobile,
+            // }
+          )}
+          onClick={scrollToTop}
+        >
+          <Icon icon="mingcute:arrow-up-fill" className="mr-1" />
+          Scroll Up
+        </Button>
+      )}
     </div>
   );
 };

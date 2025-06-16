@@ -23,11 +23,11 @@ const baseSchema = z.object({
 });
 
 const signupSchema = baseSchema
-  .extend({
-    agreementAccepted: z.boolean().refine((val) => val === true, {
-      message: "You must accept the terms and conditions to continue.",
-    }),
-  })
+  // .extend({
+  //   agreementAccepted: z.boolean().refine((val) => val === true, {
+  //     message: "You must accept the terms and conditions to continue.",
+  //   }),
+  // })
   .refine((data) => data.userPassword === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],

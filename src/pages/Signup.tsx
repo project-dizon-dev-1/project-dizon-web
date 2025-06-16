@@ -21,19 +21,19 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 
 const Signup = () => {
   const { isMobile } = useSidebar();
-  const [eulaOpen, setEulaOpen] = useState(false);
+  // const [eulaOpen, setEulaOpen] = useState(false);
   const [cooldownActive, setCooldownActive] = useState(false);
   const [countdown, setCountdown] = useState(60);
   const [registeredEmail, setRegisteredEmail] = useState<string>("");
@@ -345,7 +345,7 @@ const Signup = () => {
                         onCheckedChange={field.onChange}
                       />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
+                    {/* <div className="space-y-1 leading-none">
                       <FormLabel className="text-sm font-normal text-gray-700">
                         I have read and agree to the{" "}
                         <Dialog open={eulaOpen} onOpenChange={setEulaOpen}>
@@ -372,7 +372,7 @@ const Signup = () => {
                         </Dialog>
                       </FormLabel>
                       <FormMessage />
-                    </div>
+                    </div> */}
                   </FormItem>
                 )}
               />

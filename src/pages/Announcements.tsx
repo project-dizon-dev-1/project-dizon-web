@@ -7,12 +7,13 @@ import { fetchAnnouncements } from "@/services/announcementServices";
 import { Announcement } from "@/types/announcementTypes";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import React, { useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useSearchParams } from "react-router";
 import useInterObserver from "@/hooks/useIntersectObserver";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";
+import { Button } from "@/components/ui/button";
 
 const Announcements = () => {
   const { isMobile } = useSidebar();
@@ -62,25 +63,34 @@ const Announcements = () => {
   // Use the intersection observer hook
   const { ref: loadMoreRef } = useInterObserver(handleLoadMore);
 
+  const scrollToTop = useCallback(() => {
+    if (announcementsContainerRef?.current) {
+      announcementsContainerRef.current.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [announcementsContainerRef]);
+
   if (isError) {
     return <p className="text-red-500">Error loading announcements</p>;
   }
 
   return (
     <div
+      ref={announcementsContainerRef}
       className={cn(
-        "flex justify-center  max-h-full h-full no-scrollbar overflow-y-scroll gap-12 ",
+        "flex flex-row-reverse justify-center max-h-full h-full gap-12  overflow-y-scroll no-scrollbar",
         {
-          "flex-col-reverse overflow-y-scroll gap-4 w-full no-scrollbar":
-            isMobile,
+          " block": isMobile,
         }
       )}
     >
       {/* Main Content */}
-      <div
-        ref={announcementsContainerRef}
-        className="grow flex flex-col  lg:max-w-[530px]  "
-      >
+      {user?.role === "admin" && (
+        <AnnouncementFilters scrollToTop={scrollToTop} />
+      )}
+      <div className="grow flex flex-col  lg:max-w-[530px]  ">
         {user?.role === "admin" && (
           <AnnouncementHeader first_name={user?.user_first_name} />
         )}
@@ -126,8 +136,15 @@ const Announcements = () => {
         )}
       </div>
 
-      {user?.role === "admin" && (
-        <AnnouncementFilters containerRef={announcementsContainerRef} />
+      {isMobile && (
+        <Button
+          className={cn(
+            "rounded-xl py-4 h-fit text-default hover:bg-[#DEEDFF]  shadow-none absolute bottom-5  right-5 w-14 bg-[#DEEDFF]"
+          )}
+          onClick={scrollToTop}
+        >
+          <Icon icon="mingcute:arrow-up-fill" className="mr-1" />
+        </Button>
       )}
     </div>
   );

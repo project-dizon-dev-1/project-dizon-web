@@ -482,7 +482,7 @@ const Homepage = () => {
               >
                 Contact
               </Button>
-              <Button
+              {/* <Button
                 variant="link"
                 className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
                 onClick={(e) => handleNavigation("/privacy", e)}
@@ -495,7 +495,7 @@ const Homepage = () => {
                 onClick={(e) => handleNavigation("/terms", e)}
               >
                 Terms
-              </Button>
+              </Button> */}
             </motion.div>
           </div>
         </MotionDiv>
