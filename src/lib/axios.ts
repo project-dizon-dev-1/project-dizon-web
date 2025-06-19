@@ -2,11 +2,18 @@ import { supabase } from "@/services/supabaseClient";
 import axios, { AxiosError } from "axios";
 
 let accessToken: string | null = null;
+let tokenExpiresAt: number | null = null;
 let refreshInProgress = false;
 let refreshPromise: Promise<string | null> | null = null;
 
+// Function to check if token is expired or will expire soon (within 1 minute)
+const isTokenExpired = (): boolean => {
+  if (!tokenExpiresAt) return true;
+  return Date.now() >= tokenExpiresAt - 60000; // 1 minute buffer
+};
+
 // Function to get the latest access token
-const updateAccessToken = async () => {
+const updateAccessToken = async (): Promise<string | null> => {
   if (refreshInProgress && refreshPromise) {
     return refreshPromise;
   }
@@ -14,26 +21,29 @@ const updateAccessToken = async () => {
   refreshInProgress = true;
   refreshPromise = (async () => {
     try {
-      // Check if there's an existing session first
       const { data: sessionData } = await supabase.auth.getSession();
 
-      // Only attempt to refresh if we have an existing session
       if (sessionData?.session) {
-        // Force refresh the session
         const { data, error } = await supabase.auth.refreshSession();
 
         if (error) throw error;
 
-        accessToken = data?.session?.access_token || null;
-        return accessToken;
-      } else {
-        // No session exists, so don't try to refresh
-        accessToken = null;
-        return null;
+        if (data?.session) {
+          accessToken = data.session.access_token;
+          tokenExpiresAt = data.session.expires_at
+            ? data.session.expires_at * 1000
+            : null;
+          return accessToken;
+        }
       }
+
+      accessToken = null;
+      tokenExpiresAt = null;
+      return null;
     } catch (error) {
       console.warn("Failed to refresh session token:", error);
       accessToken = null;
+      tokenExpiresAt = null;
       return null;
     } finally {
       refreshInProgress = false;
@@ -44,23 +54,31 @@ const updateAccessToken = async () => {
   return refreshPromise;
 };
 
-// Initialize token on app startup - but don't log an error if no session exists
+// Initialize token on app startup
 (async () => {
   try {
     const { data } = await supabase.auth.getSession();
-    accessToken = data?.session?.access_token || null;
+    if (data?.session) {
+      accessToken = data.session.access_token;
+      tokenExpiresAt = data.session.expires_at
+        ? data.session.expires_at * 1000
+        : null;
+    }
   } catch (error) {
     console.warn("Could not get initial session:", error);
     accessToken = null;
+    tokenExpiresAt = null;
   }
 })();
 
-// Listen for token refresh events and update in memory
+// Listen for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
   if ((event === "TOKEN_REFRESHED" || event === "SIGNED_IN") && session) {
     accessToken = session.access_token;
+    tokenExpiresAt = session.expires_at ? session.expires_at * 1000 : null;
   } else if (event === "SIGNED_OUT") {
     accessToken = null;
+    tokenExpiresAt = null;
   }
 });
 
@@ -72,13 +90,15 @@ const api = axios.create({
   },
 });
 
-// Axios request interceptor to always use the latest token
+// Single request interceptor - only refresh if token is expired
 api.interceptors.request.use(
   async (config) => {
     try {
-      if (!accessToken) {
+      // Only refresh if we don't have a token or it's expired
+      if (!accessToken || isTokenExpired()) {
         await updateAccessToken();
       }
+
       if (accessToken) {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
@@ -93,34 +113,41 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle token expiration
+// Single response interceptor - handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   async (error: unknown) => {
     const originalRequest = (error as AxiosError).config;
 
-    // Check if error is due to expired token
     if (
       axios.isAxiosError(error) &&
       error.response?.status === 401 &&
       originalRequest &&
-      !(originalRequest as any)._retry
+      !(originalRequest as any)._retry &&
+      !originalRequest.url?.includes("/auth/") // Prevent infinite loop on auth endpoints
     ) {
       (originalRequest as any)._retry = true;
 
       try {
-        // Force token refresh
-        await updateAccessToken();
+        // Force token refresh on 401
+        accessToken = null; // Clear current token to force refresh
+        tokenExpiresAt = null; // Clear expiration time too
+        const newToken = await updateAccessToken();
 
-        // Update the authorization header
-        if (accessToken) {
-          originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+        if (newToken && originalRequest.headers) {
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+          return api(originalRequest);
+        } else {
+          // If refresh failed or no token, sign out user
+          console.warn("Token refresh failed, signing out user");
+          await supabase.auth.signOut();
+          return Promise.reject(error);
         }
-
-        // Retry the request with new token
-        return axios(originalRequest);
       } catch (refreshError) {
-        return Promise.reject(refreshError);
+        // If refresh fails, sign out the user
+        console.error("Token refresh failed:", refreshError);
+        await supabase.auth.signOut();
+        return Promise.reject(error);
       }
     }
 

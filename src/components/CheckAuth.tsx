@@ -90,7 +90,7 @@ const CheckAuth = () => {
           .from("house-list")
           .select("id,phase_id")
           .eq("house_main_poc", data.id)
-          .single();
+          .maybeSingle();
 
         const userData: User = {
           contact_number: data.contact_number || null,
