@@ -74,7 +74,7 @@ const CheckAuth = () => {
     queryKey: ["user", authData?.user?.id],
     queryFn: async () => {
       if (!authData?.user?.id) return null;
-      return getUser(authData.user.id);
+      return await getUser(authData.user.id);
     },
     enabled: !!authData && sessionChecked,
   });

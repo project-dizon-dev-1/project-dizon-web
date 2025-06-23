@@ -44,8 +44,11 @@ import CustomReactSelect from "../CustomReactSelect";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Lot, Phase } from "@/types/subdivisionTypes";
-import { houseSchema, HouseSchemaType } from "@/validations/residentSchema";
+import { houseSchema, HouseSchemaType } from "@/validations/houseSchema";
 import { Input } from "../ui/input";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { ChevronDownIcon } from "lucide-react";
 
 const ResidentForm = () => {
   const { phases } = usePhaseContext();
@@ -53,6 +56,7 @@ const ResidentForm = () => {
     useHouseSearchParams();
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const form = useForm<HouseSchemaType>({
     resolver: zodResolver(houseSchema),
@@ -62,6 +66,8 @@ const ResidentForm = () => {
       street: "",
       block: "",
       lot: [],
+      latestPaymentDate: "",
+      latestPaymentAmount: 0,
       mainLot: "",
     },
     mode: "onChange",
@@ -116,13 +122,11 @@ const ResidentForm = () => {
   });
 
   const handleSubmit = (values: HouseSchemaType) => {
-    // Values already include mainLot from the form
     addHouseMutation.mutate(values);
   };
 
   const watchedPhase = form.watch("phase");
   const watchedBlock = form.watch("block");
-  // const watchedStreet = form.watch("street");
 
   // Fetch form-specific blocks when phase changes in the form
   const {
@@ -178,7 +182,6 @@ const ResidentForm = () => {
     }
   }, [form, watchedBlock]);
 
-  // Show error if any data fetching fails
   useEffect(() => {
     if (blocksError || streetsError || lotsError) {
       toast({
@@ -202,7 +205,7 @@ const ResidentForm = () => {
           )}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="max-w-lg">
+      <AlertDialogContent className="max-w-lg max-h-[80%] overflow-y-scroll">
         <AlertDialogHeader>
           <AlertDialogTitle>Create House Unit</AlertDialogTitle>
           <AlertDialogDescription>
@@ -429,6 +432,91 @@ const ResidentForm = () => {
                     )}
                   />
                 )}
+                <div className="flex gap-2">
+                  <FormField
+                    control={form.control}
+                    name="latestPaymentDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col gap-2">
+                        <FormLabel>
+                          Latest Payment Date{" "}
+                          <span className="text-2xs">
+                            (Leave blank if not paid yet)
+                          </span>
+                        </FormLabel>
+                        <FormControl>
+                          <Popover
+                            modal={true}
+                            open={open}
+                            onOpenChange={setOpen}
+                          >
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                id="date"
+                                className="w-48 justify-between font-normal"
+                              >
+                                {field.value ? field.value : "Select date"}
+                                <ChevronDownIcon />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto overflow-hidden p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  field.value
+                                    ? new Date(field.value)
+                                    : undefined
+                                }
+                                onSelect={(date) => {
+                                  if (date) {
+                                    field.onChange(
+                                      date.toLocaleDateString("en-PH")
+                                    );
+                                  } else {
+                                    field.onChange("");
+                                  }
+                                }}
+                                className="rounded-lg border"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />{" "}
+                  <FormField
+                    control={form.control}
+                    name="latestPaymentAmount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Latest Payment Amount</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Enter Latest Payment Amount"
+                            className="input"
+                            min={0}
+                            value={field.value < 0 ? "" : field.value}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value === "") {
+                                field.onChange("");
+                              } else if (!isNaN(Number(value))) {
+                                field.onChange(Number(value));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </AlertDialogBody>
             <AlertDialogFooter>

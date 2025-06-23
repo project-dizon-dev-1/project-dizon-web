@@ -133,6 +133,8 @@ const CollectionDetails = () => {
     setSearchInput(e.target.value);
   };
 
+  console.log("Collection Details Data:", data);
+
   return (
     <div className="h-full overflow-y-scroll no-scrollbar">
       <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -311,61 +313,76 @@ const CollectionDetails = () => {
                       {formatAmount(house.house_arrears ?? 0)}
                     </TableCell>
                     <TableCell>
-                      {house.house_latest_payment ? (
-                        house.finance_log && house.finance_log[0] ? (
-                          house.finance_log[0].status === "APPROVED" ? (
-                            new Date(house.house_latest_payment).getFullYear() >
-                              new Date().getFullYear() ||
-                            (new Date(
-                              house.house_latest_payment
-                            ).getFullYear() === new Date().getFullYear() &&
-                              new Date(house.house_latest_payment).getMonth() >=
-                                new Date().getMonth()) ? (
-                              <Badge
-                                variant={"outline"}
-                                className="bg-green-100 text-green-800"
-                              >
-                                Paid
-                              </Badge>
-                            ) : (
-                              <Badge
-                                variant={"outline"}
-                                className="bg-red-100 text-red-800"
-                              >
-                                Unpaid
-                              </Badge>
-                            )
-                          ) : house.finance_log[0].status === "PENDING" ? (
-                            <Badge
-                              variant={"outline"}
-                              className="bg-yellow-100 text-yellow-800"
-                            >
-                              Pending
-                            </Badge>
-                          ) : (
+                      {(() => {
+                        // No payment date = Unpaid
+                        if (!house.house_latest_payment) {
+                          return (
                             <Badge
                               variant={"outline"}
                               className="bg-red-100 text-red-800"
                             >
                               Unpaid
                             </Badge>
-                          )
-                        ) : (
+                          );
+                        }
+
+                        // Check if there's a finance log
+                        const latestFinanceLog = house.finance_log?.[0];
+
+                        // If pending status, show pending
+                        if (latestFinanceLog?.status === "PENDING") {
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-yellow-100 text-yellow-800"
+                            >
+                              Pending
+                            </Badge>
+                          );
+                        }
+
+                        // If approved status or no finance log, check if payment is current
+                        if (
+                          latestFinanceLog?.status === "APPROVED" ||
+                          !latestFinanceLog
+                        ) {
+                          const paymentDate = new Date(
+                            house.house_latest_payment
+                          );
+                          const currentDate = new Date();
+
+                          // Check if payment is for current month/year or future
+                          const isCurrentPayment =
+                            paymentDate.getFullYear() >
+                              currentDate.getFullYear() ||
+                            (paymentDate.getFullYear() ===
+                              currentDate.getFullYear() &&
+                              paymentDate.getMonth() >= currentDate.getMonth());
+
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className={
+                                isCurrentPayment
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }
+                            >
+                              {isCurrentPayment ? "Paid" : "Unpaid"}
+                            </Badge>
+                          );
+                        }
+
+                        // Default to unpaid for any other status
+                        return (
                           <Badge
                             variant={"outline"}
                             className="bg-red-100 text-red-800"
                           >
                             Unpaid
                           </Badge>
-                        )
-                      ) : (
-                        <Badge
-                          variant={"outline"}
-                          className="bg-red-100 text-red-800"
-                        >
-                          Unpaid
-                        </Badge>
-                      )}
+                        );
+                      })()}
                     </TableCell>
                     <TableCell
                       className={cn(

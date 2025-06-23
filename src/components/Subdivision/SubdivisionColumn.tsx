@@ -134,7 +134,7 @@ const SubdivisionColumn = ({
                           variant="ghost"
                           className="rounded-none"
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent parent row click
+                            e.stopPropagation(); 
                           }}
                           type="button"
                         >
