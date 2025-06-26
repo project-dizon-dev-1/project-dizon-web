@@ -86,11 +86,11 @@ const Announcements = () => {
       )}
     >
       {/* Main Content */}
-      {user?.role === "admin" && (
+      {(user?.role === "admin" || user?.role === "superadmin") && (
         <AnnouncementFilters scrollToTop={scrollToTop} />
       )}
       <div className="grow flex flex-col  lg:max-w-[530px]  ">
-        {user?.role === "admin" && (
+        {(user?.role === "admin" || user?.role === "superadmin") && (
           <AnnouncementHeader first_name={user?.user_first_name} />
         )}
 
