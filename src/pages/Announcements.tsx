@@ -4,8 +4,7 @@ import AnnouncementHeader from "@/components/Announcements/AnnouncementHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import useUserContext from "@/hooks/useUserContext";
 import { fetchAnnouncements } from "@/services/announcementServices";
-import { Announcement } from "@/types/announcementTypes";
-import { PaginatedDataType } from "@/types/paginatedType";
+
 import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useCallback, useRef } from "react";
 import { useSearchParams } from "react-router";
@@ -28,13 +27,13 @@ const Announcements = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteQuery<PaginatedDataType<Announcement>>({
+  } = useInfiniteQuery({
     queryKey: [
       "announcements",
       user?.role === "resident" ? user.house_phase : searchParams.get("phase"),
     ],
     queryFn: async ({ pageParam }) => {
-      const page = pageParam as string;
+      const page = pageParam.toString();
       return await fetchAnnouncements({
         page,
         pageSize: "10",
@@ -44,7 +43,7 @@ const Announcements = () => {
             : searchParams.get("phase"),
       });
     },
-    initialPageParam: "1",
+    initialPageParam: 1,
 
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.hasNextPage) return undefined;

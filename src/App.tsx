@@ -25,6 +25,7 @@ import Homepage from "./pages/Homepage";
 import Contact from "./pages/Contact";
 import AuthorizeByRole from "./components/AuthorizeByRole";
 import TransactionHistory from "./pages/TransactionHistory";
+import UsersComponent from "./pages/UsersComponent";
 
 const App = () => {
   return (
@@ -39,12 +40,18 @@ const App = () => {
         </Route>
         <Route element={<CheckAuth />}>
           <Route element={<MainLayout />}>
-            <Route element={<AuthorizeByRole roles={["admin", "resident"]} />}>
+            <Route
+              element={
+                <AuthorizeByRole roles={["admin", "resident", "superadmin"]} />
+              }
+            >
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/payment-history" element={<PaymentHistory />} />
               <Route path="/announcements" element={<Announcements />} />
             </Route>
-            <Route element={<AuthorizeByRole roles={["admin"]} />}>
+            <Route
+              element={<AuthorizeByRole roles={["admin", "superadmin"]} />}
+            >
               <Route path="/collection" element={<Collection />} />
               <Route
                 path="/collection/:phase"
@@ -58,6 +65,9 @@ const App = () => {
               <Route path="/audit-logs" element={<AuditLogs />} />
               <Route path="/subdivision" element={<ManageSubdivision />} />
               <Route path="/financial-logs" element={<TransactionHistory />} />
+            </Route>
+            <Route element={<AuthorizeByRole roles={["superadmin"]} />}>
+              <Route path="/users" element={<UsersComponent />} />
             </Route>
 
             <Route path="/profile" element={<Profile />} />

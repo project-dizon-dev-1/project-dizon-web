@@ -1,11 +1,33 @@
 import { axiosDelete, axiosGet, axiosPut } from "@/lib/axios";
 import { Database } from "@/types/database";
 import { supabase } from "./supabaseClient";
+import { Users } from "@/types/userTypes";
+import { PaginatedDataType } from "@/types/paginatedType";
 
 type User = Database["public"]["Tables"]["users-list"]["Row"];
 
 const getUser = async (userId: string): Promise<User | null> => {
   return axiosGet(`/user/${userId}`);
+};
+const getAllUsers = async ({
+  page,
+  pageSize,
+  role,
+  query,
+}: {
+  page: string;
+  pageSize: string;
+  role?: string;
+  query?: string;
+}): Promise<PaginatedDataType<Users>> => {
+  return await axiosGet("/user/all", {
+    params: {
+      page,
+      pageSize,
+      role,
+      query,
+    },
+  });
 };
 
 interface ProfileUpdateData {
@@ -137,7 +159,19 @@ const deleteAccount = async (userId?: string | null) => {
   axiosDelete(`/user/delete/${userId}`);
 };
 
+const updateUserRole = async ({
+  userId,
+  role,
+}: {
+  userId: string;
+  role: "admin" | "resident";
+}) => {
+  axiosPut(`/user/update-role/${userId}`, {
+    role,
+  });
+};
 export {
+  updateUserRole,
   sendPasswordResetLink,
   getUser,
   updateUserProfile,
@@ -145,4 +179,5 @@ export {
   sendChangeEmailVerification,
   updateEmail,
   deleteAccount,
+  getAllUsers,
 };

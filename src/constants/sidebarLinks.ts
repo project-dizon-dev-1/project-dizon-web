@@ -55,6 +55,11 @@ const COMMON_LINKS = {
     link: "/subdivision",
     icon: "mingcute:building-1-line",
   },
+  users: {
+    label: "Users",
+    link: "/users",
+    icon: "mingcute:group-3-line",
+  },
 };
 
 export const SIDEBAR_LINKS = Object.freeze({
@@ -69,6 +74,14 @@ export const SIDEBAR_LINKS = Object.freeze({
     COMMON_LINKS.announcements,
     COMMON_LINKS.paymentHistory,
     COMMON_LINKS.manageSubdivision,
+  ],
+  superadmin: [
+    COMMON_LINKS.dashboard,
+    COMMON_LINKS.residents,
+    COMMON_LINKS.announcements,
+    COMMON_LINKS.paymentHistory,
+    COMMON_LINKS.manageSubdivision,
+    COMMON_LINKS.users,
   ],
   finance: [
     COMMON_LINKS.financeOverview,
