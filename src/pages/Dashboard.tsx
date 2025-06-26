@@ -161,6 +161,8 @@ const Dashboard = () => {
                     ? "bg-green-100 text-green-800"
                     : houseSummary?.paymentStatus === "Partially Paid"
                     ? "bg-amber-100 text-amber-800"
+                    : houseSummary?.paymentStatus === "Payment Pending"
+                    ? "bg-amber-100 text-amber-800"
                     : "bg-red-100 text-red-800"
                 }
               >
