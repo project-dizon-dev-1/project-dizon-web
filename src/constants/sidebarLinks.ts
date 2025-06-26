@@ -76,7 +76,6 @@ export const SIDEBAR_LINKS = Object.freeze({
     COMMON_LINKS.manageSubdivision,
   ],
   superadmin: [
-    COMMON_LINKS.dashboard,
     COMMON_LINKS.residents,
     COMMON_LINKS.announcements,
     COMMON_LINKS.paymentHistory,
