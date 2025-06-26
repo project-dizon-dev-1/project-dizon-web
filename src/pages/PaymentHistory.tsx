@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PaginatedDataType } from "@/types/paginatedType";
 import { DueLog } from "@/types/DueTypes";
+import ImageLoader from "@/lib/ImageLoader";
 
 const PaymentHistory = () => {
   const { user } = useUserContext();
@@ -69,6 +70,8 @@ const PaymentHistory = () => {
   });
 
   const { ref } = useInterObserver(fetchNextPage);
+
+  console.log("Payment History Data:", data);
 
   if (isError) {
     return (
@@ -171,15 +174,73 @@ const PaymentHistory = () => {
                       {formatAmount(payment.amount ?? 0)}
                     </TableCell>
                     <TableCell>
-                      {payment.amount_status === "Fully_Paid" ? (
-                        <Badge className="bg-green-100 text-green-800 shadow-none hover:bg-green-100">
-                          Fully Paid
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-yellow-100 text-yellow-800 shadow-none hover:bg-yellow-100">
-                          Partially Paid
-                        </Badge>
-                      )}
+                      {(() => {
+                        if (!payment.created_at) {
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-red-100 text-red-800"
+                            >
+                              Rejected
+                            </Badge>
+                          );
+                        }
+
+                        const latestFinanceLog = payment.finance_log;
+
+                        if (latestFinanceLog?.status === "PENDING") {
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-yellow-100 text-yellow-800"
+                            >
+                              Pending
+                            </Badge>
+                          );
+                        }
+
+                        if (latestFinanceLog?.status === "APPROVED") {
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-green-100 text-green-800"
+                            >
+                              Paid
+                            </Badge>
+                          );
+                        }
+
+                        if (latestFinanceLog?.status === "REJECTED") {
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-red-100 text-red-800"
+                            >
+                              Rejected
+                            </Badge>
+                          );
+                        }
+
+                        if (!latestFinanceLog && payment.created_at) {
+                          return (
+                            <Badge
+                              variant={"outline"}
+                              className="bg-green-100 text-green-800"
+                            >
+                              Paid
+                            </Badge>
+                          );
+                        }
+
+                        return (
+                          <Badge
+                            variant={"outline"}
+                            className="bg-red-100 text-red-800"
+                          >
+                            Rejected
+                          </Badge>
+                        );
+                      })()}
                     </TableCell>
 
                     <AlertDialog>
@@ -206,59 +267,96 @@ const PaymentHistory = () => {
                         </AlertDialogHeader>
                         <AlertDialogBody>
                           <div className="mb-6 px-6 py-4 flex w-full justify-between rounded-xl bg-[#F3F7FD]">
-                            <div>
-                              <p>Billing Month</p>
-                              <p>Date Paid</p>
-                              <p>Amount</p>
-                              <p>Payment Status</p>
+                            <div className="flex flex-col gap-2">
+                              <p className="font-medium">Billing Month:</p>
+                              <p className="font-medium">Date Paid:</p>
+                              <p className="font-medium">Amount:</p>
+                              <p className="font-medium">Payment Status:</p>
                             </div>
-                            <div>
+                            <div className="flex flex-col gap-2 text-right">
                               <p>{payment.date && formatDate(payment?.date)}</p>
                               <p>{formatDate(payment.created_at)}</p>
                               <p className="font-medium">
                                 {formatAmount(payment.amount ?? 0)}
                               </p>
-                              {payment.amount_status === "Fully_Paid" ? (
-                                <Badge className="bg-green-100 text-green-800 shadow-none hover:bg-green-100">
-                                  Fully Paid
-                                </Badge>
-                              ) : (
-                                <Badge className="bg-yellow-100 text-yellow-800 shadow-none hover:bg-yellow-100">
-                                  Partially Paid
-                                </Badge>
-                              )}
+                              {(() => {
+                                if (!payment.created_at) {
+                                  return (
+                                    <Badge
+                                      variant={"outline"}
+                                      className="bg-red-100 text-red-800 w-fit"
+                                    >
+                                      Rejected
+                                    </Badge>
+                                  );
+                                }
+
+                                const latestFinanceLog = payment.finance_log;
+
+                                if (latestFinanceLog?.status === "PENDING") {
+                                  return <p>Pending</p>;
+                                }
+
+                                if (latestFinanceLog?.status === "APPROVED") {
+                                  return <p>Paid</p>;
+                                }
+
+                                if (latestFinanceLog?.status === "REJECTED") {
+                                  return <p>Rejected</p>;
+                                }
+
+                                if (!latestFinanceLog && payment.created_at) {
+                                  return (
+                                    <Badge
+                                      variant={"outline"}
+                                      className="bg-green-100 text-green-800 w-fit"
+                                    >
+                                      Paid
+                                    </Badge>
+                                  );
+                                }
+
+                                return (
+                                  <Badge
+                                    variant={"outline"}
+                                    className="bg-red-100 text-red-800 w-fit"
+                                  >
+                                    Rejected
+                                  </Badge>
+                                );
+                              })()}
                             </div>
                           </div>
 
                           {payment.details && (
-                            <>
+                            <div className="mb-4">
                               <h2 className="text-default/75 font-bold text-sm">
                                 Additional Details:
                               </h2>
-                              <p className="font-medium text-sm mb-4">
+                              <p className="font-medium text-sm">
                                 {payment.details}
                               </p>
-                            </>
+                            </div>
                           )}
 
                           {payment.proof_url && (
-                            <>
+                            <div className="mb-4">
                               <h2 className="text-default/75 font-bold text-sm mb-2">
                                 Payment Proof:
                               </h2>
-                              <div className="w-full border rounded-md overflow-hidden mb-4">
-                                <img
+                              <div className="w-full border rounded-md overflow-hidden">
+                                <ImageLoader
                                   src={payment.proof_url}
                                   alt="Payment Proof"
                                   className="w-full h-auto max-h-48 object-contain"
                                 />
                               </div>
-                            </>
+                            </div>
                           )}
 
                           <Separator className="my-6" />
 
-                          <div className="flex">
+                          <div className="flex ">
                             <div className="flex-1">
                               <h3 className="text-blue-600 text-sm font-medium">
                                 Received By:
@@ -273,25 +371,78 @@ const PaymentHistory = () => {
                             </div>
 
                             <div className="flex-1">
-                              <h3
-                                className={
-                                  payment.confirmed_by_user
-                                    ? "text-green-600 text-sm font-medium"
-                                    : "text-yellow-600 text-sm font-medium"
+                              {(() => {
+                                const latestFinanceLog = payment.finance_log;
+
+                                if (latestFinanceLog?.status === "PENDING") {
+                                  return (
+                                    <div>
+                                      <h3 className="text-yellow-600 text-sm font-medium">
+                                        Pending Approval
+                                      </h3>
+                                    </div>
+                                  );
                                 }
-                              >
-                                {payment.confirmed_by_user
-                                  ? "Confirmed By:"
-                                  : "Pending Confirmation"}
-                              </h3>
-                              {payment.confirmed_by_user && (
-                                <>
-                                  <p className="text-sm font-medium">
-                                    {payment.confirmed_by_user?.user_first_name}{" "}
-                                    {payment.confirmed_by_user?.user_last_name}
-                                  </p>
-                                </>
-                              )}
+
+                                if (latestFinanceLog?.status === "APPROVED") {
+                                  return (
+                                    <div className="flex-1">
+                                      <h3 className="text-green-600 text-sm font-medium">
+                                        Approved By:
+                                      </h3>
+                                      <p className="text-sm font-medium">
+                                        {
+                                          latestFinanceLog.response_by_details
+                                            ?.user_first_name
+                                        }{" "}
+                                        {
+                                          latestFinanceLog.response_by_details
+                                            ?.user_last_name
+                                        }
+                                      </p>
+                                      {latestFinanceLog?.response_date && (
+                                        <p className="text-xs text-gray-500">
+                                          {formatDate(
+                                            latestFinanceLog.response_date
+                                          )}
+                                        </p>
+                                      )}
+                                    </div>
+                                  );
+                                }
+
+                                if (latestFinanceLog?.status === "REJECTED") {
+                                  return (
+                                    <div>
+                                      <h3 className="text-red-600 text-sm font-medium">
+                                        Rejected By:
+                                      </h3>
+                                      <p className="text-sm font-medium">
+                                        {
+                                          latestFinanceLog.response_by_details
+                                            ?.user_first_name
+                                        }{" "}
+                                        {
+                                          latestFinanceLog.response_by_details
+                                            ?.user_last_name
+                                        }
+                                      </p>
+                                    </div>
+                                  );
+                                }
+
+                                if (!latestFinanceLog && payment.created_at) {
+                                  return (
+                                    <div>
+                                      <h3 className="text-green-600 text-sm font-medium">
+                                        Auto-Approved
+                                      </h3>
+                                    </div>
+                                  );
+                                }
+
+                                return null;
+                              })()}
                             </div>
                           </div>
                         </AlertDialogBody>

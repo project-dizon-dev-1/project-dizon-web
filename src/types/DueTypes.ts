@@ -25,10 +25,6 @@ type DueLog = {
     user_first_name: string;
     user_last_name: string;
   } | null;
-  confirmed_by_user: {
-    user_first_name: string;
-    user_last_name: string;
-  } | null;
   house_list: {
     house_main_poc_user: {
       user_first_name: string;
@@ -50,7 +46,12 @@ type DueLog = {
   } | null;
   amount_status: "Partially_Paid" | "Fully_Paid" | null;
   finance_log: {
+    response_date: Date | null;
     status: "PENDING" | "APPROVED" | "REJECTED";
+    response_by_details: {
+      user_first_name: string;
+      user_last_name: string;
+    } | null;
   };
 };
 
