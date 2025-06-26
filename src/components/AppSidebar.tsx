@@ -136,55 +136,55 @@ export const AppSidebar = () => {
                   ))}
 
                   {/* Finance section for admin */}
-                  {user?.role === "admin" ||
-                    (user?.role === "superadmin" && (
-                      <>
-                        <div className="flex justify-center items-center relative p-y-3 px-[16px] overflow-hidden">
-                          <Separator className="bg-[#45495A]/[.24]" />
-                          <p className="text-xs bg-transparent px-[7px] text-[#45495A]/[.24]">
-                            Finance
-                          </p>
-                          <Separator className="bg-[#45495A]/[.24]" />
-                        </div>
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
+                    <>
+                      <div className="flex justify-center items-center relative p-y-3 px-[16px] overflow-hidden">
+                        <Separator className="bg-[#45495A]/[.24]" />
+                        <p className="text-xs bg-transparent px-[7px] text-[#45495A]/[.24]">
+                          Finance
+                        </p>
+                        <Separator className="bg-[#45495A]/[.24]" />
+                      </div>
 
-                        {SIDEBAR_LINKS["finance"].map((item) => (
-                          <SidebarMenuSubItem key={item.label}>
-                            <SidebarMenuButton asChild>
-                              <Link
-                                className={cn(
-                                  "flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42]",
-                                  {
-                                    "bg-white/[0.42]": url.pathname.startsWith(
-                                      item.link
-                                    ),
-                                  }
-                                )}
-                                to={item.link}
-                              >
-                                <div className="flex gap-3 justify-center items-center">
-                                  <Icon className="w-5 h-5" icon={item.icon} />
-                                  <span
-                                    className={cn(
-                                      "text-[14px] font-medium text-default",
-                                      {
-                                        "font-semibold":
-                                          url.pathname.startsWith(item.link),
-                                      }
-                                    )}
-                                  >
-                                    {item.label}
-                                  </span>
-                                </div>
+                      {SIDEBAR_LINKS["finance"].map((item) => (
+                        <SidebarMenuSubItem key={item.label}>
+                          <SidebarMenuButton asChild>
+                            <Link
+                              className={cn(
+                                "flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42]",
+                                {
+                                  "bg-white/[0.42]": url.pathname.startsWith(
+                                    item.link
+                                  ),
+                                }
+                              )}
+                              to={item.link}
+                            >
+                              <div className="flex gap-3 justify-center items-center">
+                                <Icon className="w-5 h-5" icon={item.icon} />
+                                <span
+                                  className={cn(
+                                    "text-[14px] font-medium text-default",
+                                    {
+                                      "font-semibold": url.pathname.startsWith(
+                                        item.link
+                                      ),
+                                    }
+                                  )}
+                                >
+                                  {item.label}
+                                </span>
+                              </div>
 
-                                {url.pathname.startsWith(item.link) && (
-                                  <div className="h-[6px] w-[6px] rounded-full bg-[#45495A]"></div>
-                                )}
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </>
-                    ))}
+                              {url.pathname.startsWith(item.link) && (
+                                <div className="h-[6px] w-[6px] rounded-full bg-[#45495A]"></div>
+                              )}
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </>
+                  )}
                 </SidebarMenu>
               )}
             </SidebarGroupContent>
