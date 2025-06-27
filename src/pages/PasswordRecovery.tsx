@@ -175,9 +175,8 @@ const PasswordRecovery = () => {
                         />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        {mode === "reset"
-                          ? "Password must be at least 6 characters and include uppercase, lowercase and a number."
-                          : "Password must be at least 8 characters and include uppercase, lowercase, number and special character."}
+                        Password must be at least 6 characters and include
+                        uppercase, lowercase, number and special character.
                       </p>
                       <FormMessage />
                     </FormItem>
