@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { supabase } from "@/services/supabaseClient";
+import useUserContext from "@/hooks/useUserContext";
 
 const GuestRoute = () => {
+  const { user } = useUserContext();
   const navigate = useNavigate();
   const [authenticated, setAuthenticated] = useState(false);
 
@@ -24,7 +26,11 @@ const GuestRoute = () => {
         if (session?.user) {
           // If user is authenticated, redirect Home
           setAuthenticated(true);
-          navigate("/dashboard", { replace: true });
+          if (user?.role === "admin" || user?.role === "resident") {
+            navigate("/dashboard", { replace: true });
+          } else {
+            navigate("/residents", { replace: true });
+          }
         }
       } catch (error) {
         console.error("Error checking session:", error);

@@ -40,12 +40,14 @@ const App = () => {
         </Route>
         <Route element={<CheckAuth />}>
           <Route element={<MainLayout />}>
+            <Route element={<AuthorizeByRole roles={["admin", "resident"]} />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
             <Route
               element={
                 <AuthorizeByRole roles={["admin", "resident", "superadmin"]} />
               }
             >
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/payment-history" element={<PaymentHistory />} />
               <Route path="/announcements" element={<Announcements />} />
             </Route>

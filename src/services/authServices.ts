@@ -133,7 +133,7 @@ const login = async (userData: loginType) => {
     .select(
       `
       *,
-      house:house-list(id,phase_id)
+      house:"house-list"(id,phase_id)
     `
     )
     .eq("id", data.user.id)

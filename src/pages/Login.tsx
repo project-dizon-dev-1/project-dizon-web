@@ -21,6 +21,17 @@ import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { Database } from "@/types/database";
+
+type UserData = {
+  contact_number: string | null;
+  created_at: string;
+  id: string;
+  role: Database["public"]["Enums"]["roles"];
+  user_email: string;
+  user_first_name: string;
+  user_last_name: string;
+};
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,9 +71,13 @@ const Login = () => {
   });
 
   const loginMutation = useMutation({
-    mutationFn: (data: loginType) => login(data),
-    onSuccess: () => {
-      navigate("/dashboard", { replace: true });
+    mutationFn: login,
+    onSuccess: (data: UserData) => {
+      if (data?.role === "admin" || data?.role === "resident") {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/residents", { replace: true });
+      }
     },
     onError: (error) => {
       if (

@@ -43,7 +43,7 @@ const MobileNavigation = () => {
             {link.label}
           </Link>
         ))}
-        {user?.role === "admin" &&
+        {(user?.role === "admin" || user?.role === "superadmin") &&
           SIDEBAR_LINKS["finance"].map((link) => (
             <Link
               key={link.label}
