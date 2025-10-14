@@ -133,8 +133,6 @@ const CollectionDetails = () => {
     setSearchInput(e.target.value);
   };
 
-  'Collection Details Data:', data;
-
   return (
     <div className="h-full overflow-y-scroll no-scrollbar">
       <div className="flex flex-wrap items-center gap-3 mb-4">
