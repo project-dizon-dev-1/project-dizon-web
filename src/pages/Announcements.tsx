@@ -1,18 +1,18 @@
-import AnnouncementComponent from "@/components/Announcements/AnnouncementComponent";
-import AnnouncementFilters from "@/components/Announcements/AnnouncementFilters";
-import AnnouncementHeader from "@/components/Announcements/AnnouncementHeader";
-import { Skeleton } from "@/components/ui/skeleton";
-import useUserContext from "@/hooks/useUserContext";
-import { fetchAnnouncements } from "@/services/announcementServices";
+import AnnouncementComponent from '@/components/Announcements/AnnouncementComponent';
+import AnnouncementFilters from '@/components/Announcements/AnnouncementFilters';
+import AnnouncementHeader from '@/components/Announcements/AnnouncementHeader';
+import { Skeleton } from '@/components/ui/skeleton';
+import useUserContext from '@/hooks/useUserContext';
+import { fetchAnnouncements } from '@/services/announcementServices';
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import React, { useCallback, useRef } from "react";
-import { useSearchParams } from "react-router";
-import useInterObserver from "@/hooks/useIntersectObserver";
-import { useSidebar } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Button } from "@/components/ui/button";
+import { useInfiniteQuery } from '@tanstack/react-query';
+import React, { useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router';
+import useInterObserver from '@/hooks/useIntersectObserver';
+import { useSidebar } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Button } from '@/components/ui/button';
 
 const Announcements = () => {
   const { isMobile } = useSidebar();
@@ -29,18 +29,18 @@ const Announcements = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: [
-      "announcements",
-      user?.role === "resident" ? user.house_phase : searchParams.get("phase"),
+      'announcements',
+      user?.role === 'resident' ? user.house_phase : searchParams.get('phase'),
     ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam.toString();
       return await fetchAnnouncements({
         page,
-        pageSize: "10",
+        pageSize: '10',
         phase:
-          user?.role === "resident"
+          user?.role === 'resident'
             ? user.house_phase
-            : searchParams.get("phase"),
+            : searchParams.get('phase'),
       });
     },
     initialPageParam: 1,
@@ -66,7 +66,7 @@ const Announcements = () => {
     if (announcementsContainerRef?.current) {
       announcementsContainerRef.current.scrollTo({
         top: 0,
-        behavior: "smooth",
+        behavior: 'smooth',
       });
     }
   }, [announcementsContainerRef]);
@@ -79,18 +79,18 @@ const Announcements = () => {
     <div
       ref={announcementsContainerRef}
       className={cn(
-        "flex flex-row-reverse justify-center max-h-full h-full gap-12  overflow-y-scroll no-scrollbar",
+        'flex flex-row-reverse justify-center max-h-full h-full gap-12  overflow-y-scroll no-scrollbar',
         {
-          " block": isMobile,
+          ' block': isMobile,
         }
       )}
     >
       {/* Main Content */}
-      {(user?.role === "admin" || user?.role === "superadmin") && (
+      {(user?.role === 'admin' || user?.role === 'superadmin') && (
         <AnnouncementFilters scrollToTop={scrollToTop} />
       )}
       <div className="grow flex flex-col  lg:max-w-[530px]  ">
-        {(user?.role === "admin" || user?.role === "superadmin") && (
+        {(user?.role === 'admin' || user?.role === 'superadmin') && (
           <AnnouncementHeader first_name={user?.user_first_name} />
         )}
 
@@ -98,7 +98,7 @@ const Announcements = () => {
         {!isLoading && data?.pages[0]?.items?.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
             <p className="  ">No announcement yet</p>
-            <Icon className="w-96 h-96" icon={"mingcute:paper-fill"} />
+            <Icon className="w-96 h-96" icon={'mingcute:paper-fill'} />
           </div>
         ) : null}
 
@@ -138,7 +138,7 @@ const Announcements = () => {
       {isMobile && (
         <Button
           className={cn(
-            "rounded-xl py-4 h-fit text-default hover:bg-[#DEEDFF]  shadow-none absolute bottom-5  right-5 w-14 bg-[#DEEDFF]"
+            'rounded-xl py-4 h-fit text-default hover:bg-[#DEEDFF]  shadow-none absolute bottom-5  right-5 w-14 bg-[#DEEDFF]'
           )}
           onClick={scrollToTop}
         >

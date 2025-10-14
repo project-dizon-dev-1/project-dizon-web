@@ -1,5 +1,5 @@
-import Loading from "@/components/Loading";
-import { useSearchParams } from "react-router";
+import Loading from '@/components/Loading';
+import { useSearchParams } from 'react-router';
 import {
   deleteBlock,
   deleteLot,
@@ -9,87 +9,91 @@ import {
   fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
-} from "@/services/subdivisionServices";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import PhaseForm from "@/components/Subdivision/PhaseForm";
-import StreetForm from "@/components/Subdivision/StreetForm";
-import BlockForm from "@/components/Subdivision/BlockForm";
-import LotForm from "@/components/Subdivision/LotForm";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+} from '@/services/subdivisionServices';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import PhaseForm from '@/components/Subdivision/PhaseForm';
+import StreetForm from '@/components/Subdivision/StreetForm';
+import BlockForm from '@/components/Subdivision/BlockForm';
+import LotForm from '@/components/Subdivision/LotForm';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 
-import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
-import SubdivisionColumn from "@/components/Subdivision/SubdivisionColumn";
-import { useSidebar } from "@/components/ui/sidebar";
+import { toast } from '@/hooks/use-toast';
+import { useState } from 'react';
+import SubdivisionColumn from '@/components/Subdivision/SubdivisionColumn';
+import { useSidebar } from '@/components/ui/sidebar';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const SubdivisionManagement = () => {
   const { isMobile } = useSidebar();
   const queryClient = useQueryClient();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [params, setParams] = useSearchParams();
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
 
   const { data: phases, isLoading } = useQuery({
-    queryKey: ["phases"],
-    queryFn: fetchAllPhases,
+    queryKey: ['phases', villageId], // include it here for caching/refetch
+    queryFn: () => fetchAllPhases(villageId), // pass it here
+    enabled: !!villageId, // only run when villageId exists
   });
 
   const { data: streets, isLoading: streetsLoading } = useQuery({
-    queryKey: ["streets", params.get("phaseId")],
-    queryFn: async () => await fetchStreetsByPhase(params.get("phaseId")),
-    enabled: !!params.get("phaseId"),
+    queryKey: ['streets', params.get('phaseId')],
+    queryFn: async () => await fetchStreetsByPhase(params.get('phaseId')),
+    enabled: !!params.get('phaseId'),
   });
 
   const { data: blocks, isLoading: blocksLoading } = useQuery({
-    queryKey: ["blocks", params.get("phaseId")],
-    queryFn: async () => await fetchBlocksByPhase(params.get("phaseId")),
-    enabled: !!params.get("phaseId"),
+    queryKey: ['blocks', params.get('phaseId')],
+    queryFn: async () => await fetchBlocksByPhase(params.get('phaseId')),
+    enabled: !!params.get('phaseId'),
   });
 
   const { data: lots, isLoading: lotsLoading } = useQuery({
-    queryKey: ["lots", params.get("blockId")],
-    queryFn: async () => await fetchLotsByBlock(params.get("blockId")),
-    enabled: !!params.get("blockId"),
+    queryKey: ['lots', params.get('blockId')],
+    queryFn: async () => await fetchLotsByBlock(params.get('blockId')),
+    enabled: !!params.get('blockId'),
   });
 
   const handlePhaseClick = (phaseId: string) => {
     // Create a completely new URLSearchParams object with just the phaseId
     const newParams = new URLSearchParams();
-    newParams.set("phaseId", phaseId);
+    newParams.set('phaseId', phaseId);
     setParams(newParams);
   };
 
   const handleStreetClick = (streetId: string) => {
     // When clicking a street, we want to keep the phaseId but remove blockId and lotId
     const newParams = new URLSearchParams();
-    newParams.set("phaseId", params.get("phaseId") || "");
-    newParams.set("streetId", streetId);
+    newParams.set('phaseId', params.get('phaseId') || '');
+    newParams.set('streetId', streetId);
     setParams(newParams);
   };
 
   const handleBlockClick = (blockId: string) => {
     // When clicking a block, we want to keep the phaseId but remove lotId
     const newParams = new URLSearchParams();
-    newParams.set("phaseId", params.get("phaseId") || "");
-    newParams.set("streetId", params.get("streetId") || "");
-    newParams.set("blockId", blockId);
+    newParams.set('phaseId', params.get('phaseId') || '');
+    newParams.set('streetId', params.get('streetId') || '');
+    newParams.set('blockId', blockId);
     setParams(newParams);
   };
   const deletePhaseMutation = useMutation({
     mutationFn: deletePhase,
     onSuccess: () => {
       toast({
-        title: "Phase deleted",
-        description: "Phase has been deleted successfully",
+        title: 'Phase deleted',
+        description: 'Phase has been deleted successfully',
       });
       queryClient.invalidateQueries({
-        queryKey: ["phases"],
+        queryKey: ['phases'],
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSettled: () => {
@@ -104,18 +108,18 @@ const SubdivisionManagement = () => {
     mutationFn: deleteStreet,
     onSuccess: () => {
       toast({
-        title: "Street deleted",
-        description: "Street has been deleted successfully",
+        title: 'Street deleted',
+        description: 'Street has been deleted successfully',
       });
       queryClient.invalidateQueries({
-        queryKey: ["streets", params.get("phaseId")],
+        queryKey: ['streets', params.get('phaseId')],
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSettled: () => {
@@ -130,18 +134,18 @@ const SubdivisionManagement = () => {
     mutationFn: deleteBlock,
     onSuccess: () => {
       toast({
-        title: "Block deleted",
-        description: "Block has been deleted successfully",
+        title: 'Block deleted',
+        description: 'Block has been deleted successfully',
       });
       queryClient.invalidateQueries({
-        queryKey: ["blocks", params.get("phaseId")],
+        queryKey: ['blocks', params.get('phaseId')],
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSettled: () => {
@@ -157,18 +161,18 @@ const SubdivisionManagement = () => {
     mutationFn: deleteLot,
     onSuccess: () => {
       toast({
-        title: "Lot deleted",
-        description: "Lot has been deleted successfully",
+        title: 'Lot deleted',
+        description: 'Lot has been deleted successfully',
       });
       queryClient.invalidateQueries({
-        queryKey: ["lots", params.get("blockId")],
+        queryKey: ['lots', params.get('blockId')],
       });
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSettled: () => {
@@ -187,7 +191,7 @@ const SubdivisionManagement = () => {
   return (
     <div className="bg-white flex rounded-xl h-full">
       <SubdivisionColumn
-        title={"Phases"}
+        title={'Phases'}
         FormComponent={PhaseForm}
         childExist={!!phases}
         data={phases}
@@ -197,14 +201,14 @@ const SubdivisionManagement = () => {
         handleDeleteData={handleDeletePhase}
         loading={isLoading}
         deleteMessage={
-          "This action will permanently remove the selected phase along with all associated streets, blocks, lots, and their corresponding data. All addresses linked to lots within this phase will also be deleted."
+          'This action will permanently remove the selected phase along with all associated streets, blocks, lots, and their corresponding data. All addresses linked to lots within this phase will also be deleted.'
         }
         queryParamsKey="phaseId"
       />
       {/* Streets Column */}
       {(streets || streetsLoading) && !isMobile && (
         <SubdivisionColumn
-          title={"Streets"}
+          title={'Streets'}
           FormComponent={StreetForm}
           childExist={!!streets}
           data={streets}
@@ -214,7 +218,7 @@ const SubdivisionManagement = () => {
           handleDeleteData={handleDeleteStreet}
           loading={streetsLoading}
           deleteMessage={
-            "This action will permanently delete your street and all the blocks and lots in this street. All addresses linked to lots within this street will also be deleted."
+            'This action will permanently delete your street and all the blocks and lots in this street. All addresses linked to lots within this street will also be deleted.'
           }
           queryParamsKey="streetId"
         />
@@ -232,7 +236,7 @@ const SubdivisionManagement = () => {
         >
           <SheetContent className="flex flex-col  w-full sm:max-w-full sm:w-full md:max-w-full ">
             <SubdivisionColumn
-              title={"Streets"}
+              title={'Streets'}
               FormComponent={StreetForm}
               childExist={!!streets}
               data={streets}
@@ -242,12 +246,12 @@ const SubdivisionManagement = () => {
               handleDeleteData={handleDeleteStreet}
               loading={streetsLoading}
               deleteMessage={
-                "This action will permanently delete your street and all the blocks and lots in this street. All addresses linked to lots within this street will also be deleted."
+                'This action will permanently delete your street and all the blocks and lots in this street. All addresses linked to lots within this street will also be deleted.'
               }
               queryParamsKey="streetId"
             />
             <SubdivisionColumn
-              title={"Blocks"}
+              title={'Blocks'}
               FormComponent={BlockForm}
               childExist={!!blocks}
               data={blocks}
@@ -257,7 +261,7 @@ const SubdivisionManagement = () => {
               handleDeleteData={handleDeleteBlock}
               loading={blocksLoading}
               deleteMessage={
-                "This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted."
+                'This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted.'
               }
               queryParamsKey="blockId"
             />
@@ -300,7 +304,7 @@ const SubdivisionManagement = () => {
       {/* Blocks Column */}
       {(blocks || blocksLoading) && !isMobile && (
         <SubdivisionColumn
-          title={"Blocks"}
+          title={'Blocks'}
           FormComponent={BlockForm}
           childExist={!!blocks}
           data={blocks}
@@ -310,7 +314,7 @@ const SubdivisionManagement = () => {
           handleDeleteData={handleDeleteBlock}
           loading={blocksLoading}
           deleteMessage={
-            "This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted."
+            'This action will permanently delete your block and all the lots in this block. All addresses linked to lots within this block will also be deleted.'
           }
           queryParamsKey="blockId"
         />
@@ -319,7 +323,7 @@ const SubdivisionManagement = () => {
       {/* Lots Column */}
       {(lots || lotsLoading) && !isMobile && (
         <SubdivisionColumn
-          title={"Lots"}
+          title={'Lots'}
           FormComponent={LotForm}
           childExist={!!lots}
           data={lots}
@@ -329,7 +333,7 @@ const SubdivisionManagement = () => {
           handleDeleteData={handleDeleteLot}
           loading={lotsLoading}
           deleteMessage={
-            "This action will permanently delete your lot. All addresses linked to this lot will also be deleted."
+            'This action will permanently delete your lot. All addresses linked to this lot will also be deleted.'
           }
           queryParamsKey="lotId"
         />
@@ -341,16 +345,16 @@ const SubdivisionManagement = () => {
           onOpenChange={(open) => {
             if (!open) {
               const newParams = new URLSearchParams();
-              newParams.set("phaseId", params.get("phaseId") || "");
-              newParams.delete("blockId");
-              newParams.delete("streetId");
+              newParams.set('phaseId', params.get('phaseId') || '');
+              newParams.delete('blockId');
+              newParams.delete('streetId');
               setParams(newParams);
             }
           }}
         >
           <SheetContent className="w-full  sm:max-w-full sm:w-full md:max-w-full ">
             <SubdivisionColumn
-              title={"Lots"}
+              title={'Lots'}
               FormComponent={LotForm}
               childExist={!!lots}
               data={lots}
@@ -360,7 +364,7 @@ const SubdivisionManagement = () => {
               handleDeleteData={handleDeleteLot}
               loading={lotsLoading}
               deleteMessage={
-                "This action will permanently delete your lot. All addresses linked to this lot will also be deleted."
+                'This action will permanently delete your lot. All addresses linked to this lot will also be deleted.'
               }
               queryParamsKey="lotId"
             />

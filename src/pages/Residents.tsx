@@ -1,11 +1,11 @@
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -13,32 +13,34 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getHouses } from "@/services/houseServices";
-import useHouseSearchParams from "@/hooks/useHouseSearchParams";
-import { ChangeEvent, useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import { Link, useSearchParams } from "react-router";
-import { useDebounce } from "@/hooks/useDebounce";
-import { Skeleton } from "@/components/ui/skeleton";
-import { usePhaseContext } from "@/context/phaseContext";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { getHouses } from '@/services/houseServices';
+import useHouseSearchParams from '@/hooks/useHouseSearchParams';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Link, useSearchParams } from 'react-router';
+import { useDebounce } from '@/hooks/useDebounce';
+import { Skeleton } from '@/components/ui/skeleton';
+import { usePhaseContext } from '@/context/phaseContext';
 import {
   fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
-} from "@/services/subdivisionServices";
-import ResidentForm from "@/components/Residents/ResidentForm";
-import useInterObserver from "@/hooks/useIntersectObserver";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Phase } from "@/types/subdivisionTypes";
+} from '@/services/subdivisionServices';
+import ResidentForm from '@/components/Residents/ResidentForm';
+import useInterObserver from '@/hooks/useIntersectObserver';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Phase } from '@/types/subdivisionTypes';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const Residents = () => {
   const { phases } = usePhaseContext();
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
-    searchParams.get("query") || ""
+    searchParams.get('query') || ''
   );
   const {
     clearFilters,
@@ -50,97 +52,100 @@ const Residents = () => {
 
   // Fetch blocks based on selected phase
   const { data: blocks, isLoading: blocksLoading } = useQuery({
-    queryKey: ["blocks", selectedPhase],
+    queryKey: ['blocks', selectedPhase],
     queryFn: async () => await fetchBlocksByPhase(selectedPhase),
     enabled: !!selectedPhase,
   });
 
   // Fetch streets based on selected phase
   const { data: streets, isLoading: streetsLoading } = useQuery({
-    queryKey: ["streets", selectedPhase],
+    queryKey: ['streets', selectedPhase],
     queryFn: async () => await fetchStreetsByPhase(selectedPhase),
     enabled: !!selectedPhase,
   });
 
   // Fetch lots based on selected block
   const { data: lots, isLoading: lotsLoading } = useQuery({
-    queryKey: ["lots", selectedBlock],
+    queryKey: ['lots', selectedBlock],
     queryFn: async () => await fetchLotsByBlock(selectedBlock),
     enabled: !!selectedBlock,
   });
 
   const handlePhaseChange = (value: string) => {
-    if (value === "all") {
+    if (value === 'all') {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.delete("phase");
-      newParams.delete("block");
-      newParams.delete("street");
-      newParams.delete("lot");
+      newParams.delete('phase');
+      newParams.delete('block');
+      newParams.delete('street');
+      newParams.delete('lot');
 
       setSearchParams(newParams);
     } else {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.set("phase", value);
-      newParams.delete("block");
-      newParams.delete("street");
-      newParams.delete("lot");
+      newParams.set('phase', value);
+      newParams.delete('block');
+      newParams.delete('street');
+      newParams.delete('lot');
       setSearchParams(newParams);
     }
   };
 
   const handleBlockChange = (value: string) => {
-    if (value === "all") {
+    if (value === 'all') {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.delete("block");
-      newParams.delete("lot");
+      newParams.delete('block');
+      newParams.delete('lot');
 
       setSearchParams(newParams);
     } else {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.set("block", value);
-      newParams.delete("lot");
+      newParams.set('block', value);
+      newParams.delete('lot');
 
       setSearchParams(newParams);
     }
   };
 
   const handleStreetChange = (value: string) => {
-    if (value === "all") {
+    if (value === 'all') {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.delete("street");
-      newParams.delete("lot");
+      newParams.delete('street');
+      newParams.delete('lot');
 
       setSearchParams(newParams);
     } else {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.set("street", value);
-      newParams.delete("lot");
+      newParams.set('street', value);
+      newParams.delete('lot');
 
       setSearchParams(newParams);
     }
   };
 
   const handleLotChange = (value: string) => {
-    if (value === "all") {
+    if (value === 'all') {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.delete("lot");
+      newParams.delete('lot');
 
       setSearchParams(newParams);
     } else {
       const newParams = new URLSearchParams(searchParams);
 
-      newParams.set("lot", value);
+      newParams.set('lot', value);
 
       setSearchParams(newParams);
     }
   };
+
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
 
   const {
     data,
@@ -151,12 +156,13 @@ const Residents = () => {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: [
-      "houses",
-      searchParams.get("query"),
+      'houses',
+      searchParams.get('query'),
       selectedPhase,
       selectedBlock,
       selectedStreet,
       selectedLot,
+      villageId,
     ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam.toString();
@@ -165,8 +171,9 @@ const Residents = () => {
         lot: selectedLot,
         phase: selectedPhase,
         block: selectedBlock,
-        query: searchParams.get("query"),
+        query: searchParams.get('query'),
         street: selectedStreet,
+        village: villageId,
       });
     },
     initialPageParam: 1,
@@ -177,13 +184,14 @@ const Residents = () => {
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
+    const newParams = new URLSearchParams(searchParams.toString()); // create a new object
     if (debouncedSearch) {
-      searchParams.set("query", debouncedSearch);
+      newParams.set('query', debouncedSearch);
     } else {
-      searchParams.delete("query");
+      newParams.delete('query');
     }
-    setSearchParams(searchParams);
-  }, [debouncedSearch]);
+    setSearchParams(newParams);
+  }, [debouncedSearch, searchParams, setSearchParams]);
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
@@ -206,7 +214,7 @@ const Residents = () => {
           value={searchInput}
           onChange={handleSearchChange}
         />
-        <Select value={selectedPhase || ""} onValueChange={handlePhaseChange}>
+        <Select value={selectedPhase || ''} onValueChange={handlePhaseChange}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="All Phases" />
           </SelectTrigger>
@@ -220,7 +228,7 @@ const Residents = () => {
           </SelectContent>
         </Select>
         <Select
-          value={selectedStreet || ""}
+          value={selectedStreet || ''}
           onValueChange={handleStreetChange}
           disabled={!selectedPhase || streetsLoading}
         >
@@ -249,7 +257,7 @@ const Residents = () => {
           </SelectContent>
         </Select>
         <Select
-          value={selectedBlock || ""}
+          value={selectedBlock || ''}
           onValueChange={handleBlockChange}
           disabled={!selectedPhase || blocksLoading}
         >
@@ -278,7 +286,7 @@ const Residents = () => {
         </Select>
 
         <Select
-          value={selectedLot || ""}
+          value={selectedLot || ''}
           onValueChange={handleLotChange}
           disabled={!selectedBlock || lotsLoading}
         >
@@ -306,7 +314,7 @@ const Residents = () => {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={clearFilters} variant={"ghost"}>
+        <Button onClick={clearFilters} variant={'ghost'}>
           Clear Filters
         </Button>
       </div>
@@ -330,7 +338,7 @@ const Residents = () => {
             Array.from({ length: 5 }, (_, index) => (
               <TableRow
                 key={`skeleton-${index}`}
-                className={index % 2 === 0 ? "" : "bg-white/60"}
+                className={index % 2 === 0 ? '' : 'bg-white/60'}
               >
                 <TableCell colSpan={4}>
                   <Skeleton className="h-8 w-full" />
@@ -346,26 +354,26 @@ const Residents = () => {
                 .map((data, i) => (
                   <TableRow
                     className={cn(
-                      "h-[45px]",
-                      i % 2 === 0 ? "rounded-xl" : "bg-white/60"
+                      'h-[45px]',
+                      i % 2 === 0 ? 'rounded-xl' : 'bg-white/60'
                     )}
                     key={`item-${data.id}-${i}`}
                   >
                     <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-l-xl")}
+                      className={cn(i % 2 === 0 ? '' : 'rounded-l-xl')}
                     >
                       {data.house_family_name}
                     </TableCell>
                     <TableCell>{`${data.phases.name}, ${data.streets?.name}, ${data.blocks?.name}, ${data.lots?.name}`}</TableCell>
                     <TableCell>
-                      {data.house_main_poc_user?.user_first_name}{" "}
+                      {data.house_main_poc_user?.user_first_name}{' '}
                       {data.house_main_poc_user?.user_last_name}
                     </TableCell>
                     <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
+                      className={cn(i % 2 === 0 ? '' : 'rounded-r-xl')}
                     >
                       <Link to={`/residents/${data.id}`}>
-                        <Button variant={"ghost"}>View</Button>
+                        <Button variant={'ghost'}>View</Button>
                       </Link>
                     </TableCell>
                   </TableRow>

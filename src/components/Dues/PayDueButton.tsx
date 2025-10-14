@@ -9,8 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -18,33 +18,34 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { PAYMENT_METHOD_VALUES } from "@/validations/transactionSchema";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useEffect, useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addTransaction } from "@/services/transactionServices";
-import { toast } from "@/hooks/use-toast";
-import useUserContext from "@/hooks/useUserContext";
+} from '@/components/ui/select';
+import { PAYMENT_METHOD_VALUES } from '@/validations/transactionSchema';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { useEffect, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { addTransaction } from '@/services/transactionServices';
+import { toast } from '@/hooks/use-toast';
+import useUserContext from '@/hooks/useUserContext';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const paymentSchema = z.object({
   payment_method_type: z.enum(PAYMENT_METHOD_VALUES),
   transactionProof: z
     .any()
     .refine((file) => file instanceof File || file === undefined, {
-      message: "Payment proof is required",
+      message: 'Payment proof is required',
     })
     .refine(
       (file) => {
@@ -52,7 +53,7 @@ const paymentSchema = z.object({
         return false;
       },
       {
-        message: "Payment proof is required",
+        message: 'Payment proof is required',
       }
     ),
 });
@@ -72,6 +73,8 @@ const PayDueButton = ({
   amount,
   categoryName,
 }: PayDueButtonProps) => {
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
   const [isOpen, setIsOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { user } = useUserContext();
@@ -80,30 +83,30 @@ const PayDueButton = ({
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      payment_method_type: "CASH",
+      payment_method_type: 'CASH',
     },
   });
 
   const paymentMutation = useMutation({
     mutationFn: addTransaction,
     onSuccess: () => {
-      toast({ title: "Payment recorded successfully" });
-      queryClient.invalidateQueries({ queryKey: ["duesCategories"] });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast({ title: 'Payment recorded successfully' });
+      queryClient.invalidateQueries({ queryKey: ['duesCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       setIsOpen(false);
       resetForm();
     },
     onError: () => {
       toast({
-        title: "Error recording payment",
-        variant: "destructive",
+        title: 'Error recording payment',
+        variant: 'destructive',
       });
     },
   });
 
   const resetForm = () => {
     form.reset({
-      payment_method_type: "CASH",
+      payment_method_type: 'CASH',
     });
     setImagePreview(null);
   };
@@ -121,19 +124,30 @@ const PayDueButton = ({
       URL.revokeObjectURL(imagePreview);
     }
     setImagePreview(null);
-    form.setValue("transactionProof", undefined);
+    form.setValue('transactionProof', undefined);
   };
 
   const onSubmit = (data: PaymentFormData) => {
     if (!user?.id) {
-      toast({ title: "User not logged in", variant: "destructive" });
+      toast({ title: 'User not logged in', variant: 'destructive' });
+      return;
+    }
+
+    if (!villageId) {
+      toast({ title: 'Village not found', variant: 'destructive' });
+      return;
+    }
+
+    if (!imagePreview || !data.transactionProof) {
+      toast({ title: 'Payment proof is required', variant: 'destructive' });
       return;
     }
 
     const transactionData = {
       dueId,
       userId: user.id,
-      type: "EXPENSE" as const,
+      village_id: villageId,
+      type: 'EXPENSE' as const,
       amount,
       category: categoryName,
       payment_method_type: data.payment_method_type,
@@ -208,8 +222,8 @@ const PayDueButton = ({
                           <SelectValue placeholder="Select payment method" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem key={"CASH"} value={"CASH" as const}>
-                            {"CASH"}
+                          <SelectItem key={'CASH'} value={'CASH' as const}>
+                            {'CASH'}
                           </SelectItem>
                           {/* {PAYMENT_METHOD_VALUES.map((method) => (
                             <SelectItem key={method} value={method}>
@@ -274,7 +288,7 @@ const PayDueButton = ({
                           <div className="flex flex-shrink-0 items-center justify-center rounded-md">
                             <Icon
                               className="h-11 w-11 text-blue-300"
-                              icon={"mingcute:upload-2-fill"}
+                              icon={'mingcute:upload-2-fill'}
                             />
                           </div>
                           <p className="mt-2 text-sm font-medium text-blue-500">
@@ -302,7 +316,7 @@ const PayDueButton = ({
             disabled={paymentMutation.isPending || !imagePreview}
           >
             {paymentMutation.isPending
-              ? "Processing..."
+              ? 'Processing...'
               : `Pay ₱${amount.toLocaleString()}`}
           </AlertDialogAction>
         </AlertDialogFooter>

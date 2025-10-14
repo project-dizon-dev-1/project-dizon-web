@@ -1,13 +1,13 @@
-import { useMemo } from "react";
+import { useMemo } from 'react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import Loading from "@/components/Loading";
-import useDues from "@/hooks/useDues";
-import useDuesCategory from "@/hooks/useDuesCategory";
+} from '@/components/ui/accordion';
+import Loading from '@/components/Loading';
+import useDues from '@/hooks/useDues';
+import useDuesCategory from '@/hooks/useDuesCategory';
 import {
   AlertDialogFooter,
   AlertDialogHeader,
@@ -18,30 +18,34 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 
-import { cn, formatAmount } from "@/lib/utils";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import CategoryForm from "@/components/Dues/CategoryForm";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import DuesForm from "@/components/Dues/DuesForm";
-import useUserContext from "@/hooks/useUserContext";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { cn, formatAmount } from '@/lib/utils';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import CategoryForm from '@/components/Dues/CategoryForm';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import DuesForm from '@/components/Dues/DuesForm';
+import useUserContext from '@/hooks/useUserContext';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import PayDueButton from "@/components/Dues/PayDueButton";
-import { Progress } from "@/components/ui/progress";
+} from '@/components/ui/tooltip';
+import PayDueButton from '@/components/Dues/PayDueButton';
+import { Progress } from '@/components/ui/progress';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const Dues = () => {
   const { user } = useUserContext();
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
   const { deleteDuesMutation, toggleActivateMutation } = useDues();
-  const { categories, deleteCategoryMutation } = useDuesCategory();
+
+  const { categories, deleteCategoryMutation } = useDuesCategory(villageId);
 
   // Use useMemo to optimize the metrics calculation
   const overallMetrics = useMemo(() => {
@@ -358,10 +362,10 @@ const Dues = () => {
                         <div
                           key={index}
                           className={cn(
-                            "flex items-center justify-between rounded-lg p-3 transition-all",
+                            'flex items-center justify-between rounded-lg p-3 transition-all',
                             due.due_is_active
-                              ? "bg-white shadow-sm hover:bg-gray-50"
-                              : "bg-gray-100 opacity-70"
+                              ? 'bg-white shadow-sm hover:bg-gray-50'
+                              : 'bg-gray-100 opacity-70'
                           )}
                         >
                           <div className="flex flex-1 items-center gap-3">
@@ -419,7 +423,7 @@ const Dues = () => {
                                   <Tooltip>
                                     <TooltipTrigger asChild>
                                       <span>
-                                        {" "}
+                                        {' '}
                                         {/* Wrapper element that can accept refs */}
                                         <Badge
                                           variant="outline"
@@ -479,10 +483,10 @@ const Dues = () => {
                                     variant="ghost"
                                     size="icon"
                                     className={cn(
-                                      "h-7 w-7",
+                                      'h-7 w-7',
                                       due.due_is_active
-                                        ? "text-amber-600 hover:bg-amber-50 hover:text-amber-700"
-                                        : "text-green-600 hover:bg-green-50 hover:text-green-700"
+                                        ? 'text-amber-600 hover:bg-amber-50 hover:text-amber-700'
+                                        : 'text-green-600 hover:bg-green-50 hover:text-green-700'
                                     )}
                                     onClick={() =>
                                       toggleActivateMutation.mutate({
@@ -494,8 +498,8 @@ const Dues = () => {
                                     <Icon
                                       icon={
                                         due.due_is_active
-                                          ? "mingcute:pause-line"
-                                          : "mingcute:play-line"
+                                          ? 'mingcute:pause-line'
+                                          : 'mingcute:play-line'
                                       }
                                       className="h-3.5 w-3.5"
                                     />
@@ -503,8 +507,8 @@ const Dues = () => {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   {due.due_is_active
-                                    ? "Deactivate Expense"
-                                    : "Activate Expense"}
+                                    ? 'Deactivate Expense'
+                                    : 'Activate Expense'}
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>

@@ -1,45 +1,53 @@
-import { axiosGet, axiosPut, axiosPost, axiosDelete } from "@/lib/axios";
+import { axiosGet, axiosPut, axiosPost, axiosDelete } from '@/lib/axios';
 import {
   MonthlyTransactionData,
   SubdivisionPhases,
   TransactionSummary,
-} from "@/types/HouseTypes";
-import { fixedDueType } from "@/types/subdivisionTypes";
-import { configureCollectionSchemaType } from "@/validations/collectionSchema";
+} from '@/types/HouseTypes';
+import { fixedDueType } from '@/types/subdivisionTypes';
+import { configureCollectionSchemaType } from '@/validations/collectionSchema';
 
-const fetchSubdivisionPhases = async (): Promise<SubdivisionPhases> => {
-  return await axiosGet("/subdivision/phases");
+const fetchSubdivisionPhases = async (
+  villageId: string
+): Promise<SubdivisionPhases> => {
+  return await axiosGet('/subdivision/phases', {
+    params: { villageId },
+  });
 };
-const fetchSubdivisionSummary = async (): Promise<TransactionSummary> => {
-  return await axiosGet("/subdivision/summary");
+const fetchSubdivisionSummary = async (
+  villageId: string
+): Promise<TransactionSummary> => {
+  if (!villageId) throw new Error('Village ID is required');
+  return await axiosGet(`/subdivision/summary?village=${villageId}`);
 };
-const fetchSubdivisionDashboard = async (): Promise<
-  MonthlyTransactionData[]
-> => {
-  return await axiosGet("/subdivision/dashboard");
+const fetchSubdivisionDashboard = async (
+  villageId: string
+): Promise<MonthlyTransactionData[]> => {
+  if (!villageId) throw new Error('Village ID is required');
+  return await axiosGet(`/subdivision/dashboard?village=${villageId}`);
 };
 const fetchFixedDue = async (): Promise<fixedDueType | null> => {
-  return await axiosGet("/subdivision/collection/fixed-due");
+  return await axiosGet('/subdivision/collection/fixed-due');
 };
 
 const upsertFixedDue = async (data: configureCollectionSchemaType) => {
-  return await axiosPut("/subdivision/collection/upsert", data);
+  return await axiosPut('/subdivision/collection/upsert', data);
 };
 
 const addPhase = async (data: { name: string }) => {
-  return await axiosPost("/subdivision/phases", data);
+  return await axiosPost('/subdivision/phases', data);
 };
 
 const addBlock = async (data: { name: string; phaseId: string }) => {
-  return await axiosPost("/subdivision/blocks", data);
+  return await axiosPost('/subdivision/blocks', data);
 };
 
 const addStreet = async (data: { name: string; phaseId: string }) => {
-  return await axiosPost("/subdivision/streets", data);
+  return await axiosPost('/subdivision/streets', data);
 };
 
 const addLot = async (data: { name: string; blockId: string }) => {
-  return await axiosPost("/subdivision/lots", data);
+  return await axiosPost('/subdivision/lots', data);
 };
 const editLot = async ({
   lotId,
@@ -83,13 +91,17 @@ const editStreet = async ({
   return await axiosPut(`/subdivision/streets/${streetId}/edit`, data);
 };
 
-const fetchAllPhases = async (): Promise<
+const fetchAllPhases = async (
+  villageId?: string
+): Promise<
   {
     id: string;
     name: string;
   }[]
 > => {
-  return await axiosGet("/subdivision/phases/all");
+  return await axiosGet('/subdivision/phases/all', {
+    params: { villageId },
+  });
 };
 
 // const fetchAllBlocks = async (): Promise<

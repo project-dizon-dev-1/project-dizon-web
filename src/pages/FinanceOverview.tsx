@@ -1,29 +1,35 @@
 import {
   fetchSubdivisionDashboard,
   fetchSubdivisionSummary,
-} from "@/services/subdivisionServices";
-import { useQuery } from "@tanstack/react-query";
+} from '@/services/subdivisionServices';
+import { useQuery } from '@tanstack/react-query';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import TransactionLineChart from "@/components/LineChart";
-import { Button } from "@/components/ui/button";
-import TransactionDialog from "@/components/Finance/TransactionDialog";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { formatAmount } from "@/lib/utils";
+} from '@/components/ui/card';
+import TransactionLineChart from '@/components/LineChart';
+import { Button } from '@/components/ui/button';
+import TransactionDialog from '@/components/Finance/TransactionDialog';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { formatAmount } from '@/lib/utils';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const FinanceOverview = () => {
+  const { data: villageData } = useVillageByAdmin();
+
+  const villageId = villageData?.id;
+
   const {
     data: summaryData,
     isLoading: summaryLoading,
     error: summaryError,
   } = useQuery({
-    queryKey: ["financeSummary"],
-    queryFn: fetchSubdivisionSummary,
+    queryKey: ['financeSummary', villageId],
+    queryFn: () => fetchSubdivisionSummary(villageId),
+    enabled: !!villageId, // ⬅️ Prevent query from running until villageId is ready
   });
 
   const {
@@ -31,8 +37,9 @@ const FinanceOverview = () => {
     isLoading: chartLoading,
     error: chartError,
   } = useQuery({
-    queryKey: ["financeChartData"],
-    queryFn: fetchSubdivisionDashboard,
+    queryKey: ['financeChartData'],
+    queryFn: () => fetchSubdivisionDashboard(villageId),
+    enabled: !!villageId,
   });
 
   if (summaryError) {
@@ -100,8 +107,8 @@ const FinanceOverview = () => {
               <div
                 className={`text-2xl font-bold ${
                   (summaryData?.net_total || 0) >= 0
-                    ? "text-green-500"
-                    : "text-red-500"
+                    ? 'text-green-500'
+                    : 'text-red-500'
                 }`}
               >
                 {formatAmount(summaryData?.net_total || 0)}

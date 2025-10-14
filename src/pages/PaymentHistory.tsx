@@ -1,7 +1,7 @@
-import useUserContext from "@/hooks/useUserContext";
-import { fetchDueLogsByHouse } from "@/services/dueServices";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import Loading from "@/components/Loading";
+import useUserContext from '@/hooks/useUserContext';
+import { fetchDueLogsByHouse } from '@/services/dueServices';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import Loading from '@/components/Loading';
 import {
   Table,
   TableBody,
@@ -10,13 +10,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn, formatAmount, formatDate } from "@/lib/utils";
-import useInterObserver from "@/hooks/useIntersectObserver";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+} from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn, formatAmount, formatDate } from '@/lib/utils';
+import useInterObserver from '@/hooks/useIntersectObserver';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -27,10 +27,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { PaginatedDataType } from "@/types/paginatedType";
-import { DueLog } from "@/types/DueTypes";
-import ImageLoader from "@/lib/ImageLoader";
+} from '@/components/ui/alert-dialog';
+import { PaginatedDataType } from '@/types/paginatedType';
+import { DueLog } from '@/types/DueTypes';
+import ImageLoader from '@/lib/ImageLoader';
 
 const PaymentHistory = () => {
   const { user } = useUserContext();
@@ -43,7 +43,7 @@ const PaymentHistory = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<PaginatedDataType<DueLog>>({
-    queryKey: ["userPaymentHistory", user?.house_id],
+    queryKey: ['userPaymentHistory', user?.house_id],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
 
@@ -51,15 +51,15 @@ const PaymentHistory = () => {
         const response = await fetchDueLogsByHouse({
           houseId: user?.house_id,
           page,
-          pageSize: "10",
+          pageSize: '10',
         });
         return response;
       } catch (err) {
-        console.error("Error fetching payment history:", err);
+        console.error('Error fetching payment history:', err);
         throw err;
       }
     },
-    initialPageParam: "1",
+    initialPageParam: '1',
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.hasNextPage) {
         return undefined;
@@ -70,8 +70,6 @@ const PaymentHistory = () => {
   });
 
   const { ref } = useInterObserver(fetchNextPage);
-
-  console.log("Payment History Data:", data);
 
   if (isError) {
     return (
@@ -156,13 +154,13 @@ const PaymentHistory = () => {
                 page?.items?.map((payment, i) => (
                   <TableRow
                     className={cn(
-                      i % 2 === 0 ? "h-[45px] rounded-xl" : "bg-white/60"
+                      i % 2 === 0 ? 'h-[45px] rounded-xl' : 'bg-white/60'
                     )}
                     key={payment.id}
                   >
                     <TableCell
                       className={cn(
-                        i % 2 === 0 ? "font-medium" : "rounded-l-xl"
+                        i % 2 === 0 ? 'font-medium' : 'rounded-l-xl'
                       )}
                     >
                       {formatDate(payment.created_at)}
@@ -178,7 +176,7 @@ const PaymentHistory = () => {
                         if (!payment.created_at) {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-red-100 text-red-800"
                             >
                               Rejected
@@ -188,10 +186,10 @@ const PaymentHistory = () => {
 
                         const latestFinanceLog = payment.finance_log;
 
-                        if (latestFinanceLog?.status === "PENDING") {
+                        if (latestFinanceLog?.status === 'PENDING') {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-yellow-100 text-yellow-800"
                             >
                               Pending
@@ -199,10 +197,10 @@ const PaymentHistory = () => {
                           );
                         }
 
-                        if (latestFinanceLog?.status === "APPROVED") {
+                        if (latestFinanceLog?.status === 'APPROVED') {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-green-100 text-green-800"
                             >
                               Paid
@@ -210,10 +208,10 @@ const PaymentHistory = () => {
                           );
                         }
 
-                        if (latestFinanceLog?.status === "REJECTED") {
+                        if (latestFinanceLog?.status === 'REJECTED') {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-red-100 text-red-800"
                             >
                               Rejected
@@ -224,7 +222,7 @@ const PaymentHistory = () => {
                         if (!latestFinanceLog && payment.created_at) {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-green-100 text-green-800"
                             >
                               Paid
@@ -234,7 +232,7 @@ const PaymentHistory = () => {
 
                         return (
                           <Badge
-                            variant={"outline"}
+                            variant={'outline'}
                             className="bg-red-100 text-red-800"
                           >
                             Rejected
@@ -247,7 +245,7 @@ const PaymentHistory = () => {
                       <AlertDialogTrigger asChild>
                         <TableCell
                           className={cn(
-                            i % 2 === 0 ? "font-medium" : "rounded-r-xl"
+                            i % 2 === 0 ? 'font-medium' : 'rounded-r-xl'
                           )}
                         >
                           <div className="w-fit flex items-center gap-1 cursor-pointer">
@@ -260,7 +258,7 @@ const PaymentHistory = () => {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Payment Details</AlertDialogTitle>
                           <AlertDialogDescription>
-                            Transaction information for your{" "}
+                            Transaction information for your{' '}
                             {payment.date && formatDate(payment?.date)}
                             payment
                           </AlertDialogDescription>
@@ -283,7 +281,7 @@ const PaymentHistory = () => {
                                 if (!payment.created_at) {
                                   return (
                                     <Badge
-                                      variant={"outline"}
+                                      variant={'outline'}
                                       className="bg-red-100 text-red-800 w-fit"
                                     >
                                       Rejected
@@ -293,22 +291,22 @@ const PaymentHistory = () => {
 
                                 const latestFinanceLog = payment.finance_log;
 
-                                if (latestFinanceLog?.status === "PENDING") {
+                                if (latestFinanceLog?.status === 'PENDING') {
                                   return <p>Pending</p>;
                                 }
 
-                                if (latestFinanceLog?.status === "APPROVED") {
+                                if (latestFinanceLog?.status === 'APPROVED') {
                                   return <p>Paid</p>;
                                 }
 
-                                if (latestFinanceLog?.status === "REJECTED") {
+                                if (latestFinanceLog?.status === 'REJECTED') {
                                   return <p>Rejected</p>;
                                 }
 
                                 if (!latestFinanceLog && payment.created_at) {
                                   return (
                                     <Badge
-                                      variant={"outline"}
+                                      variant={'outline'}
                                       className="bg-green-100 text-green-800 w-fit"
                                     >
                                       Paid
@@ -318,7 +316,7 @@ const PaymentHistory = () => {
 
                                 return (
                                   <Badge
-                                    variant={"outline"}
+                                    variant={'outline'}
                                     className="bg-red-100 text-red-800 w-fit"
                                   >
                                     Rejected
@@ -362,7 +360,7 @@ const PaymentHistory = () => {
                                 Received By:
                               </h3>
                               <p className="text-sm font-medium">
-                                {payment?.receiver?.user_first_name}{" "}
+                                {payment?.receiver?.user_first_name}{' '}
                                 {payment?.receiver?.user_last_name}
                               </p>
                               <p className="text-xs text-gray-500">
@@ -374,7 +372,7 @@ const PaymentHistory = () => {
                               {(() => {
                                 const latestFinanceLog = payment.finance_log;
 
-                                if (latestFinanceLog?.status === "PENDING") {
+                                if (latestFinanceLog?.status === 'PENDING') {
                                   return (
                                     <div>
                                       <h3 className="text-yellow-600 text-sm font-medium">
@@ -384,7 +382,7 @@ const PaymentHistory = () => {
                                   );
                                 }
 
-                                if (latestFinanceLog?.status === "APPROVED") {
+                                if (latestFinanceLog?.status === 'APPROVED') {
                                   return (
                                     <div className="flex-1">
                                       <h3 className="text-green-600 text-sm font-medium">
@@ -394,7 +392,7 @@ const PaymentHistory = () => {
                                         {
                                           latestFinanceLog.response_by_details
                                             ?.user_first_name
-                                        }{" "}
+                                        }{' '}
                                         {
                                           latestFinanceLog.response_by_details
                                             ?.user_last_name
@@ -411,7 +409,7 @@ const PaymentHistory = () => {
                                   );
                                 }
 
-                                if (latestFinanceLog?.status === "REJECTED") {
+                                if (latestFinanceLog?.status === 'REJECTED') {
                                   return (
                                     <div>
                                       <h3 className="text-red-600 text-sm font-medium">
@@ -421,7 +419,7 @@ const PaymentHistory = () => {
                                         {
                                           latestFinanceLog.response_by_details
                                             ?.user_first_name
-                                        }{" "}
+                                        }{' '}
                                         {
                                           latestFinanceLog.response_by_details
                                             ?.user_last_name

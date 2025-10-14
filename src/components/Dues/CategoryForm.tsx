@@ -5,8 +5,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   AlertDialogBody,
   AlertDialogFooter,
@@ -18,10 +18,10 @@ import {
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogActionNoClose,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
-import useCategoryForm from "@/hooks/useCategoryForm";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import useCategoryForm from '@/hooks/useCategoryForm';
 
 const CategoryForm = ({
   categoryId,
@@ -42,12 +42,12 @@ const CategoryForm = ({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {categoryId ? "Edit Category" : "Add New Category"}
+            {categoryId ? 'Edit Category' : 'Add New Category'}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {categoryId
-              ? "Edit expense category to organize your expenses."
-              : "Add a new expense category to organize your expenses"}
+              ? 'Edit expense category to organize your expenses.'
+              : 'Add a new expense category to organize your expenses'}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogBody>

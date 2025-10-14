@@ -1,4 +1,4 @@
-import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
+import { axiosGet, axiosPost, axiosPut } from '@/lib/axios';
 import {
   FetchHouseCollectionQueryParams,
   HouseData,
@@ -6,10 +6,10 @@ import {
   HousesSummary,
   HouseSummary,
   VehicleDetails,
-} from "@/types/HouseTypes";
-import { PaginatedDataType } from "@/types/paginatedType";
-import { CollectionType } from "@/validations/collectionSchema";
-import { HouseSchemaType } from "@/validations/houseSchema";
+} from '@/types/HouseTypes';
+import { PaginatedDataType } from '@/types/paginatedType';
+import { CollectionType } from '@/validations/collectionSchema';
+import { HouseSchemaType } from '@/validations/houseSchema';
 
 const getHouses = async ({
   page,
@@ -18,6 +18,7 @@ const getHouses = async ({
   street,
   block,
   lot,
+  village,
 }: FetchHouseCollectionQueryParams): Promise<
   PaginatedDataType<HouseDetails>
 > => {
@@ -29,6 +30,7 @@ const getHouses = async ({
       street,
       block,
       lot,
+      village,
     };
 
     // Removing undefined query params
@@ -36,14 +38,14 @@ const getHouses = async ({
       Object.entries(params).filter(([_, v]) => v !== undefined)
     );
 
-    return await axiosGet("/houses", { params: filteredParams });
+    return await axiosGet('/houses', { params: filteredParams });
   } catch (error) {
     throw new Error(`Error fetching houses${error}`);
   }
 };
 
 const getHousesSummary = async (): Promise<HousesSummary> => {
-  return await axiosGet("/houses/summary");
+  return await axiosGet('/houses/summary');
 };
 const getHouseSummary = async (
   houseId: string | undefined | null
@@ -63,7 +65,7 @@ const getHouseVehicle = async (
 };
 
 const addHouse = async (data: HouseSchemaType) => {
-  return await axiosPost("/houses/add", data);
+  return await axiosPost('/houses/add', data);
 };
 const createCode = async (houseId: string | undefined) => {
   return await axiosPost(`/houses/create-code/${houseId}`);
@@ -80,18 +82,18 @@ const updateHousePayment = async ({
 
   // Add regular data fields
   formData.append(
-    "houseLatestPaymentAmount",
+    'houseLatestPaymentAmount',
     data.houseLatestPaymentAmount.toString()
   );
-  formData.append("housePaymentMonths", data.housePaymentMonths.toString());
+  formData.append('housePaymentMonths', data.housePaymentMonths.toString());
 
   if (data.housePaymentRemarks) {
-    formData.append("housePaymentRemarks", data.housePaymentRemarks);
+    formData.append('housePaymentRemarks', data.housePaymentRemarks);
   }
 
   // Add file if it exists
   if (data.paymentProof instanceof File) {
-    formData.append("paymentProof", data.paymentProof);
+    formData.append('paymentProof', data.paymentProof);
   }
   return await axiosPut(`/houses/update/payment/${houseId}`, formData);
 };

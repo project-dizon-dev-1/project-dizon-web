@@ -1,11 +1,11 @@
-import { Input } from "@/components/ui/input";
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 import {
   Table,
@@ -14,28 +14,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
-import { Button } from "@/components/ui/button";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getHouses } from "@/services/houseServices";
-import CollectionForm from "@/components/Collection/CollectionForm";
-import Loading from "@/components/Loading";
+import { Button } from '@/components/ui/button';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { getHouses } from '@/services/houseServices';
+import CollectionForm from '@/components/Collection/CollectionForm';
+import Loading from '@/components/Loading';
 
-import useHouseSearchParams from "@/hooks/useHouseSearchParams";
-import { cn, formatAmount, formatDate } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { ChangeEvent, useEffect, useState } from "react";
-import { useDebounce } from "@/hooks/useDebounce";
-import { useNavigate, useSearchParams, useParams } from "react-router";
-import { Icon } from "@iconify/react/dist/iconify.js";
+import useHouseSearchParams from '@/hooks/useHouseSearchParams';
+import { cn, formatAmount, formatDate } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
+import { useNavigate, useSearchParams, useParams } from 'react-router';
+import { Icon } from '@iconify/react/dist/iconify.js';
 import {
   fetchBlocksByPhase,
   fetchLotsByBlock,
   fetchStreetsByPhase,
-} from "@/services/subdivisionServices";
-import useUserContext from "@/hooks/useUserContext";
-import { Badge } from "@/components/ui/badge";
+} from '@/services/subdivisionServices';
+import useUserContext from '@/hooks/useUserContext';
+import { Badge } from '@/components/ui/badge';
 
 const CollectionDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -43,21 +43,21 @@ const CollectionDetails = () => {
   const { phase } = useParams();
 
   const { data: blocks, isLoading: blocksLoading } = useQuery({
-    queryKey: ["blocks", phase],
+    queryKey: ['blocks', phase],
     queryFn: async () => {
       return await fetchBlocksByPhase(phase);
     },
     enabled: !!phase,
   });
   const { data: lots, isLoading: lotsLoading } = useQuery({
-    queryKey: ["lots", searchParams.get("block")],
+    queryKey: ['lots', searchParams.get('block')],
     queryFn: async () => {
-      return await fetchLotsByBlock(searchParams.get("block"));
+      return await fetchLotsByBlock(searchParams.get('block'));
     },
-    enabled: !!searchParams.get("block"),
+    enabled: !!searchParams.get('block'),
   });
   const { data: streets, isLoading: streetsLoading } = useQuery({
-    queryKey: ["streets", phase],
+    queryKey: ['streets', phase],
     queryFn: async () => {
       return await fetchStreetsByPhase(phase);
     },
@@ -67,11 +67,11 @@ const CollectionDetails = () => {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    navigate("/collection", { replace: true });
+    navigate('/collection', { replace: true });
   };
 
   const [searchInput, setSearchInput] = useState(
-    searchParams.get("query") || ""
+    searchParams.get('query') || ''
   );
   const {
     clearFilters,
@@ -86,9 +86,9 @@ const CollectionDetails = () => {
   // Update search params when debounced search value changes
   useEffect(() => {
     if (debouncedSearch) {
-      searchParams.set("query", debouncedSearch);
+      searchParams.set('query', debouncedSearch);
     } else {
-      searchParams.delete("query");
+      searchParams.delete('query');
     }
     setSearchParams(searchParams);
   }, [debouncedSearch]);
@@ -102,10 +102,10 @@ const CollectionDetails = () => {
     // isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: [
-      "collection",
+      'collection',
       phase,
       selectedBlock,
-      searchParams.get("query"),
+      searchParams.get('query'),
       selectedStreet,
       selectedLot,
     ],
@@ -114,7 +114,7 @@ const CollectionDetails = () => {
       return await getHouses({
         page,
         lot: selectedLot,
-        query: searchParams.get("query"),
+        query: searchParams.get('query'),
         phase,
         block: selectedBlock,
         street: selectedStreet,
@@ -133,15 +133,13 @@ const CollectionDetails = () => {
     setSearchInput(e.target.value);
   };
 
-  console.log("Collection Details Data:", data);
-
   return (
     <div className="h-full overflow-y-scroll no-scrollbar">
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <Icon
           onClick={handleBackClick}
           className="hover:cursor-pointer opacity-75 w-6 h-6"
-          icon={"mingcute:arrow-left-line"}
+          icon={'mingcute:arrow-left-line'}
         />
         <Input
           className="w-full max-w-[300px] rounded-xl bg-white h-[42px]"
@@ -150,27 +148,27 @@ const CollectionDetails = () => {
           onChange={handleSearchChange}
         />
         <Select
-          value={selectedStreet || ""}
+          value={selectedStreet || ''}
           disabled={streetsLoading || !streets}
           onValueChange={(value) => {
-            if (value === "all") {
+            if (value === 'all') {
               // Remove the street parameter instead of setting it to "all"
               const params = new URLSearchParams(searchParams);
-              params.delete("street");
+              params.delete('street');
               // Also clear block and lot since they depend on street
-              params.delete("block");
-              params.delete("lot");
+              params.delete('block');
+              params.delete('lot');
               setSearchParams(params);
             } else {
-              updateParams("street", value);
+              updateParams('street', value);
             }
           }}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={selectedStreet || "All Streets"} />
+            <SelectValue placeholder={selectedStreet || 'All Streets'} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={"all"}>All Streets</SelectItem>
+            <SelectItem value={'all'}>All Streets</SelectItem>
             {streets?.map((street) => (
               <SelectItem key={street.id} value={street.id}>
                 {street.name}
@@ -179,29 +177,29 @@ const CollectionDetails = () => {
           </SelectContent>
         </Select>
         <Select
-          value={selectedBlock || ""}
+          value={selectedBlock || ''}
           disabled={blocksLoading || !blocks}
           onValueChange={(value) => {
-            if (value === "all") {
+            if (value === 'all') {
               const params = new URLSearchParams(searchParams);
 
-              params.delete("block");
-              params.delete("lot");
+              params.delete('block');
+              params.delete('lot');
               setSearchParams(params);
             } else {
-              updateParams("block", value);
+              updateParams('block', value);
             }
           }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
               placeholder={
-                selectedBlock ? `Block ${selectedBlock}` : "All Blocks"
+                selectedBlock ? `Block ${selectedBlock}` : 'All Blocks'
               }
             />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={"all"}>All Blocks</SelectItem>
+            <SelectItem value={'all'}>All Blocks</SelectItem>
 
             {blocks?.map((block) => (
               <SelectItem key={block.id} value={block.id}>
@@ -212,25 +210,25 @@ const CollectionDetails = () => {
         </Select>
 
         <Select
-          value={selectedLot || ""}
+          value={selectedLot || ''}
           disabled={lotsLoading || !lots}
           onValueChange={(value) => {
-            if (value === "all") {
+            if (value === 'all') {
               const params = new URLSearchParams(searchParams);
-              params.delete("lot");
+              params.delete('lot');
               setSearchParams(params);
             } else {
-              updateParams("lot", value);
+              updateParams('lot', value);
             }
           }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
-              placeholder={selectedLot ? `Lot ${selectedLot}` : "All Lots"}
+              placeholder={selectedLot ? `Lot ${selectedLot}` : 'All Lots'}
             />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={"all"}>All Lots</SelectItem>
+            <SelectItem value={'all'}>All Lots</SelectItem>
 
             {lots?.map((lot) => (
               <SelectItem key={lot.id} value={lot.id}>
@@ -239,7 +237,7 @@ const CollectionDetails = () => {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={clearFilters} variant={"ghost"}>
+        <Button onClick={clearFilters} variant={'ghost'}>
           Clear Filters
         </Button>
       </div>
@@ -285,26 +283,26 @@ const CollectionDetails = () => {
                 .map((house, i) => (
                   <TableRow
                     className={cn(
-                      i % 2 === 0 ? "h-[45px] rounded-xl" : "bg-white/60"
+                      i % 2 === 0 ? 'h-[45px] rounded-xl' : 'bg-white/60'
                     )}
                     key={i}
                   >
                     <TableCell
                       className={cn(
-                        i % 2 === 0 ? "font-medium" : "rounded-l-xl"
+                        i % 2 === 0 ? 'font-medium' : 'rounded-l-xl'
                       )}
                     >
                       {house.house_family_name}
                     </TableCell>
                     <TableCell className="">{` ${house.phases?.name}, ${house?.streets?.name}, ${house?.blocks?.name}, ${house?.lots?.name}`}</TableCell>
                     <TableCell>
-                      {house.house_main_poc_user?.user_first_name}{" "}
+                      {house.house_main_poc_user?.user_first_name}{' '}
                       {house.house_main_poc_user?.user_last_name}
                     </TableCell>
                     <TableCell>
                       {house.house_latest_payment
                         ? formatDate(house.house_latest_payment)
-                        : "No Payment Yet"}
+                        : 'No Payment Yet'}
                     </TableCell>
                     <TableCell>
                       {formatAmount(house.house_latest_payment_amount ?? 0)}
@@ -318,7 +316,7 @@ const CollectionDetails = () => {
                         if (!house.house_latest_payment) {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-red-100 text-red-800"
                             >
                               Unpaid
@@ -330,10 +328,10 @@ const CollectionDetails = () => {
                         const latestFinanceLog = house.finance_log?.[0];
 
                         // If pending status, show pending
-                        if (latestFinanceLog?.status === "PENDING") {
+                        if (latestFinanceLog?.status === 'PENDING') {
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className="bg-yellow-100 text-yellow-800"
                             >
                               Pending
@@ -343,7 +341,7 @@ const CollectionDetails = () => {
 
                         // If approved status or no finance log, check if payment is current
                         if (
-                          latestFinanceLog?.status === "APPROVED" ||
+                          latestFinanceLog?.status === 'APPROVED' ||
                           !latestFinanceLog
                         ) {
                           const paymentDate = new Date(
@@ -361,14 +359,14 @@ const CollectionDetails = () => {
 
                           return (
                             <Badge
-                              variant={"outline"}
+                              variant={'outline'}
                               className={
                                 isCurrentPayment
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
+                                  ? 'bg-green-100 text-green-800'
+                                  : 'bg-red-100 text-red-800'
                               }
                             >
-                              {isCurrentPayment ? "Paid" : "Unpaid"}
+                              {isCurrentPayment ? 'Paid' : 'Unpaid'}
                             </Badge>
                           );
                         }
@@ -376,7 +374,7 @@ const CollectionDetails = () => {
                         // Default to unpaid for any other status
                         return (
                           <Badge
-                            variant={"outline"}
+                            variant={'outline'}
                             className="bg-red-100 text-red-800"
                           >
                             Unpaid
@@ -387,14 +385,14 @@ const CollectionDetails = () => {
                     <TableCell
                       className={cn(
                         i % 2 === 0
-                          ? "bg-opacity-35 font-medium"
-                          : "rounded-r-xl"
+                          ? 'bg-opacity-35 font-medium'
+                          : 'rounded-r-xl'
                       )}
                     >
                       {user?.id !== house?.house_main_poc_user?.id &&
                         (house.finance_log &&
                         house.finance_log[0] &&
-                        house.finance_log[0].status === "PENDING" ? (
+                        house.finance_log[0].status === 'PENDING' ? (
                           <Button
                             variant="outline"
                             size="sm"

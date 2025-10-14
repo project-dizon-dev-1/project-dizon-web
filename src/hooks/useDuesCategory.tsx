@@ -3,41 +3,44 @@ import {
   deleteDuesCategory,
   fetchDuesCategories,
   updateDuesCategory,
-} from "@/services/duesCategoryService";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "./use-toast";
+} from '@/services/duesCategoryService';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from './use-toast';
 
-const useDuesCategory = () => {
+const useDuesCategory = (villageId: string) => {
   const queryClient = useQueryClient();
 
   const categories = useQuery({
-    queryFn: fetchDuesCategories,
-    queryKey: ["duesCategories"],
+    queryKey: ['duesCategories', villageId],
+    queryFn: () => fetchDuesCategories(villageId),
+    enabled: !!villageId, // only runs when villageId is available
   });
 
   const addCategoryMutation = useMutation({
-    mutationFn: addDuesCategory,
+    mutationFn: (categoryData: {
+      categoryName: string;
+      categoryType: 'EXPENSE' | 'INCOME';
+      userId: string | undefined;
+      userName: string;
+    }) => {
+      if (!villageId) throw new Error('Village ID is required');
+      return addDuesCategory({ ...categoryData, villageId });
+    },
     onSuccess: () => {
-      toast({
-        title: "Category Added Successfully",
-      });
+      toast({ title: 'Category Added Successfully' });
     },
     onMutate: () => {
-      toast({
-        title: "Adding Category...",
-      });
+      toast({ title: 'Adding Category...' });
     },
     onError: (error) => {
       toast({
-        title: "Error Adding Category",
-        description: error.message || "Unknown error",
-        variant: "destructive",
+        title: 'Error Adding Category',
+        description: error.message || 'Unknown error',
+        variant: 'destructive',
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["duesCategories"],
-      });
+      queryClient.invalidateQueries({ queryKey: ['duesCategories'] });
     },
   });
 
@@ -45,19 +48,19 @@ const useDuesCategory = () => {
     mutationFn: updateDuesCategory,
     onSuccess: () => {
       toast({
-        title: "Category Updated Successfully",
+        title: 'Category Updated Successfully',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error Updating Category",
-        description: error.message || "Unknown error",
-        variant: "destructive",
+        title: 'Error Updating Category',
+        description: error.message || 'Unknown error',
+        variant: 'destructive',
       });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["duesCategories"],
+        queryKey: ['duesCategories'],
       });
     },
   });
@@ -66,24 +69,24 @@ const useDuesCategory = () => {
     mutationFn: deleteDuesCategory,
     onSuccess: () => {
       toast({
-        title: "Category Deleted Successfully",
+        title: 'Category Deleted Successfully',
       });
     },
     onMutate: () => {
       toast({
-        title: "Deleting Category...",
+        title: 'Deleting Category...',
       });
     },
     onError: (error) => {
       toast({
-        title: "Error Deleting Category",
-        description: error.message || "Unknown error",
-        variant: "destructive",
+        title: 'Error Deleting Category',
+        description: error.message || 'Unknown error',
+        variant: 'destructive',
       });
     },
     onSettled: () => {
       queryClient.invalidateQueries({
-        queryKey: ["duesCategories"],
+        queryKey: ['duesCategories'],
       });
     },
   });

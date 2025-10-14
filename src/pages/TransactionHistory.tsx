@@ -2,17 +2,17 @@ import {
   fetchTransactions,
   approveTransaction,
   rejectTransaction, // Add this import for the reject function
-} from "@/services/transactionServices";
-import { PaginatedDataType } from "@/types/paginatedType";
+} from '@/services/transactionServices';
+import { PaginatedDataType } from '@/types/paginatedType';
 import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
-import useUserContext from "@/hooks/useUserContext";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import useInterObserver from "@/hooks/useIntersectObserver";
+} from '@tanstack/react-query';
+import useUserContext from '@/hooks/useUserContext';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
+import useInterObserver from '@/hooks/useIntersectObserver';
 import {
   Table,
   TableBody,
@@ -21,12 +21,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
-import Loading from "@/components/Loading";
-import { cn, formatAmount, formatDate } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Icon } from "@iconify/react/dist/iconify.js";
+} from '@/components/ui/table';
+import { Separator } from '@/components/ui/separator';
+import Loading from '@/components/Loading';
+import { cn, formatAmount, formatDate } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Icon } from '@iconify/react/dist/iconify.js';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -37,12 +37,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { TransactionDataType } from "@/services/transantionTypes";
-import ImageLoader from "@/lib/ImageLoader";
+} from '@/components/ui/alert-dialog';
+import { TransactionDataType } from '@/services/transantionTypes';
+import ImageLoader from '@/lib/ImageLoader';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const TransactionHistory = () => {
   const { user } = useUserContext();
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
   const queryClient = useQueryClient();
 
   // Add approve transaction mutation
@@ -50,15 +53,15 @@ const TransactionHistory = () => {
     mutationFn: approveTransaction,
     onSuccess: () => {
       toast({
-        title: "Transaction approved successfully",
+        title: 'Transaction approved successfully',
       });
       // Refetch transactions data
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
     onError: () => {
       toast({
-        title: "Error approving transaction",
-        variant: "destructive",
+        title: 'Error approving transaction',
+        variant: 'destructive',
       });
     },
   });
@@ -68,15 +71,15 @@ const TransactionHistory = () => {
     mutationFn: rejectTransaction,
     onSuccess: () => {
       toast({
-        title: "Transaction rejected successfully",
+        title: 'Transaction rejected successfully',
       });
       // Refetch transactions data
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
     onError: () => {
       toast({
-        title: "Error rejecting transaction",
-        variant: "destructive",
+        title: 'Error rejecting transaction',
+        variant: 'destructive',
       });
     },
   });
@@ -89,15 +92,19 @@ const TransactionHistory = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery<PaginatedDataType<TransactionDataType>>({
-    queryKey: ["transactions"],
+    queryKey: ['transactions', villageId],
     queryFn: async ({ pageParam }) => {
+      if (!villageId) throw new Error('Village ID is required');
       const page = pageParam as string;
+
       return await fetchTransactions({
         page,
-        pageSize: "10",
+        pageSize: '10',
+        villageId, // ✅ pass to fetch
       });
     },
-    initialPageParam: "1",
+    enabled: !!villageId,
+    initialPageParam: '1',
     getNextPageParam: (lastPage) =>
       lastPage.hasNextPage ? lastPage.currentPage + 1 : undefined,
   });
@@ -150,13 +157,13 @@ const TransactionHistory = () => {
                 page?.items?.map((transaction, i) => (
                   <TableRow
                     className={cn(
-                      i % 2 === 0 ? "h-[45px] rounded-xl" : "bg-white/60"
+                      i % 2 === 0 ? 'h-[45px] rounded-xl' : 'bg-white/60'
                     )}
                     key={transaction.id}
                   >
                     <TableCell
                       className={cn(
-                        i % 2 === 0 ? "font-medium" : "rounded-l-xl"
+                        i % 2 === 0 ? 'font-medium' : 'rounded-l-xl'
                       )}
                     >
                       {transaction.category}
@@ -164,10 +171,10 @@ const TransactionHistory = () => {
                     <TableCell>
                       <span
                         className={cn(
-                          "px-2 py-1 rounded text-white text-xs font-medium",
-                          transaction.type === "INCOME"
-                            ? "bg-green-500"
-                            : "bg-red-500"
+                          'px-2 py-1 rounded text-white text-xs font-medium',
+                          transaction.type === 'INCOME'
+                            ? 'bg-green-500'
+                            : 'bg-red-500'
                         )}
                       >
                         {transaction.type}
@@ -175,9 +182,9 @@ const TransactionHistory = () => {
                     </TableCell>
                     <TableCell
                       className={cn(
-                        transaction.type === "INCOME"
-                          ? "text-green-600 font-semibold"
-                          : "text-red-600 font-semibold"
+                        transaction.type === 'INCOME'
+                          ? 'text-green-600 font-semibold'
+                          : 'text-red-600 font-semibold'
                       )}
                     >
                       {formatAmount(Math.abs(transaction.amount))}
@@ -187,19 +194,19 @@ const TransactionHistory = () => {
                     <TableCell>
                       <span
                         className={cn(
-                          "px-2 py-1 rounded text-xs font-medium",
-                          transaction.status === "APPROVED"
-                            ? "bg-green-100 text-green-800"
-                            : transaction.status === "REJECTED"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
+                          'px-2 py-1 rounded text-xs font-medium',
+                          transaction.status === 'APPROVED'
+                            ? 'bg-green-100 text-green-800'
+                            : transaction.status === 'REJECTED'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
                         )}
                       >
-                        {transaction.status === "APPROVED"
-                          ? "Approved"
-                          : transaction.status === "REJECTED"
-                          ? "Rejected"
-                          : "Pending"}
+                        {transaction.status === 'APPROVED'
+                          ? 'Approved'
+                          : transaction.status === 'REJECTED'
+                          ? 'Rejected'
+                          : 'Pending'}
                       </span>
                     </TableCell>
 
@@ -208,14 +215,14 @@ const TransactionHistory = () => {
                         <TableCell
                           className={cn(
                             i % 2 === 0
-                              ? "bg-opacity-35 font-medium"
-                              : "rounded-r-xl"
+                              ? 'bg-opacity-35 font-medium'
+                              : 'rounded-r-xl'
                           )}
                         >
                           <div className="w-fit flex items-center gap-1 cursor-pointer">
                             View
                             <Icon
-                              icon={"mingcute:arrow-right-up-circle-line"}
+                              icon={'mingcute:arrow-right-up-circle-line'}
                             />
                           </div>
                         </TableCell>
@@ -243,8 +250,8 @@ const TransactionHistory = () => {
                               <p
                                 className={
                                   transaction.amount >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
+                                    ? 'text-green-600'
+                                    : 'text-red-600'
                                 }
                               >
                                 {formatAmount(Math.abs(transaction.amount))}
@@ -252,11 +259,11 @@ const TransactionHistory = () => {
                               <p>{transaction.payment_method}</p>
                               <p>{formatDate(transaction.created_at)}</p>
                               <p>
-                                {transaction.status === "APPROVED"
-                                  ? "Approved"
-                                  : transaction.status === "REJECTED"
-                                  ? "Rejected"
-                                  : "Pending Approval"}
+                                {transaction.status === 'APPROVED'
+                                  ? 'Approved'
+                                  : transaction.status === 'REJECTED'
+                                  ? 'Rejected'
+                                  : 'Pending Approval'}
                               </p>
                             </div>
                           </div>
@@ -265,7 +272,7 @@ const TransactionHistory = () => {
                             Transaction Details:
                           </h2>
                           <p className="font-medium text-sm mb-4">
-                            {transaction.details || "No additional details"}
+                            {transaction.details || 'No additional details'}
                           </p>
                           {transaction.proof_url && (
                             <>
@@ -292,7 +299,7 @@ const TransactionHistory = () => {
                               <p className="text-sm font-medium">
                                 {transaction.received_by_details
                                   ? `${transaction.received_by_details.user_first_name} ${transaction.received_by_details.user_last_name}`
-                                  : "Not specified"}
+                                  : 'Not specified'}
                               </p>
                               {transaction.created_at && (
                                 <p className="text-xs text-gray-500">
@@ -302,11 +309,11 @@ const TransactionHistory = () => {
                             </div>
 
                             <div className="flex-1">
-                              {transaction.status === "APPROVED" ? (
+                              {transaction.status === 'APPROVED' ? (
                                 <h3 className="text-green-600 text-sm font-medium">
                                   Approved By:
                                 </h3>
-                              ) : transaction.status === "REJECTED" ? (
+                              ) : transaction.status === 'REJECTED' ? (
                                 <h3 className="text-red-600 text-sm font-medium">
                                   Rejected By:
                                 </h3>
@@ -318,9 +325,9 @@ const TransactionHistory = () => {
                               {transaction?.response_by_details && (
                                 <p>
                                   {transaction?.response_by_details
-                                    ?.user_first_name || ""}{" "}
+                                    ?.user_first_name || ''}{' '}
                                   {transaction?.response_by_details
-                                    ?.user_last_name || ""}
+                                    ?.user_last_name || ''}
                                 </p>
                               )}
 
@@ -331,8 +338,8 @@ const TransactionHistory = () => {
                               )}
 
                               {/* Show action buttons for pending transactions if user is admin and not the creator */}
-                              {transaction.status === "PENDING" &&
-                                user?.role === "admin" &&
+                              {transaction.status === 'PENDING' &&
+                                user?.role === 'admin' &&
                                 !(
                                   transaction.received_by_details
                                     ?.user_first_name ===
@@ -361,8 +368,8 @@ const TransactionHistory = () => {
                                         className="mr-1 h-4 w-4"
                                       />
                                       {approveMutation.isPending
-                                        ? "Approving..."
-                                        : "Approve"}
+                                        ? 'Approving...'
+                                        : 'Approve'}
                                     </Button>
 
                                     <Button
@@ -385,8 +392,8 @@ const TransactionHistory = () => {
                                         className="mr-1 h-4 w-4"
                                       />
                                       {rejectMutation.isPending
-                                        ? "Rejecting..."
-                                        : "Reject"}
+                                        ? 'Rejecting...'
+                                        : 'Reject'}
                                     </Button>
                                   </div>
                                 )}

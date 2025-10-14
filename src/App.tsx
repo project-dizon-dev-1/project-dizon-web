@@ -1,31 +1,32 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router";
-import Signup from "@/pages/Signup";
-import Login from "@/pages/Login";
-import MainLayout from "@/layouts/MainLayout";
-import CheckAuth from "./components/CheckAuth";
-import GuestRoute from "./components/GuestRoute";
-import NotFound from "./pages/NotFound";
-import Residents from "@/pages/Residents";
-import Dashboard from "./pages/Dashboard";
-import Collection from "@/pages/Collection";
-import Expenses from "./pages/Expenses";
-import CollectionHistory from "./pages/CollectionHistory";
-import Announcements from "./pages/Announcements";
-import ResidentDetails from "./pages/ResidentDetails";
-import CollectionDetails from "./pages/CollectionDetails";
-import FinanceOverview from "./pages/FinanceOverview";
-import AuditLogs from "./pages/AuditLogs";
-import PaymentHistory from "./pages/PaymentHistory";
-import ManageSubdivision from "./pages/SubdivisionManagement";
-import Profile from "./pages/Profile";
-import FeedbackForm from "./pages/FeedbackForm";
-import SendResetPassword from "./pages/SendResetPassword";
-import PasswordRecovery from "./pages/PasswordRecovery";
-import Homepage from "./pages/Homepage";
-import Contact from "./pages/Contact";
-import AuthorizeByRole from "./components/AuthorizeByRole";
-import TransactionHistory from "./pages/TransactionHistory";
-import UsersComponent from "./pages/UsersComponent";
+import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import Signup from '@/pages/Signup';
+import Login from '@/pages/Login';
+import MainLayout from '@/layouts/MainLayout';
+import CheckAuth from './components/CheckAuth';
+import GuestRoute from './components/GuestRoute';
+import NotFound from './pages/NotFound';
+import Residents from '@/pages/Residents';
+import Dashboard from './pages/Dashboard';
+import Collection from '@/pages/Collection';
+import Expenses from './pages/Expenses';
+import CollectionHistory from './pages/CollectionHistory';
+import Announcements from './pages/Announcements';
+import ResidentDetails from './pages/ResidentDetails';
+import CollectionDetails from './pages/CollectionDetails';
+import FinanceOverview from './pages/FinanceOverview';
+import AuditLogs from './pages/AuditLogs';
+import PaymentHistory from './pages/PaymentHistory';
+import ManageSubdivision from './pages/SubdivisionManagement';
+import Profile from './pages/Profile';
+import FeedbackForm from './pages/FeedbackForm';
+import SendResetPassword from './pages/SendResetPassword';
+import PasswordRecovery from './pages/PasswordRecovery';
+import Homepage from './pages/Homepage';
+import Contact from './pages/Contact';
+import AuthorizeByRole from './components/AuthorizeByRole';
+import TransactionHistory from './pages/TransactionHistory';
+import UsersComponent from './pages/UsersComponent';
+import AdminSignup from './pages/AdminSignUp';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
       <Routes>
         <Route element={<GuestRoute />}>
           <Route path="/" element={<Homepage />} />
+          <Route path="/admin-signup" element={<AdminSignup />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -40,19 +42,19 @@ const App = () => {
         </Route>
         <Route element={<CheckAuth />}>
           <Route element={<MainLayout />}>
-            <Route element={<AuthorizeByRole roles={["admin", "resident"]} />}>
+            <Route element={<AuthorizeByRole roles={['admin', 'resident']} />}>
               <Route path="/dashboard" element={<Dashboard />} />
             </Route>
             <Route
               element={
-                <AuthorizeByRole roles={["admin", "resident", "superadmin"]} />
+                <AuthorizeByRole roles={['admin', 'resident', 'superadmin']} />
               }
             >
               <Route path="/payment-history" element={<PaymentHistory />} />
               <Route path="/announcements" element={<Announcements />} />
             </Route>
             <Route
-              element={<AuthorizeByRole roles={["admin", "superadmin"]} />}
+              element={<AuthorizeByRole roles={['admin', 'superadmin']} />}
             >
               <Route path="/collection" element={<Collection />} />
               <Route
@@ -68,7 +70,7 @@ const App = () => {
               <Route path="/subdivision" element={<ManageSubdivision />} />
               <Route path="/financial-logs" element={<TransactionHistory />} />
             </Route>
-            <Route element={<AuthorizeByRole roles={["superadmin"]} />}>
+            <Route element={<AuthorizeByRole roles={['superadmin']} />}>
               <Route path="/users" element={<UsersComponent />} />
             </Route>
 

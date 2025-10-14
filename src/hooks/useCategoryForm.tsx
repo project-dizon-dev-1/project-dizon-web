@@ -1,18 +1,22 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { categorySchema, CategoryType } from "@/validations/duesSchema";
-import useDuesCategory from "@/hooks/useDuesCategory";
-import useUserContext from "@/hooks/useUserContext";
-import { useEffect } from "react";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { categorySchema, CategoryType } from '@/validations/duesSchema';
+import useDuesCategory from '@/hooks/useDuesCategory';
+import useUserContext from '@/hooks/useUserContext';
+import { useEffect } from 'react';
+import { useVillageByAdmin } from './use-village-admin';
 
 const useCategoryForm = (categoryName?: string, categoryId?: string) => {
   const { user } = useUserContext();
-  const { addCategoryMutation, updateCategoryMutation } = useDuesCategory();
+  const { data: villgeData } = useVillageByAdmin();
+  const villageId = villgeData?.id;
+  const { addCategoryMutation, updateCategoryMutation } =
+    useDuesCategory(villageId);
 
   const form = useForm<CategoryType>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
-      categoryName: categoryName || "",
+      categoryName: categoryName || '',
     },
   });
   useEffect(() => {
@@ -37,7 +41,7 @@ const useCategoryForm = (categoryName?: string, categoryId?: string) => {
     } else {
       addCategoryMutation.mutate({
         ...data,
-        categoryType: "EXPENSE",
+        categoryType: 'EXPENSE',
         userId: user?.id,
         userName: `${user?.user_first_name} ${user?.user_last_name}`,
       });

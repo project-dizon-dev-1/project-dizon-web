@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { useNavigate } from "react-router";
-import { features, steps } from "@/constants/homePage";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { motion } from "framer-motion";
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { useNavigate } from 'react-router';
+import { features, steps } from '@/constants/homePage';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { motion } from 'framer-motion';
 
 const MotionDiv = motion.div;
 const MotionCard = motion.create(Card);
@@ -41,7 +41,7 @@ const Homepage = () => {
     visible: {
       opacity: 1,
       transition: {
-        when: "beforeChildren",
+        when: 'beforeChildren',
         staggerChildren: 0.2,
         duration: 0.5,
       },
@@ -53,7 +53,7 @@ const Homepage = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 100 },
+      transition: { type: 'spring', stiffness: 100 },
     },
   };
 
@@ -70,13 +70,13 @@ const Homepage = () => {
       transition: {
         delay: i * 0.1,
         duration: 0.5,
-        type: "spring",
+        type: 'spring',
         stiffness: 100,
       },
     }),
     hover: {
       y: -5,
-      boxShadow: "0 8px 20px rgba(0, 0, 0, 0.08)",
+      boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
       transition: { duration: 0.3 },
     },
   };
@@ -120,7 +120,7 @@ const Homepage = () => {
               className="bg-primary-blue hover:bg-blue-700 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={(e) => handleNavigation("/login", e)}
+              onClick={(e) => handleNavigation('/login', e)}
             >
               Get Started
             </MotionButton>
@@ -131,7 +131,7 @@ const Homepage = () => {
               className="border-primary-blue text-primary-blue hover:bg-blue-50"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={(e) => handleNavigation("/contact", e)}
+              onClick={(e) => handleNavigation('/contact', e)}
             >
               Contact Us
             </MotionButton>
@@ -181,7 +181,7 @@ const Homepage = () => {
                     className="flex justify-center mb-5"
                     initial={{ scale: 0.8, opacity: 0 }}
                     whileInView={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: index * 0.2 + 0.3, type: "spring" }}
+                    transition={{ delay: index * 0.2 + 0.3, type: 'spring' }}
                   >
                     <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shadow-md">
                       <Icon
@@ -235,7 +235,7 @@ const Homepage = () => {
             className="bg-white rounded-xl shadow-xl overflow-hidden"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, type: "spring" }}
+            transition={{ duration: 0.6, type: 'spring' }}
             viewport={{ once: true }}
           >
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
@@ -248,7 +248,7 @@ const Homepage = () => {
               <Tabs
                 value={`step-${activeStep}`}
                 onValueChange={(value) =>
-                  setActiveStep(parseInt(value.replace("step-", "")))
+                  setActiveStep(parseInt(value.replace('step-', '')))
                 }
               >
                 <TabsList className="grid grid-cols-4 mb-8 bg-slate-100">
@@ -331,6 +331,126 @@ const Homepage = () => {
             </div>
           </MotionDiv>
         </MotionDiv>
+        {/* Pricing Section with animations */}
+        <MotionDiv
+          className="py-12 space-y-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={fadeIn}
+        >
+          <div className="text-center mb-8">
+            <MotionH2
+              className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              Transparent, Simple Pricing
+            </MotionH2>
+            <motion.p
+              className="text-lg text-muted-foreground max-w-xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              viewport={{ once: true }}
+            >
+              One plan, all features you need to manage your estate efficiently
+            </motion.p>
+          </div>
+
+          <Separator className="my-6 bg-blue-200/50" />
+
+          <MotionDiv
+            className="max-w-md mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, type: 'spring' }}
+            viewport={{ once: true }}
+          >
+            <MotionCard
+              className="overflow-hidden border-none shadow-2xl bg-gradient-to-br from-white to-blue-50"
+              whileHover={{
+                y: -5,
+                boxShadow: '0 12px 30px rgba(0, 0, 0, 0.12)',
+              }}
+            >
+              <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+              <CardContent className="p-8 text-center">
+                <motion.div
+                  className="mb-6"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.2, type: 'spring' }}
+                  viewport={{ once: true }}
+                >
+                  <h3 className="text-2xl font-bold text-slate-800 mb-2">
+                    Community Plan
+                  </h3>
+                  <p className="text-muted-foreground">
+                    All-in-one solution for managing your estate and residents
+                  </p>
+                </motion.div>
+
+                <motion.div
+                  className="mb-8"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.3, type: 'spring' }}
+                  viewport={{ once: true }}
+                >
+                  <div className="flex items-baseline justify-center gap-2">
+                    <span className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                      ₱1,000
+                    </span>
+                    <span className="text-xl text-muted-foreground">
+                      /month
+                    </span>
+                  </div>
+                </motion.div>
+
+                <div className="space-y-4 mb-8 text-left">
+                  {[
+                    'Manage unlimited properties',
+                    'Track and collect dues easily',
+                    'Resident portal for communication',
+                    'Announcements and notifications',
+                    'Secure document storage',
+                    'Audit logs and reports',
+                  ].map((feature, index) => (
+                    <motion.div
+                      key={index}
+                      className="flex items-center gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + index * 0.1 }}
+                      viewport={{ once: true }}
+                    >
+                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
+                        <Icon
+                          icon="mingcute:check-fill"
+                          className="w-4 h-4 text-primary-blue"
+                        />
+                      </div>
+                      <p className="text-slate-700">{feature}</p>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <MotionButton
+                  size="lg"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={(e) => handleNavigation('/admin-signup', e)}
+                >
+                  Get Started Today
+                </MotionButton>
+              </CardContent>
+            </MotionCard>
+          </MotionDiv>
+        </MotionDiv>
 
         {/* Call to Action with animations */}
         <MotionDiv
@@ -344,7 +464,7 @@ const Homepage = () => {
             className="relative rounded-2xl overflow-hidden shadow-2xl"
             initial={{ y: 50, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.7, type: "spring" }}
+            transition={{ duration: 0.7, type: 'spring' }}
             viewport={{ once: true }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 opacity-95"></div>
@@ -372,7 +492,7 @@ const Homepage = () => {
                       className="bg-white text-primary-blue hover:bg-blue-50 transition-colors"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={(e) => handleNavigation("/signup", e)}
+                      onClick={(e) => handleNavigation('/signup', e)}
                     >
                       Sign Up
                     </MotionButton>
@@ -383,7 +503,7 @@ const Homepage = () => {
                       className="bg-white text-primary-blue hover:bg-blue-50 hover:text-blue transition-colors"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={(e) => handleNavigation("/contact", e)}
+                      onClick={(e) => handleNavigation('/contact', e)}
                     >
                       Contact Us
                     </MotionButton>
@@ -407,9 +527,9 @@ const Homepage = () => {
                     </div>
                     <div className="space-y-2">
                       {[
-                        "Streamlined operations",
-                        "Better financial tracking",
-                        "Enhanced community engagement",
+                        'Streamlined operations',
+                        'Better financial tracking',
+                        'Enhanced community engagement',
                       ].map((item, index) => (
                         <motion.div
                           key={index}
@@ -478,7 +598,7 @@ const Homepage = () => {
               <Button
                 variant="link"
                 className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
-                onClick={(e) => handleNavigation("/contact", e)}
+                onClick={(e) => handleNavigation('/contact', e)}
               >
                 Contact
               </Button>

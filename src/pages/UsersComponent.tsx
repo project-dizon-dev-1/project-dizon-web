@@ -1,9 +1,9 @@
-import { getAllUsers, updateUserRole } from "@/services/userServices";
+import { getAllUsers, updateUserRole } from '@/services/userServices';
 import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
-} from "@tanstack/react-query";
+} from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -11,34 +11,38 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ChangeEvent, useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-import { useSearchParams } from "react-router";
-import { useDebounce } from "@/hooks/useDebounce";
-import { Skeleton } from "@/components/ui/skeleton";
-import useInterObserver from "@/hooks/useIntersectObserver";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Input } from "@/components/ui/input";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { useSearchParams } from 'react-router';
+import { useDebounce } from '@/hooks/useDebounce';
+import { Skeleton } from '@/components/ui/skeleton';
+import useInterObserver from '@/hooks/useIntersectObserver';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { toast } from "@/hooks/use-toast";
-import useUserContext from "@/hooks/useUserContext";
+} from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
+import useUserContext from '@/hooks/useUserContext';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const UsersComponent = () => {
   const { user } = useUserContext();
   const queryClient = useQueryClient();
-  const roles = ["admin", "resident"] as const;
+  const roles = ['admin', 'resident'] as const;
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchInput, setSearchInput] = useState(
-    searchParams.get("query") || ""
+    searchParams.get('query') || ''
   );
+  const { data: villageData } = useVillageByAdmin();
+
+  const villageId = villageData?.id;
 
   const {
     data,
@@ -48,13 +52,14 @@ const UsersComponent = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["users", searchParams.get("query"), searchParams.get("role")],
+    queryKey: ['users', searchParams.get('query'), searchParams.get('role')],
     queryFn: async ({ pageParam }) => {
       return getAllUsers({
         page: pageParam.toString(),
-        pageSize: "10",
-        query: searchParams.get("query") ?? undefined,
-        role: searchParams.get("role") ?? undefined,
+        pageSize: '10',
+        query: searchParams.get('query') ?? undefined,
+        role: searchParams.get('role') ?? undefined,
+        village: villageId,
       });
     },
     initialPageParam: 1,
@@ -62,15 +67,16 @@ const UsersComponent = () => {
       if (!lastPage || !lastPage.hasNextPage) return undefined;
       return lastPage.currentPage + 1;
     },
+    enabled: !!villageId,
   });
 
   const debouncedSearch = useDebounce(searchInput, 500);
 
   useEffect(() => {
     if (debouncedSearch) {
-      searchParams.set("query", debouncedSearch);
+      searchParams.set('query', debouncedSearch);
     } else {
-      searchParams.delete("query");
+      searchParams.delete('query');
     }
     setSearchParams(searchParams);
   }, [debouncedSearch, searchParams, setSearchParams]);
@@ -80,9 +86,9 @@ const UsersComponent = () => {
   };
 
   const clearFilters = () => {
-    setSearchInput("");
+    setSearchInput('');
     const newParams = new URLSearchParams(searchParams);
-    newParams.delete("query");
+    newParams.delete('query');
     setSearchParams(newParams);
   };
 
@@ -94,12 +100,12 @@ const UsersComponent = () => {
     mutationFn: updateUserRole,
     onMutate: async (variables: {
       userId: string;
-      role: "admin" | "resident";
+      role: 'admin' | 'resident';
     }) => {
       const queryKey = [
-        "users",
-        searchParams.get("query"),
-        searchParams.get("role"),
+        'users',
+        searchParams.get('query'),
+        searchParams.get('role'),
       ];
       await queryClient.cancelQueries({ queryKey });
 
@@ -124,22 +130,22 @@ const UsersComponent = () => {
     },
     onSuccess: () => {
       toast({
-        title: "Role updated successfully!",
+        title: 'Role updated successfully!',
       });
       queryClient.invalidateQueries({
-        queryKey: ["user", user?.id],
+        queryKey: ['user', user?.id],
       });
     },
     onError: (_err, _variables, context) => {
       if (context?.previousUsers) {
         queryClient.setQueryData(
-          ["users", searchParams.get("query"), searchParams.get("role")],
+          ['users', searchParams.get('query'), searchParams.get('role')],
           context.previousUsers
         );
       }
       toast({
-        title: "Failed to update role.",
-        variant: "destructive",
+        title: 'Failed to update role.',
+        variant: 'destructive',
       });
     },
   });
@@ -160,13 +166,13 @@ const UsersComponent = () => {
           onChange={handleSearchChange}
         />
         <Select
-          value={searchParams.get("role") || "all"}
+          value={searchParams.get('role') || 'all'}
           onValueChange={(value) => {
             const newParams = new URLSearchParams(searchParams);
-            if (value === "all") {
-              newParams.delete("role");
+            if (value === 'all') {
+              newParams.delete('role');
             } else {
-              newParams.set("role", value);
+              newParams.set('role', value);
             }
             setSearchParams(newParams);
           }}
@@ -183,7 +189,7 @@ const UsersComponent = () => {
             ))}
           </SelectContent>
         </Select>
-        <Button onClick={clearFilters} variant={"ghost"}>
+        <Button onClick={clearFilters} variant={'ghost'}>
           Clear Filters
         </Button>
       </div>
@@ -204,7 +210,7 @@ const UsersComponent = () => {
             Array.from({ length: 5 }, (_, index) => (
               <TableRow
                 key={`skeleton-${index}`}
-                className={index % 2 === 0 ? "" : "bg-white/60"}
+                className={index % 2 === 0 ? '' : 'bg-white/60'}
               >
                 <TableCell colSpan={3}>
                   <Skeleton className="h-8 w-full" />
@@ -220,26 +226,26 @@ const UsersComponent = () => {
                 .map((user, i) => (
                   <TableRow
                     className={cn(
-                      "h-[45px]",
-                      i % 2 === 0 ? "rounded-xl" : "bg-white/60"
+                      'h-[45px]',
+                      i % 2 === 0 ? 'rounded-xl' : 'bg-white/60'
                     )}
                     key={`item-${user.id}-${i}`}
                   >
                     <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-l-xl")}
+                      className={cn(i % 2 === 0 ? '' : 'rounded-l-xl')}
                     >
                       {user.user_first_name} {user.user_last_name}
                     </TableCell>
                     <TableCell>{user.user_email}</TableCell>
                     <TableCell
-                      className={cn(i % 2 === 0 ? "" : "rounded-r-xl")}
+                      className={cn(i % 2 === 0 ? '' : 'rounded-r-xl')}
                     >
                       <Select
                         disabled={
                           isPending && pendingVariables?.userId === user.id
                         }
                         value={user.role}
-                        onValueChange={(value: "admin" | "resident") =>
+                        onValueChange={(value: 'admin' | 'resident') =>
                           mutate({
                             userId: user.id,
                             role: value,
