@@ -1,3 +1,2 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"  # Correct path to husky.sh
+
 node .husky/pre-commit.js

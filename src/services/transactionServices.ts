@@ -1,14 +1,15 @@
-import { axiosGet, axiosPost, axiosPut } from "@/lib/axios";
-import { PaginatedDataType } from "@/types/paginatedType";
+import { axiosGet, axiosPost, axiosPut } from '@/lib/axios';
+import { PaginatedDataType } from '@/types/paginatedType';
 import {
   CategoryType,
   PaymentMethodType,
-} from "@/validations/transactionSchema";
-import { TransactionDataType } from "./transantionTypes";
+} from '@/validations/transactionSchema';
+import { TransactionDataType } from './transantionTypes';
 
 const addTransaction = async (data: {
-  dueId?: string | undefined;
+  dueId?: string;
   userId: string;
+  village_id: string;
   type: CategoryType;
   amount: number;
   category: string;
@@ -19,28 +20,32 @@ const addTransaction = async (data: {
   const formData = new FormData();
 
   if (data.dueId) {
-    formData.append("dueId", data.dueId);
+    formData.append('dueId', data.dueId);
   }
-  formData.append("type", data.type);
-  formData.append("amount", data.amount.toString());
-  formData.append("category", data.category);
-  formData.append("userId", data.userId);
-  formData.append("paymentMethod", data.payment_method_type);
-  formData.append("transactionProof", data.transactionProof);
-  formData.append("description", data.description);
 
-  return await axiosPost("/transactions/add", formData);
+  formData.append('village_id', data.village_id);
+  formData.append('type', data.type);
+  formData.append('amount', data.amount.toString());
+  formData.append('category', data.category);
+  formData.append('userId', data.userId);
+  formData.append('paymentMethod', data.payment_method_type);
+  formData.append('transactionProof', data.transactionProof);
+  formData.append('description', data.description);
+
+  return await axiosPost('/transactions/add', formData);
 };
 
 const fetchTransactions = async ({
   page,
   pageSize,
+  villageId,
 }: {
   page: string;
   pageSize: string;
+  villageId: string;
 }): Promise<PaginatedDataType<TransactionDataType>> => {
-  return await axiosGet("/transactions/", {
-    params: { page, pageSize },
+  return await axiosGet('/transactions/', {
+    params: { page, pageSize, village: villageId }, // ✅ Add village query param
   });
 };
 

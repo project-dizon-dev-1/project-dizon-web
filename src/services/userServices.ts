@@ -1,10 +1,10 @@
-import { axiosDelete, axiosGet, axiosPut } from "@/lib/axios";
-import { Database } from "@/types/database";
-import { supabase } from "./supabaseClient";
-import { Users } from "@/types/userTypes";
-import { PaginatedDataType } from "@/types/paginatedType";
+import { axiosDelete, axiosGet, axiosPut } from '@/lib/axios';
+import { Database } from '@/types/database';
+import { supabase } from './supabaseClient';
+import { Users } from '@/types/userTypes';
+import { PaginatedDataType } from '@/types/paginatedType';
 
-type User = Database["public"]["Tables"]["users-list"]["Row"];
+type User = Database['public']['Tables']['users-list']['Row'];
 
 const getUser = async (userId: string): Promise<User | null> => {
   return axiosGet(`/user/${userId}`);
@@ -14,14 +14,17 @@ const getAllUsers = async ({
   pageSize,
   role,
   query,
+  village,
 }: {
   page: string;
   pageSize: string;
   role?: string;
   query?: string;
+  village: string;
 }): Promise<PaginatedDataType<Users>> => {
-  return await axiosGet("/user/all", {
+  return await axiosGet('/user/all', {
     params: {
+      village,
       page,
       pageSize,
       role,
@@ -65,7 +68,7 @@ const updateUserPassword = async ({
 }: PasswordUpdateData) => {
   try {
     if (!email) {
-      throw new Error("Email is required");
+      throw new Error('Email is required');
     }
 
     // Verify the current password by attempting to sign in
@@ -76,7 +79,7 @@ const updateUserPassword = async ({
       });
 
       if (signInError) {
-        throw new Error("Current password is incorrect");
+        throw new Error('Current password is incorrect');
       }
     }
 
@@ -89,10 +92,10 @@ const updateUserPassword = async ({
       throw new Error(updateError.message);
     }
 
-    return { success: true, message: "Password updated successfully" };
+    return { success: true, message: 'Password updated successfully' };
   } catch (error: any) {
     // Properly handle and rethrow the error
-    console.error("Password update error:", error);
+    console.error('Password update error:', error);
     throw error;
   }
 };
@@ -100,13 +103,13 @@ const updateUserPassword = async ({
 const sendChangeEmailVerification = async (email: string) => {
   // Check if email already exists
   const { data } = await supabase
-    .from("users-list")
-    .select("id")
-    .eq("user_email", email)
+    .from('users-list')
+    .select('id')
+    .eq('user_email', email)
     .single();
 
   if (data) {
-    throw new Error("Email already exists. Please use another email");
+    throw new Error('Email already exists. Please use another email');
   }
 
   // Get the current origin for proper redirect URL
@@ -134,12 +137,12 @@ const updateEmail = async ({
   email: string;
 }) => {
   if (!user_id || !email) {
-    throw new Error("User ID and email is required");
+    throw new Error('User ID and email is required');
   }
   const { error: updateError } = await supabase
-    .from("users-list")
+    .from('users-list')
     .update({ user_email: email })
-    .eq("id", user_id);
+    .eq('id', user_id);
 
   if (updateError) {
     throw new Error(`Error updating email, ${updateError.message}`);
@@ -164,7 +167,7 @@ const updateUserRole = async ({
   role,
 }: {
   userId: string;
-  role: "admin" | "resident";
+  role: 'admin' | 'resident';
 }) => {
   axiosPut(`/user/update-role/${userId}`, {
     role,

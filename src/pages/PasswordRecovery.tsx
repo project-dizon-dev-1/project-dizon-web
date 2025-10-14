@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
+import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -11,42 +11,42 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { updateUserPassword } from "@/services/userServices";
-import PasswordInput from "@/components/PasswordInput";
+} from '@/components/ui/card';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { updateUserPassword } from '@/services/userServices';
+import PasswordInput from '@/components/PasswordInput';
 import {
   PasswordFormValues,
   passwordSchema,
   RecoveryFormValues,
   recoverySchema,
-} from "@/validations/userSchema";
-import useUserContext from "@/hooks/useUserContext";
-import { supabase } from "@/services/supabaseClient";
+} from '@/validations/userSchema';
+import useUserContext from '@/hooks/useUserContext';
+import { supabase } from '@/services/supabaseClient';
 
 // Define the possible modes for the form
-type FormMode = "reset" | "recovery";
+type FormMode = 'reset' | 'recovery';
 
 const PasswordRecovery = () => {
-  const [mode, setMode] = useState<FormMode>("reset");
+  const [mode, setMode] = useState<FormMode>('reset');
   const { user } = useUserContext();
 
   // Check for recovery mode indicators
   useEffect(() => {
     // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setMode("recovery");
+      if (event === 'PASSWORD_RECOVERY') {
+        setMode('recovery');
         toast({
-          title: "Password Reset Required",
-          description: "Please set a new password for your account",
+          title: 'Password Reset Required',
+          description: 'Please set a new password for your account',
         });
       }
     });
@@ -57,19 +57,19 @@ const PasswordRecovery = () => {
   }, []);
 
   // Select schema based on mode
-  const schema = mode === "reset" ? passwordSchema : recoverySchema;
+  const schema = mode === 'reset' ? passwordSchema : recoverySchema;
 
   // Set default values based on mode
   const defaultValues =
-    mode === "reset"
+    mode === 'reset'
       ? {
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
         }
       : {
-          newPassword: "",
-          confirmPassword: "",
+          newPassword: '',
+          confirmPassword: '',
         };
 
   // Setup form with mode-specific schema and defaults
@@ -80,7 +80,12 @@ const PasswordRecovery = () => {
 
   // Reset form when mode changes
   useEffect(() => {
-    form.reset(defaultValues);
+    const values =
+      mode === 'reset'
+        ? { currentPassword: '', newPassword: '', confirmPassword: '' }
+        : { newPassword: '', confirmPassword: '' };
+
+    form.reset(values);
   }, [mode, form]);
 
   // Password update mutation
@@ -90,25 +95,25 @@ const PasswordRecovery = () => {
         email: user?.user_email,
         // Only pass currentPassword in reset mode
         currentPassword:
-          "currentPassword" in data ? data.currentPassword : undefined,
+          'currentPassword' in data ? data.currentPassword : undefined,
         newPassword: data.newPassword,
       });
     },
     onSuccess: () => {
       toast({
         title:
-          mode === "recovery"
-            ? "Password Reset Successful"
-            : "Password Updated",
-        description: "Your password has been successfully changed.",
+          mode === 'recovery'
+            ? 'Password Reset Successful'
+            : 'Password Updated',
+        description: 'Your password has been successfully changed.',
       });
     },
     onError: (error: any) => {
-      const errorMessage = error?.message || "Failed to update password";
+      const errorMessage = error?.message || 'Failed to update password';
       toast({
-        title: "Update Failed",
+        title: 'Update Failed',
         description: errorMessage,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
@@ -129,12 +134,12 @@ const PasswordRecovery = () => {
             />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
-            {mode === "recovery" ? "Reset Your Password" : "Change Password"}
+            {mode === 'recovery' ? 'Reset Your Password' : 'Change Password'}
           </CardTitle>
           <CardDescription className="text-center">
-            {mode === "recovery"
-              ? "Create a new password for your account"
-              : "Update your password by entering your current password first"}
+            {mode === 'recovery'
+              ? 'Create a new password for your account'
+              : 'Update your password by entering your current password first'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -142,7 +147,7 @@ const PasswordRecovery = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-4">
                 {/* Current Password Field - only shown in reset mode */}
-                {mode === "reset" && (
+                {mode === 'reset' && (
                   <FormField
                     control={form.control}
                     name="currentPassword"
@@ -201,7 +206,7 @@ const PasswordRecovery = () => {
                   )}
                 />
 
-                {mode === "recovery" && (
+                {mode === 'recovery' && (
                   <div className="bg-blue-50 border border-blue-100 rounded p-3">
                     <p className="text-sm text-blue-800 flex items-center">
                       <Icon
@@ -218,7 +223,7 @@ const PasswordRecovery = () => {
               <div className="flex space-x-2 justify-end">
                 <Button
                   type="submit"
-                  className={mode === "recovery" ? "w-full" : ""}
+                  className={mode === 'recovery' ? 'w-full' : ''}
                   disabled={updatePasswordMutation.isPending}
                 >
                   {updatePasswordMutation.isPending ? (
@@ -227,14 +232,14 @@ const PasswordRecovery = () => {
                         icon="mingcute:loading-fill"
                         className="mr-2 h-4 w-4 animate-spin"
                       />
-                      {mode === "recovery"
-                        ? "Resetting Password..."
-                        : "Updating Password..."}
+                      {mode === 'recovery'
+                        ? 'Resetting Password...'
+                        : 'Updating Password...'}
                     </div>
-                  ) : mode === "recovery" ? (
-                    "Reset Password"
+                  ) : mode === 'recovery' ? (
+                    'Reset Password'
                   ) : (
-                    "Update Password"
+                    'Update Password'
                   )}
                 </Button>
               </div>

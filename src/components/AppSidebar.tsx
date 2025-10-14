@@ -10,23 +10,23 @@ import {
   SidebarMenuSkeleton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { SIDEBAR_LINKS } from "@/constants/sidebarLinks";
-import useUserContext from "@/hooks/useUserContext";
-import { logout } from "@/services/authServices";
+} from '@/components/ui/sidebar';
+import { SIDEBAR_LINKS } from '@/constants/sidebarLinks';
+import useUserContext from '@/hooks/useUserContext';
+import { logout } from '@/services/authServices';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronUp } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router";
-import { Icon } from "@iconify/react";
-import { cn } from "@/lib/utils";
-import { Separator } from "./ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Skeleton } from "./ui/skeleton";
+} from '@/components/ui/dropdown-menu';
+import { ChevronUp } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { Icon } from '@iconify/react';
+import { cn } from '@/lib/utils';
+import { Separator } from './ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Skeleton } from './ui/skeleton';
 
 export const AppSidebar = () => {
   const { isMobile } = useSidebar();
@@ -73,14 +73,14 @@ export const AppSidebar = () => {
         alt="an icon"
       />
       <Sidebar
-        className={cn("bg-transparent w-[265px]", { hidden: isMobile })}
+        className={cn('bg-transparent w-[265px]', { hidden: isMobile })}
         variant="sidebar"
         collapsible="none"
       >
         <SidebarContent className="no-scrollbar">
           <SidebarGroup className="p-3">
             <img
-              onClick={() => navigate("/")}
+              onClick={() => navigate('/')}
               className="p-0 cursor-pointer w-[110px] mx-auto mt-[10px] mb-[20px]"
               src="/icons/dizon.svg"
               alt="an icon"
@@ -103,9 +103,9 @@ export const AppSidebar = () => {
                       <SidebarMenuButton className="space-y-[6px]" asChild>
                         <Link
                           className={cn(
-                            "flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42]",
+                            'flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42]',
                             {
-                              "bg-white/[0.42]": url.pathname.startsWith(
+                              'bg-white/[0.42]': url.pathname.startsWith(
                                 item.link
                               ),
                             }
@@ -116,9 +116,9 @@ export const AppSidebar = () => {
                             <Icon className="w-5 h-5" icon={item.icon} />
                             <span
                               className={cn(
-                                "text-[14px] font-medium text-default",
+                                'text-[14px] font-medium text-default',
                                 {
-                                  "font-semibold": url.pathname.startsWith(
+                                  'font-semibold': url.pathname.startsWith(
                                     item.link
                                   ),
                                 }
@@ -136,7 +136,7 @@ export const AppSidebar = () => {
                   ))}
 
                   {/* Finance section for admin */}
-                  {(user?.role === "admin" || user?.role === "superadmin") && (
+                  {(user?.role === 'admin' || user?.role === 'superadmin') && (
                     <>
                       <div className="flex justify-center items-center relative p-y-3 px-[16px] overflow-hidden">
                         <Separator className="bg-[#45495A]/[.24]" />
@@ -146,14 +146,14 @@ export const AppSidebar = () => {
                         <Separator className="bg-[#45495A]/[.24]" />
                       </div>
 
-                      {SIDEBAR_LINKS["finance"].map((item) => (
+                      {SIDEBAR_LINKS['finance'].map((item) => (
                         <SidebarMenuSubItem key={item.label}>
                           <SidebarMenuButton asChild>
                             <Link
                               className={cn(
-                                "flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42]",
+                                'flex justify-between pl-5 py-3 pr-[14px] rounded-xl hover:bg-white/[0.42]',
                                 {
-                                  "bg-white/[0.42]": url.pathname.startsWith(
+                                  'bg-white/[0.42]': url.pathname.startsWith(
                                     item.link
                                   ),
                                 }
@@ -164,9 +164,9 @@ export const AppSidebar = () => {
                                 <Icon className="w-5 h-5" icon={item.icon} />
                                 <span
                                   className={cn(
-                                    "text-[14px] font-medium text-default",
+                                    'text-[14px] font-medium text-default',
                                     {
-                                      "font-semibold": url.pathname.startsWith(
+                                      'font-semibold': url.pathname.startsWith(
                                         item.link
                                       ),
                                     }
@@ -210,9 +210,9 @@ export const AppSidebar = () => {
                   >
                     <SidebarMenuButton className="py-[18px] hover:bg-white/[0.24]">
                       <Avatar className="bg-blue-100 h-8 w-8 rounded-lg border-accent">
-                        <AvatarImage src={""} alt="profile picture" />
+                        <AvatarImage src={''} alt="profile picture" />
                         <AvatarFallback className="bg-blue-100 h-8 w-8 rounded-lg border-accent">
-                          {user?.user_first_name?.[0] || "U"}
+                          {user?.user_first_name?.[0] || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -231,7 +231,7 @@ export const AppSidebar = () => {
                     className="w-[--radix-popper-anchor-width] bg-white rounded-lg shadow-lg p-2"
                   >
                     <DropdownMenuItem
-                      onClick={() => navigate("/profile")}
+                      onClick={() => navigate('/profile')}
                       className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors"
                     >
                       <Icon
@@ -243,7 +243,7 @@ export const AppSidebar = () => {
                       </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                      onSelect={() => navigate("/send-feedback")}
+                      onSelect={() => navigate('/send-feedback')}
                       className="flex items-center hover:cursor-pointer gap-2 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors"
                     >
                       <Icon
@@ -259,7 +259,7 @@ export const AppSidebar = () => {
                       onClick={async () => {
                         setUser(null);
                         await logout();
-                        navigate("/login");
+                        navigate('/login');
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-blue-100 transition-colors"
                     >

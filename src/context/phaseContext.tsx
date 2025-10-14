@@ -4,13 +4,13 @@ import React, {
   useState,
   useEffect,
   ReactNode,
-} from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAllPhases } from "@/services/subdivisionServices";
-import { Phase } from "@/types/subdivisionTypes";
-import useUserContext from "@/hooks/useUserContext";
+} from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllPhases } from '@/services/subdivisionServices';
+import { Phase } from '@/types/subdivisionTypes';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
-// Define a simplified context type
+// Define context type
 interface PhaseContextType {
   phases: Phase[];
   setPhases: React.Dispatch<React.SetStateAction<Phase[]>>;
@@ -21,36 +21,36 @@ interface PhaseContextType {
 // Create context
 const PhaseContext = createContext<PhaseContextType | undefined>(undefined);
 
-// Provider component
 interface PhaseProviderProps {
   children: ReactNode;
 }
 
 export const PhaseProvider = ({ children }: PhaseProviderProps) => {
-  const { user } = useUserContext();
   const [phases, setPhases] = useState<Phase[]>([]);
 
-  // Fetch phases using useQuery
+  // ✅ Get the village managed by this admin
+  const { data: village, isLoading: isVillageLoading } = useVillageByAdmin();
+  const villageId = village?.id;
+
+  // ✅ Fetch phases only for that village
   const {
     data: phasesData,
-    isLoading,
+    isLoading: isPhasesLoading,
     refetch: refetchPhases,
   } = useQuery({
-    queryKey: ["phases"],
-    queryFn: fetchAllPhases,
-    enabled: !!user,
+    queryKey: ['phases', villageId],
+    queryFn: () => fetchAllPhases(villageId),
+    enabled: !!villageId, // only run when villageId is available
   });
 
-  // Update state when data is fetched
   useEffect(() => {
     if (phasesData) setPhases(phasesData);
   }, [phasesData]);
 
-  // Context value
   const value = {
     phases,
     setPhases,
-    isLoading,
+    isLoading: isVillageLoading || isPhasesLoading,
     refetchPhases,
   };
 
@@ -59,11 +59,11 @@ export const PhaseProvider = ({ children }: PhaseProviderProps) => {
   );
 };
 
-// Custom hook for using the context
+// Hook to consume the context
 export const usePhaseContext = () => {
   const context = useContext(PhaseContext);
   if (context === undefined) {
-    throw new Error("usePhaseContext must be used within a PhaseProvider");
+    throw new Error('usePhaseContext must be used within a PhaseProvider');
   }
   return context;
 };

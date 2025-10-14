@@ -1,14 +1,20 @@
-import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/lib/axios";
-import { DueCategoryType } from "@/types/DueTypes";
+import { axiosDelete, axiosGet, axiosPost, axiosPut } from '@/lib/axios';
+import { DueCategoryType } from '@/types/DueTypes';
 
-const fetchDuesCategories = async (): Promise<DueCategoryType> => {
-  return await axiosGet(`/dues/category/`);
+const fetchDuesCategories = async (
+  villageId: string
+): Promise<DueCategoryType> => {
+  if (!villageId) throw new Error('Village ID is required');
+  return await axiosGet(`/dues/category/`, {
+    params: { village_id: villageId },
+  });
 };
 const addDuesCategory = async (data: {
   categoryName: string;
-  categoryType: "EXPENSE" | "INCOME";
+  categoryType: 'EXPENSE' | 'INCOME';
   userId: string | undefined;
   userName: string;
+  villageId: string;
 }) => {
   return await axiosPost(`/dues/category/add`, data);
 };

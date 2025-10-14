@@ -32,7 +32,7 @@ type HouseDetails = {
   house_latest_payment: Date | null;
   house_arrears: number | null;
   finance_log: Array<{
-    status: "PENDING" | "APPROVED" | "REJECTED";
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
   }>;
 };
 type HouseData = {
@@ -134,6 +134,7 @@ type FetchHouseCollectionQueryParams = {
   street?: string | null;
   block?: string | null;
   lot?: string | null;
+  village?: string | null;
 };
 type MonthlyTransactionData = {
   month: number;

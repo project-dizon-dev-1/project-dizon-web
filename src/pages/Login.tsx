@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
   FormControl,
@@ -9,25 +9,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { loginSchema, loginType } from "@/validations/userSchema";
-import { login, resendEmailConfirmation } from "@/services/authServices";
-import { Link, useNavigate } from "react-router";
-import { useMutation } from "@tanstack/react-query";
-import PasswordInput from "@/components/PasswordInput";
-import BackGroundImage from "@/assets/BG.webp";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useSidebar } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
-import { Database } from "@/types/database";
+} from '@/components/ui/form';
+import { loginSchema, loginType } from '@/validations/userSchema';
+import { login, resendEmailConfirmation } from '@/services/authServices';
+import { Link, useNavigate } from 'react-router';
+import { useMutation } from '@tanstack/react-query';
+import PasswordInput from '@/components/PasswordInput';
+import BackGroundImage from '@/assets/BG.webp';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { useSidebar } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { Database } from '@/types/database';
 
 type UserData = {
   contact_number: string | null;
   created_at: string;
   id: string;
-  role: Database["public"]["Enums"]["roles"];
+  role: Database['public']['Enums']['roles'];
   user_email: string;
   user_first_name: string;
   user_last_name: string;
@@ -64,8 +64,8 @@ const Login = () => {
 
   const form = useForm({
     defaultValues: {
-      userEmail: "",
-      userPassword: "",
+      userEmail: '',
+      userPassword: '',
     },
     resolver: zodResolver(loginSchema),
   });
@@ -73,21 +73,21 @@ const Login = () => {
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (data: UserData) => {
-      if (data?.role === "admin" || data?.role === "resident") {
-        navigate("/dashboard", { replace: true });
+      if (data?.role === 'admin' || data?.role === 'resident') {
+        navigate('/dashboard', { replace: true });
       } else {
-        navigate("/residents", { replace: true });
+        navigate('/residents', { replace: true });
       }
     },
     onError: (error) => {
       if (
-        error.message?.toLowerCase().includes("email not verified") ||
-        error.message?.toLowerCase().includes("email not confirmed")
+        error.message?.toLowerCase().includes('email not verified') ||
+        error.message?.toLowerCase().includes('email not confirmed')
       ) {
         setNeedsVerification(true);
       }
 
-      form.setError("root", {
+      form.setError('root', {
         message: error.message,
       });
     },
@@ -97,15 +97,15 @@ const Login = () => {
     mutationFn: resendEmailConfirmation,
     onSuccess: () => {
       toast({
-        title: "Confirmation Email Sent",
-        description: "Please check your inbox and confirm your email to login.",
+        title: 'Confirmation Email Sent',
+        description: 'Please check your inbox and confirm your email to login.',
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to Resend Email",
+        title: 'Failed to Resend Email',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
     onSettled: () => {
@@ -115,15 +115,15 @@ const Login = () => {
   });
 
   const handleResendConfirmation = () => {
-    const email = form.getValues("userEmail");
+    const email = form.getValues('userEmail');
     if (email) {
       resendConfirmationMutation.mutate(email);
     } else {
       toast({
-        title: "Email Required",
+        title: 'Email Required',
         description:
-          "Please enter your email address to resend the confirmation.",
-        variant: "destructive",
+          'Please enter your email address to resend the confirmation.',
+        variant: 'destructive',
       });
     }
   };
@@ -140,7 +140,7 @@ const Login = () => {
       <div className="absolute top-4 left-4 z-50">
         <Button variant="ghost" size="sm" className="gap-1" asChild>
           <Link to="/">
-            <Icon icon={"mingcute:arrow-left-line"} className="w-4 h-4" />
+            <Icon icon={'mingcute:arrow-left-line'} className="w-4 h-4" />
             Back to Home
           </Link>
         </Button>
@@ -156,10 +156,10 @@ const Login = () => {
         </div>
       )}
       <div
-        className={cn("w-full space-y-6 z-50 bg-white p-8 rounded-xl ", {
-          "relative mx-auto max-w-md md:absolute md:bottom-12 md:right-32 md:mx-0 shadow-lg":
+        className={cn('w-full space-y-6 z-50 bg-white p-8 rounded-xl ', {
+          'relative mx-auto max-w-md md:absolute md:bottom-12 md:right-32 md:mx-0 shadow-lg':
             !isMobile,
-          "mx-auto max-w-md": isMobile,
+          'mx-auto max-w-md': isMobile,
         })}
       >
         <div className="flex flex-col items-center space-y-2">
@@ -244,7 +244,7 @@ const Login = () => {
                           />
                           {cooldownActive
                             ? `Resend in ${countdown}s`
-                            : "Resend Confirmation Email"}
+                            : 'Resend Confirmation Email'}
                         </>
                       )}
                     </Button>
@@ -267,12 +267,12 @@ const Login = () => {
                 disabled={loginMutation.isPending}
                 className="w-full pb-2 bg-primary hover:bg-primary/90 text-white font-medium rounded-md transition-colors"
               >
-                {loginMutation.isPending ? "Logging in..." : "Login"}
+                {loginMutation.isPending ? 'Logging in...' : 'Login'}
               </Button>
             </div>
 
             <div className="text-center text-sm text-gray-500 mt-4">
-              Don&apos;t have an account?{" "}
+              Don&apos;t have an account?{' '}
               <Button
                 variant="link"
                 className="p-0 h-auto text-primary font-medium hover:underline"

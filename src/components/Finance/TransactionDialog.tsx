@@ -9,8 +9,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -18,98 +18,120 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import useDuesCategory from "@/hooks/useDuesCategory";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import useDuesCategory from '@/hooks/useDuesCategory';
 import {
   transactionSchema,
   TransactionType,
   // PAYMENT_METHOD_VALUES,
-} from "@/validations/transactionSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { useState, ReactNode, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { Separator } from "@/components/ui/separator";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/hooks/use-toast";
-import { addTransaction } from "@/services/transactionServices";
-import useUserContext from "@/hooks/useUserContext";
+} from '@/validations/transactionSchema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { useState, ReactNode, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Separator } from '@/components/ui/separator';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from '@/hooks/use-toast';
+import { addTransaction } from '@/services/transactionServices';
+import useUserContext from '@/hooks/useUserContext';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const TransactionDialog = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const { categories } = useDuesCategory();
+
   const queryClient = useQueryClient();
   const { user } = useUserContext();
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
+  const { categories } = useDuesCategory(villageId);
 
   const form = useForm<TransactionType>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
-      type: "EXPENSE",
+      type: 'EXPENSE',
       amount: 0,
-      category: "",
-      payment_method_type: "CASH",
-      description: "",
+      category: '',
+      payment_method_type: 'CASH',
+      description: '',
       transactionProof: undefined,
     },
   });
 
   // Watch the type field to update category options
-  const transactionType = form.watch("type");
+  const transactionType = form.watch('type');
 
   const addTransactionMutation = useMutation({
     mutationFn: addTransaction,
     onSuccess: () => {
       toast({
-        title: "Transaction Added Successfully",
+        title: 'Transaction Added Successfully',
       });
       // Refresh financial data
-      queryClient.invalidateQueries({ queryKey: ["financeSummary"] });
-      queryClient.invalidateQueries({ queryKey: ["financeChartData"] });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ['financeSummary'] });
+      queryClient.invalidateQueries({ queryKey: ['financeChartData'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions'] });
       setIsOpen(false);
       resetForm();
     },
     onMutate: () => {
       toast({
-        title: "Adding Transaction...",
+        title: 'Adding Transaction...',
       });
     },
     onError: () => {
       toast({
-        title: "Error Adding Transaction",
+        title: 'Error Adding Transaction',
       });
     },
   });
 
   // Handle form submission
   const onSubmit = async (data: TransactionType) => {
-    if (user) {
-      const dataWithId = {
-        ...data,
-        userId: user.id,
-      };
-      addTransactionMutation.mutate(dataWithId);
+    if (!user) {
+      toast({
+        title: 'User not found',
+        description: 'Please log in again.',
+        variant: 'destructive',
+      });
+      return;
     }
+
+    if (!villageId) {
+      toast({
+        title: 'Village not found',
+        description: 'Please make sure a valid village is selected.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const dataWithMeta = {
+      ...data,
+      userId: user.id,
+      village_id: villageId, // ✅ Added here
+    };
+
+    addTransactionMutation.mutate(dataWithMeta);
   };
 
   const resetForm = () => {
     form.reset({
-      type: "EXPENSE",
+      type: 'EXPENSE',
       amount: 0,
-      category: "",
-      payment_method_type: "CASH",
-      description: "",
+      category: '',
+      payment_method_type: 'CASH',
+      description: '',
       transactionProof: undefined,
     });
     setImagePreview(null);
@@ -126,7 +148,7 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
   const handleRemoveImage = () => {
     URL.revokeObjectURL(imagePreview as string);
     setImagePreview(null);
-    form.unregister("transactionProof");
+    form.unregister('transactionProof');
   };
 
   return (
@@ -201,7 +223,7 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                               <SelectValue placeholder="Select category" />
                             </SelectTrigger>
                             <SelectContent>
-                              {transactionType === "EXPENSE" ? (
+                              {transactionType === 'EXPENSE' ? (
                                 categories?.data?.map(
                                   (category: any, index: number) => (
                                     <SelectItem
@@ -368,7 +390,7 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                           <div className="flex flex-shrink-0 items-center justify-center rounded-md">
                             <Icon
                               className="h-11 w-11 text-blue-300"
-                              icon={"mingcute:upload-2-fill"}
+                              icon={'mingcute:upload-2-fill'}
                             />
                           </div>
                           <p className="mt-2 text-sm font-medium text-blue-500">
@@ -404,7 +426,7 @@ const TransactionDialog = ({ children }: { children: ReactNode }) => {
                 Processing...
               </>
             ) : (
-              " Record Transaction"
+              ' Record Transaction'
             )}
           </AlertDialogActionNoClose>
         </AlertDialogFooter>
