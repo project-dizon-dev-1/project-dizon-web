@@ -1,14 +1,14 @@
-import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/lib/axios";
-import { Due, DueLog, totalDue } from "@/types/DueTypes";
-import { PaginatedDataType, paginatedParams } from "@/types/paginatedType";
-import { dueType } from "@/validations/duesSchema";
+import { axiosDelete, axiosGet, axiosPost, axiosPut } from '@/lib/axios';
+import { Due, DueLog, totalDue } from '@/types/DueTypes';
+import { PaginatedDataType, paginatedParams } from '@/types/paginatedType';
+import { dueType } from '@/validations/duesSchema';
 
 const fetchDues = async (): Promise<Due[]> => {
   return await axiosGet(`/dues`);
 };
 
 const fetchTotalDue = async (): Promise<totalDue> => {
-  return await axiosGet("/dues/total");
+  return await axiosGet('/dues/total');
 };
 
 const fetchDueLogs = async ({
@@ -19,9 +19,12 @@ const fetchDueLogs = async ({
   query,
   page,
   pageSize,
-}: paginatedParams): Promise<PaginatedDataType<DueLog>> => {
-  return await axiosGet("/dues/logs", {
-    params: { phase, month, year, status, query, page, pageSize },
+  villageId,
+}: paginatedParams & { villageId?: string }): Promise<
+  PaginatedDataType<DueLog>
+> => {
+  return await axiosGet('/dues/logs', {
+    params: { phase, month, year, status, query, page, pageSize, villageId },
   });
 };
 const fetchDueLogsByHouse = async ({

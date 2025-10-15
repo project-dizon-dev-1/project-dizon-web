@@ -44,8 +44,11 @@ const getHouses = async ({
   }
 };
 
-const getHousesSummary = async (): Promise<HousesSummary> => {
-  return await axiosGet('/houses/summary');
+const getHousesSummary = async (villageId?: string): Promise<HousesSummary> => {
+  if (!villageId) {
+    throw new Error('Village ID is required');
+  }
+  return await axiosGet(`/houses/summary?villageId=${villageId}`);
 };
 const getHouseSummary = async (
   houseId: string | undefined | null
