@@ -27,8 +27,11 @@ import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from './ui/skeleton';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 export const AppSidebar = () => {
+  const { data: villageData } = useVillageByAdmin();
+  console.log(villageData);
   const { isMobile } = useSidebar();
   const { user, setUser } = useUserContext();
   const url = useLocation();
@@ -79,12 +82,18 @@ export const AppSidebar = () => {
       >
         <SidebarContent className="no-scrollbar">
           <SidebarGroup className="p-3">
-            <img
+            <div
               onClick={() => navigate('/')}
-              className="p-0 cursor-pointer w-[110px] mx-auto mt-[10px] mb-[20px]"
-              src="/icons/dizon.svg"
-              alt="an icon"
-            />
+              className="p-0 cursor-pointer mx-auto mt-[10px] mb-[20px] text-center"
+            >
+              {villageData ? (
+                <h2 className="text-xl font-bold text-[#45495A]">
+                  {villageData.village_name}
+                </h2>
+              ) : (
+                <Skeleton className="h-7 w-40 mx-auto" />
+              )}
+            </div>
 
             <SidebarGroupContent>
               {!user ? (
