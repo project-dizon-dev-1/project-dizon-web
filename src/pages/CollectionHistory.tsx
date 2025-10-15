@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -17,39 +17,40 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   useInfiniteQuery,
   // useMutation,
   // useQueryClient,
-} from "@tanstack/react-query";
-import Loading from "@/components/Loading";
-import { DueLog } from "@/types/DueTypes";
-import { PaginatedDataType } from "@/types/paginatedType";
-import useInterObserver from "@/hooks/useIntersectObserver";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
+} from '@tanstack/react-query';
+import Loading from '@/components/Loading';
+import { DueLog } from '@/types/DueTypes';
+import { PaginatedDataType } from '@/types/paginatedType';
+import useInterObserver from '@/hooks/useIntersectObserver';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useSearchParams } from "react-router";
-import { cn, formatAmount, formatDate } from "@/lib/utils";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { useDebounce } from "@/hooks/useDebounce";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { fetchDueLogs } from "@/services/dueServices";
+} from '@/components/ui/select';
+import { useSearchParams } from 'react-router';
+import { cn, formatAmount, formatDate } from '@/lib/utils';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { useDebounce } from '@/hooks/useDebounce';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { fetchDueLogs } from '@/services/dueServices';
 // import useUserContext from "@/hooks/useUserContext";
 // import { toast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge';
 // import { approveCollection } from "@/services/houseServices";
-import { usePhaseContext } from "@/context/phaseContext";
-import { Phase } from "@/types/subdivisionTypes";
+import { usePhaseContext } from '@/context/phaseContext';
+import { Phase } from '@/types/subdivisionTypes';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const PaymentHistory = () => {
   const { phases } = usePhaseContext();
@@ -57,7 +58,7 @@ const PaymentHistory = () => {
   // const { user } = useUserContext();
   // const queryClient = useQueryClient();
   const [searchInput, setSearchInput] = useState(
-    searchParams.get("query") || ""
+    searchParams.get('query') || ''
   );
 
   // Add approve transaction mutation
@@ -79,6 +80,9 @@ const PaymentHistory = () => {
   // });
   const debouncedSearch = useDebounce(searchInput, 500);
 
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
+
   const {
     data,
     isError,
@@ -88,27 +92,29 @@ const PaymentHistory = () => {
     isFetchingNextPage,
   } = useInfiniteQuery<PaginatedDataType<DueLog>>({
     queryKey: [
-      "paymentHistory",
-      searchParams.get("bill-month"),
-      searchParams.get("status"),
-      searchParams.get("phase"),
-      searchParams.get("query"),
-      searchParams.get("year"),
+      'paymentHistory',
+      villageId, // add villageId to the cache key
+      searchParams.get('bill-month'),
+      searchParams.get('status'),
+      searchParams.get('phase'),
+      searchParams.get('query'),
+      searchParams.get('year'),
     ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam as string;
       const response = await fetchDueLogs({
-        month: searchParams.get("bill-month"),
-        status: searchParams.get("status"),
-        query: searchParams.get("query"),
-        phase: searchParams.get("phase"),
-        year: searchParams.get("year"),
+        month: searchParams.get('bill-month'),
+        status: searchParams.get('status'),
+        query: searchParams.get('query'),
+        phase: searchParams.get('phase'),
+        year: searchParams.get('year'),
         page,
-        pageSize: "20",
+        pageSize: '20',
+        villageId, // pass villageId here
       });
       return response;
     },
-    initialPageParam: "1",
+    initialPageParam: '1',
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.hasNextPage) {
         return undefined;
@@ -120,16 +126,16 @@ const PaymentHistory = () => {
   // Update search params when debounced search value changes
   useEffect(() => {
     if (debouncedSearch) {
-      searchParams.set("query", debouncedSearch);
+      searchParams.set('query', debouncedSearch);
     } else {
-      searchParams.delete("query");
+      searchParams.delete('query');
     }
     setSearchParams(searchParams);
   }, [debouncedSearch]);
 
   const clearFilters = () => {
     setSearchParams({ year: currentYear.toString() });
-    setSearchInput("");
+    setSearchInput('');
   };
 
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -141,7 +147,7 @@ const PaymentHistory = () => {
       const date = new Date(2024, i, 1);
       return {
         value: (i + 1).toString(), // Use month index as value (1-12)
-        label: date.toLocaleString("default", { month: "long" }), // Full month name
+        label: date.toLocaleString('default', { month: 'long' }), // Full month name
       };
     });
   }, []);
@@ -157,7 +163,7 @@ const PaymentHistory = () => {
     });
   }, []);
   const updateParams = (key: string, value: string) => {
-    if (searchParams.get(key) === "all") {
+    if (searchParams.get(key) === 'all') {
       searchParams.delete(key);
     } else {
       searchParams.set(key, value);
@@ -181,12 +187,12 @@ const PaymentHistory = () => {
           onChange={handleSearchChange}
         />
         <Select
-          value={searchParams.get("phase") || ""}
-          onValueChange={(value) => updateParams("phase", value)}
+          value={searchParams.get('phase') || ''}
+          onValueChange={(value) => updateParams('phase', value)}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
-              placeholder={searchParams.get("phase") || "All Phases"}
+              placeholder={searchParams.get('phase') || 'All Phases'}
             />
           </SelectTrigger>
           <SelectContent>
@@ -199,11 +205,11 @@ const PaymentHistory = () => {
           </SelectContent>
         </Select>
         <Select
-          value={searchParams.get("year") || currentYear.toString()}
-          onValueChange={(value) => updateParams("year", value)}
+          value={searchParams.get('year') || currentYear.toString()}
+          onValueChange={(value) => updateParams('year', value)}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={searchParams.get("year")} />
+            <SelectValue placeholder={searchParams.get('year')} />
           </SelectTrigger>
           <SelectContent>
             {years.map((year) => (
@@ -214,13 +220,13 @@ const PaymentHistory = () => {
           </SelectContent>
         </Select>
         <Select
-          value={searchParams.get("bill-month") || ""}
-          onValueChange={(value) => updateParams("bill-month", value)}
+          value={searchParams.get('bill-month') || ''}
+          onValueChange={(value) => updateParams('bill-month', value)}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue
               placeholder={
-                searchParams.get("bill-month") || "Select Billing Month"
+                searchParams.get('bill-month') || 'Select Billing Month'
               }
             />
           </SelectTrigger>
@@ -249,7 +255,7 @@ const PaymentHistory = () => {
             <SelectItem value="Partially_Paid">Partially Paid</SelectItem>
           </SelectContent>
         </Select> */}
-        <Button onClick={clearFilters} variant={"ghost"}>
+        <Button onClick={clearFilters} variant={'ghost'}>
           Clear Filters
         </Button>
       </div>
@@ -294,13 +300,13 @@ const PaymentHistory = () => {
                 page?.items?.map((due, i) => (
                   <TableRow
                     className={cn(
-                      i % 2 === 0 ? "  h-[45px] rounded-xl" : "bg-white/60"
+                      i % 2 === 0 ? '  h-[45px] rounded-xl' : 'bg-white/60'
                     )}
                     key={due.id}
                   >
                     <TableCell
                       className={cn(
-                        i % 2 === 0 ? " font-medium" : " rounded-l-xl"
+                        i % 2 === 0 ? ' font-medium' : ' rounded-l-xl'
                       )}
                       // className="font-medium"
                     >
@@ -314,23 +320,23 @@ const PaymentHistory = () => {
                     {/* <TableCell>{due.details}</TableCell> */}
                     <TableCell>{formatAmount(due.amount ?? 0)}</TableCell>
                     <TableCell>
-                      {due.finance_log.status === "APPROVED" ? (
+                      {due.finance_log.status === 'APPROVED' ? (
                         <Badge
-                          variant={"default"}
+                          variant={'default'}
                           className=" bg-green-100 text-green-800 shadow-none hover:bg-green-100 "
                         >
                           Approved
                         </Badge>
-                      ) : due.finance_log.status === "REJECTED" ? (
+                      ) : due.finance_log.status === 'REJECTED' ? (
                         <Badge
-                          variant={"default"}
+                          variant={'default'}
                           className=" bg-red-100 text-red-800 shadow-none hover:bg-green-100 "
                         >
                           Rejected
                         </Badge>
                       ) : (
                         <Badge
-                          variant={"default"}
+                          variant={'default'}
                           className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
                         >
                           Pending
@@ -343,14 +349,14 @@ const PaymentHistory = () => {
                         <TableCell
                           className={cn(
                             i % 2 === 0
-                              ? " bg-opacity-35  font-medium"
-                              : " rounded-r-xl"
+                              ? ' bg-opacity-35  font-medium'
+                              : ' rounded-r-xl'
                           )}
                         >
                           <div className=" w-fit flex items-center gap-1 cursor-pointer">
                             View
                             <Icon
-                              icon={"mingcute:arrow-right-up-circle-line"}
+                              icon={'mingcute:arrow-right-up-circle-line'}
                             />
                           </div>
                         </TableCell>
@@ -380,23 +386,23 @@ const PaymentHistory = () => {
                               <p>{due.date && formatDate(due.date)}</p>
                               <p>{formatDate(due.created_at)}</p>
                               <p>{due.amount?.toLocaleString()}</p>
-                              {due.finance_log.status === "APPROVED" ? (
+                              {due.finance_log.status === 'APPROVED' ? (
                                 <Badge
-                                  variant={"default"}
+                                  variant={'default'}
                                   className=" bg-green-100 text-green-800 shadow-none hover:bg-green-100 "
                                 >
                                   Approved
                                 </Badge>
-                              ) : due.finance_log.status === "REJECTED" ? (
+                              ) : due.finance_log.status === 'REJECTED' ? (
                                 <Badge
-                                  variant={"default"}
+                                  variant={'default'}
                                   className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
                                 >
                                   Payment Rejected
                                 </Badge>
                               ) : (
                                 <Badge
-                                  variant={"default"}
+                                  variant={'default'}
                                   className=" bg-yellow-100 text-yellow-800 shadow-none hover:bg-green-100 "
                                 >
                                   Pending

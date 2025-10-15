@@ -1,35 +1,39 @@
-import ConfigureCollectionForm from "@/components/Collection/ConfigureCollectionForm";
+import ConfigureCollectionForm from '@/components/Collection/ConfigureCollectionForm';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/components/ui/card";
-import { getHousesSummary } from "@/services/houseServices";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
-import { Separator } from "@/components/ui/separator";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { HousesSummary } from "@/types/HouseTypes";
-import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
-import { fetchFixedDue } from "@/services/subdivisionServices";
+} from '@/components/ui/card';
+import { getHousesSummary } from '@/services/houseServices';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router';
+import { Separator } from '@/components/ui/separator';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { HousesSummary } from '@/types/HouseTypes';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
+import { fetchFixedDue } from '@/services/subdivisionServices';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const Collection = () => {
-  const { data, isError, isLoading, error } = useQuery<HousesSummary>({
-    queryKey: ["houseSummary"],
-    queryFn: getHousesSummary,
-  });
+  const { data: villageData } = useVillageByAdmin();
+  const villageId = villageData?.id;
 
+  const { data, isError, isLoading, error } = useQuery<HousesSummary>({
+    queryKey: ['houseSummary', villageId], // add villageId to cache key
+    queryFn: () => getHousesSummary(villageId),
+    enabled: !!villageId, // only run if villageId exists
+  });
   const {
     data: fixedDue,
     isLoading: DueLoading,
     isError: dueError,
   } = useQuery({
-    queryKey: ["userFixedDue"],
+    queryKey: ['userFixedDue'],
     queryFn: fetchFixedDue,
   });
 
@@ -67,7 +71,7 @@ const Collection = () => {
     );
   }
 
-  if (isError && error.message === "Failed to fetch due amount") {
+  if (isError && error.message === 'Failed to fetch due amount') {
     return (
       <div className="flex h-full w-full items-center justify-center p-6">
         <Card className="w-full max-w-md p-6">
@@ -172,7 +176,7 @@ const Collection = () => {
                   Collected Dues
                 </p>
                 <p className="text-2xl font-bold text-green-600">
-                  ₱{data.totalPaidAmount.toLocaleString("en-PH")}
+                  ₱{data.totalPaidAmount.toLocaleString('en-PH')}
                 </p>
               </div>
               <div className="space-y-1">
@@ -180,7 +184,7 @@ const Collection = () => {
                   Pending Dues
                 </p>
                 <p className="text-2xl font-bold text-amber-600">
-                  ₱{data.totalUnpaidAmount.toLocaleString("en-PH")}
+                  ₱{data.totalUnpaidAmount.toLocaleString('en-PH')}
                 </p>
               </div>
               <div className="space-y-1">
@@ -188,7 +192,7 @@ const Collection = () => {
                   Total Expected
                 </p>
                 <p className="text-2xl font-bold">
-                  ₱{data.totalExpectedAmount.toLocaleString("en-PH")}
+                  ₱{data.totalExpectedAmount.toLocaleString('en-PH')}
                 </p>
                 <Progress
                   value={data.percentageCollected}
@@ -205,18 +209,18 @@ const Collection = () => {
                 </p>
                 <p className=" font-bold text-2xl">
                   {fixedDue?.amount
-                    ? `₱${fixedDue?.amount?.toLocaleString("en-PH")}`
-                    : "₱0"}
+                    ? `₱${fixedDue?.amount?.toLocaleString('en-PH')}`
+                    : '₱0'}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {fixedDue?.due_date
                     ? `Every ${fixedDue?.due_date} of the month`
-                    : "Due date not set"}
+                    : 'Due date not set'}
                 </p>
                 <p className=" text-xs text-muted-foreground">
                   {fixedDue?.grace_period
                     ? `Grace period: ${fixedDue?.grace_period} days`
-                    : "No grace period"}
+                    : 'No grace period'}
                 </p>
               </div>
             </div>
@@ -252,12 +256,12 @@ const Collection = () => {
                       <span>{phase.phaseName}</span>
                       <Badge
                         className={cn(
-                          "ml-2 ",
+                          'ml-2 ',
                           phase.paidResidentsPercentage * 100 >= 75
-                            ? "bg-green-100 text-green-800 hover:bg-green-200"
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
                             : phase.paidResidentsPercentage * 100 >= 50
-                            ? "bg-amber-100 text-amber-800 hover:bg-amber-200"
-                            : "bg-red-100 text-red-800 hover:bg-red-200"
+                            ? 'bg-amber-100 text-amber-800 hover:bg-amber-200'
+                            : 'bg-red-100 text-red-800 hover:bg-red-200'
                         )}
                       >
                         {(phase.paidResidentsPercentage * 100).toFixed(0)}%
@@ -318,27 +322,27 @@ const Collection = () => {
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">Monthly Due</p>
                       <p className="text-sm font-semibold">
-                        ₱{phase.dueAmountPerResident.toLocaleString("en-PH")}
+                        ₱{phase.dueAmountPerResident.toLocaleString('en-PH')}
                       </p>
                     </div>
                     <Separator className="my-1" />
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">Collected</p>
                       <p className="text-sm font-semibold text-green-600">
-                        ₱{phase.totalPaidAmount.toLocaleString("en-PH")}
+                        ₱{phase.totalPaidAmount.toLocaleString('en-PH')}
                       </p>
                     </div>
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">Pending</p>
                       <p className="text-sm font-semibold text-amber-600">
-                        ₱{phase.totalUnpaidAmount.toLocaleString("en-PH")}
+                        ₱{phase.totalUnpaidAmount.toLocaleString('en-PH')}
                       </p>
                     </div>
                     <Separator className="my-1" />
                     <div className="flex justify-between items-center">
                       <p className="text-sm font-medium">Expected Total</p>
                       <p className="text-sm font-semibold">
-                        ₱{phase.totalExpectedAmount.toLocaleString("en-PH")}
+                        ₱{phase.totalExpectedAmount.toLocaleString('en-PH')}
                       </p>
                     </div>
                   </div>
