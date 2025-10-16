@@ -5,10 +5,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "../ui/input";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+} from '@/components/ui/form';
+import { Input } from '../ui/input';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   AlertDialog,
   AlertDialogActionNoClose,
@@ -19,21 +19,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "../ui/button";
+} from '@/components/ui/alert-dialog';
+import { Button } from '../ui/button';
 import {
   collectionSchema,
   CollectionType,
-} from "@/validations/collectionSchema";
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { updateHousePayment } from "@/services/houseServices";
-import { Textarea } from "../ui/textarea";
-import { toast } from "@/hooks/use-toast";
-import { Icon } from "@iconify/react/dist/iconify.js";
-import { Label } from "../ui/label";
-import { fetchFixedDue } from "@/services/dueServices";
-import { formatAmount } from "@/lib/utils";
+} from '@/validations/collectionSchema';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { updateHousePayment } from '@/services/houseServices';
+import { Textarea } from '../ui/textarea';
+import { toast } from '@/hooks/use-toast';
+import { Icon } from '@iconify/react/dist/iconify.js';
+import { Label } from '../ui/label';
+import { fetchFixedDue } from '@/services/dueServices';
+import { formatAmount } from '@/lib/utils';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const CollectionForm = ({
   houseId,
@@ -44,6 +45,9 @@ const CollectionForm = ({
   houseId: string;
   houseLatestPayment: Date | null;
 }) => {
+  const { data: villageData } = useVillageByAdmin();
+
+  const villageId = villageData?.id;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [amountToPay, setAmountToPay] = useState<number>(0);
   const [monthsPaying, setMonthsPaying] = useState<string[]>([]);
@@ -51,7 +55,7 @@ const CollectionForm = ({
   const queryClient = useQueryClient();
 
   const { data: fixedDue } = useQuery({
-    queryKey: ["fixedDue"],
+    queryKey: ['fixedDue'],
     queryFn: fetchFixedDue,
   });
 
@@ -60,9 +64,9 @@ const CollectionForm = ({
     defaultValues: {
       houseLatestPaymentAmount: 0,
       housePaymentMonths: 1,
-      housePaymentRemarks: "",
+      housePaymentRemarks: '',
     },
-    mode: "all",
+    mode: 'all',
   });
 
   useEffect(() => {
@@ -73,16 +77,16 @@ const CollectionForm = ({
     };
   }, []);
 
-  const housePaymentsMonthCurVal = form.watch("housePaymentMonths");
-  const housePaymentAmount = form.watch("houseLatestPaymentAmount");
+  const housePaymentsMonthCurVal = form.watch('housePaymentMonths');
+  const housePaymentAmount = form.watch('houseLatestPaymentAmount');
 
   const updatePaymentMutation = useMutation({
     mutationFn: updateHousePayment,
     onError: (error) => {
       console.error(error);
       toast({
-        title: "Error",
-        description: "Error updating house details",
+        title: 'Error',
+        description: 'Error updating house details',
       });
     },
     onMutate: () => {
@@ -92,37 +96,50 @@ const CollectionForm = ({
       setAmountToPay(0);
       setDialogOpen(false);
       toast({
-        title: "Updating payment...",
-        description: "Please wait while we update the payment.",
+        title: 'Updating payment...',
+        description: 'Please wait while we update the payment.',
       });
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Payment has been recorded",
+        title: 'Success',
+        description: 'Payment has been recorded',
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["collection"] });
-      queryClient.invalidateQueries({ queryKey: ["paymentHistory"] });
+      queryClient.invalidateQueries({ queryKey: ['collection'] });
+      queryClient.invalidateQueries({ queryKey: ['paymentHistory'] });
     },
   });
 
   const onSubmit: SubmitHandler<CollectionType> = (data) => {
+    if (!villageId) {
+      toast({
+        title: 'Error',
+        description: 'Village ID is missing. Please try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (data.paymentProof instanceof File) {
-      updatePaymentMutation.mutate({ houseId, data });
+      updatePaymentMutation.mutate({
+        houseId,
+        data,
+        villageId, // ✅ pass it separately
+      });
     } else {
       toast({
-        title: "Error",
-        description: "Please upload a payment proof image",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please upload a payment proof image',
+        variant: 'destructive',
       });
     }
   };
 
   useEffect(() => {
-    if (fixedDue?.total_due && form.getValues("housePaymentMonths")) {
-      setAmountToPay(fixedDue.total_due * form.getValues("housePaymentMonths"));
+    if (fixedDue?.total_due && form.getValues('housePaymentMonths')) {
+      setAmountToPay(fixedDue.total_due * form.getValues('housePaymentMonths'));
 
       let startDate;
 
@@ -133,15 +150,15 @@ const CollectionForm = ({
         startDate = new Date();
       }
 
-      const totalMonths = form.getValues("housePaymentMonths");
+      const totalMonths = form.getValues('housePaymentMonths');
 
       const monthsArray = Array.from({ length: totalMonths }, (_, i) => {
         const paymentDate = new Date(startDate);
         paymentDate.setMonth(startDate.getMonth() + i);
 
-        return paymentDate.toLocaleString("default", {
-          month: "long",
-          year: "numeric",
+        return paymentDate.toLocaleString('default', {
+          month: 'long',
+          year: 'numeric',
         });
       });
 
@@ -206,14 +223,14 @@ const CollectionForm = ({
                           const value = parseInt(e.target.value);
 
                           if (value > 12) {
-                            form.setError("housePaymentMonths", {
-                              type: "manual",
-                              message: "Maximum 12 months",
+                            form.setError('housePaymentMonths', {
+                              type: 'manual',
+                              message: 'Maximum 12 months',
                             });
                           } else if (value < 1) {
-                            form.setError("housePaymentMonths", {
-                              type: "manual",
-                              message: "Minimum 1 month",
+                            form.setError('housePaymentMonths', {
+                              type: 'manual',
+                              message: 'Minimum 1 month',
                             });
                           } else {
                             field.onChange(value);
@@ -240,7 +257,7 @@ const CollectionForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Remarks{" "}
+                      Remarks{' '}
                       <span className="font-light text-xs">(Optional)</span>
                     </FormLabel>
                     <FormControl>
@@ -290,7 +307,7 @@ const CollectionForm = ({
                             onChange(undefined);
                           }}
                           className="absolute right-4 top-4 text-2xl hover:cursor-pointer hover:text-red-600"
-                          icon={"mingcute:close-circle-fill"}
+                          icon={'mingcute:close-circle-fill'}
                         />
                       </div>
                     ) : (
@@ -299,7 +316,7 @@ const CollectionForm = ({
                           <div className="flex flex-shrink-0 items-center justify-center rounded-md">
                             <Icon
                               className="h-11 w-11 text-blue-300"
-                              icon={"mingcute:pic-fill"}
+                              icon={'mingcute:pic-fill'}
                             />
                           </div>
                           <p className="text-[12px] font-semibold text-blue-300">
@@ -324,7 +341,7 @@ const CollectionForm = ({
             disabled={
               housePaymentAmount !== amountToPay ||
               updatePaymentMutation.isPending ||
-              !form.getValues("paymentProof")
+              !form.getValues('paymentProof')
             }
             type="submit"
             form="form"

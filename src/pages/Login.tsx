@@ -76,7 +76,7 @@ const Login = () => {
       if (data?.role === 'admin' || data?.role === 'resident') {
         navigate('/dashboard', { replace: true });
       } else {
-        navigate('/residents', { replace: true });
+        navigate('/village-dashboard', { replace: true });
       }
     },
     onError: (error) => {

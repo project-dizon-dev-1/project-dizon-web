@@ -1,8 +1,8 @@
 const COMMON_LINKS = {
-  dashboard: {
-    label: 'Dashboard',
-    link: '/dashboard',
-    icon: 'mingcute:chart-pie-2-line',
+  villageDashboard: {
+    label: 'Village Dashboard',
+    link: '/village-dashboard',
+    icon: 'mingcute:home-3-line',
   },
   announcements: {
     label: 'Announcements',
@@ -39,12 +39,6 @@ const COMMON_LINKS = {
     link: '/payment-history',
     icon: 'mingcute:history-line',
   },
-
-  // auditLogs: {
-  //   label: "Audit Logs",
-  //   link: "/audit-logs",
-  //   icon: "mingcute:shield-line",
-  // },
   financeLogs: {
     label: 'Transactions',
     link: '/financial-logs',
@@ -63,22 +57,18 @@ const COMMON_LINKS = {
 };
 
 export const SIDEBAR_LINKS = Object.freeze({
-  resident: [
-    COMMON_LINKS.dashboard,
-    COMMON_LINKS.announcements,
-    COMMON_LINKS.paymentHistory,
-  ],
+  resident: [COMMON_LINKS.announcements, COMMON_LINKS.paymentHistory],
   admin: [
-    COMMON_LINKS.dashboard,
+    COMMON_LINKS.villageDashboard, // 🆕 Added here
     COMMON_LINKS.residents,
     COMMON_LINKS.announcements,
     COMMON_LINKS.paymentHistory,
     COMMON_LINKS.manageSubdivision,
   ],
   superadmin: [
+    COMMON_LINKS.villageDashboard, // 🆕 Added here
     COMMON_LINKS.residents,
     COMMON_LINKS.announcements,
-    // COMMON_LINKS.paymentHistory,
     COMMON_LINKS.manageSubdivision,
     COMMON_LINKS.users,
   ],
@@ -88,7 +78,5 @@ export const SIDEBAR_LINKS = Object.freeze({
     COMMON_LINKS.expenses,
     COMMON_LINKS.paymentCollection,
     COMMON_LINKS.collectionHistory,
-    // COMMON_LINKS.auditLogs,
   ],
-  // resident: [COMMON_LINKS.announcements, COMMON_LINKS.schedule],
 });

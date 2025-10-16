@@ -27,6 +27,16 @@ import AuthorizeByRole from './components/AuthorizeByRole';
 import TransactionHistory from './pages/TransactionHistory';
 import UsersComponent from './pages/UsersComponent';
 import AdminSignup from './pages/AdminSignUp';
+import VillageDashboard from './pages/VillageDashboard';
+
+// server.ts or app.ts (at the very top, after imports)
+
+// Fix BigInt serialization for all endpoints
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
+// Now all your routes will work without individual fixes
 
 const App = () => {
   return (
@@ -71,6 +81,7 @@ const App = () => {
               <Route path="/financial-logs" element={<TransactionHistory />} />
             </Route>
             <Route element={<AuthorizeByRole roles={['superadmin']} />}>
+              <Route path="/village-dashboard" element={<VillageDashboard />} />
               <Route path="/users" element={<UsersComponent />} />
             </Route>
 

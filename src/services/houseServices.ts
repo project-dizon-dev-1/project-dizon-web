@@ -77,9 +77,11 @@ const createCode = async (houseId: string | undefined) => {
 const updateHousePayment = async ({
   houseId,
   data,
+  villageId,
 }: {
   houseId: string;
   data: CollectionType;
+  villageId: string;
 }) => {
   const formData = new FormData();
 
@@ -94,10 +96,14 @@ const updateHousePayment = async ({
     formData.append('housePaymentRemarks', data.housePaymentRemarks);
   }
 
+  // ✅ Add villageId
+  formData.append('villageId', villageId);
+
   // Add file if it exists
   if (data.paymentProof instanceof File) {
     formData.append('paymentProof', data.paymentProof);
   }
+
   return await axiosPut(`/houses/update/payment/${houseId}`, formData);
 };
 

@@ -6,6 +6,23 @@ import {
 } from '@/validations/userSchema';
 import { supabase } from './supabaseClient';
 
+// ✅ Helper to check if user already exists by email
+const checkUserEmailExists = async (email: string) => {
+  const { data, error } = await supabase
+    .from('users-list')
+    .select('user_email')
+    .eq('user_email', email)
+    .maybeSingle();
+
+  if (error) {
+    console.error('❌ Error checking user email:', error);
+    throw new Error(error.message || 'Failed to verify existing email');
+  }
+
+  return data ? data.user_email : null;
+};
+
+// ✅ Signup (existing, unchanged)
 const signup = async (userData: signupType) => {
   const validationResult = signupSchema.safeParse(userData);
 
@@ -25,7 +42,6 @@ const signup = async (userData: signupType) => {
     houseCode,
   } = validationResult.data;
 
-  // First verify house code is valid
   const { data: houseData, error: houseError } = await supabase
     .from('house-code')
     .select('house_id')
@@ -36,7 +52,6 @@ const signup = async (userData: signupType) => {
     throw new Error('Invalid house code. Please check and try again.');
   }
 
-  // Create the user in auth
   const { data, error } = await supabase.auth.signUp({
     email: userEmail,
     password: userPassword,
@@ -50,7 +65,6 @@ const signup = async (userData: signupType) => {
     throw new Error('User ID not found');
   }
 
-  // Insert user with resident role
   const { error: insertError } = await supabase.from('users-list').insert([
     {
       id: data.user.id,
@@ -66,7 +80,6 @@ const signup = async (userData: signupType) => {
     throw new Error(`Error creating user profile: ${insertError.message}`);
   }
 
-  // Link user to house as the main point of contact
   if (!houseData.house_id) {
     throw new Error('House ID not found');
   }
@@ -79,7 +92,6 @@ const signup = async (userData: signupType) => {
     throw new Error(`Error linking user to house: ${linkError.message}`);
   }
 
-  // delete the house code after use
   const { error: deleteError } = await supabase
     .from('house-code')
     .delete()
@@ -89,6 +101,7 @@ const signup = async (userData: signupType) => {
   }
 };
 
+// ✅ Login (existing, unchanged)
 const login = async (userData: loginType) => {
   const validationResult = loginSchema.safeParse(userData);
 
@@ -111,7 +124,6 @@ const login = async (userData: loginType) => {
     throw new Error('User authentication successful but user ID is missing');
   }
 
-  // First, check if the user exists in users-list
   const { data: userCheck, error: checkError } = await supabase
     .from('users-list')
     .select('id')
@@ -127,7 +139,6 @@ const login = async (userData: loginType) => {
     );
   }
 
-  // Now fetch the user details with error handling
   const { data: userDetails, error: fetchError } = await supabase
     .from('users-list')
     .select(
@@ -150,10 +161,12 @@ const login = async (userData: loginType) => {
   return userDetails;
 };
 
+// ✅ Logout (existing, unchanged)
 const logout = async () => {
   await supabase.auth.signOut();
 };
 
+// ✅ Resend Email Confirmation (existing, unchanged)
 const resendEmailConfirmation = async (email: string) => {
   const { error } = await supabase.auth.resend({
     type: 'signup',
@@ -167,6 +180,99 @@ const resendEmailConfirmation = async (email: string) => {
   }
 
   return { success: true };
+};
+
+// ✅ New: Request OTP (TypeScript version)
+export const requestOtp = async (email: string, password: string) => {
+  const existingEmail = await checkUserEmailExists(email);
+  if (existingEmail) {
+    throw new Error(`Email ${existingEmail} is already registered.`);
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error('❌ OTP request failed:', error);
+    throw new Error(error.message || 'Failed to send OTP');
+  }
+
+  console.log('✅ OTP requested successfully for:', email);
+  return { email };
+};
+
+export const verifyOtp = async (
+  email: string,
+  otpCode: string,
+  userFirstName: string,
+  userLastName: string,
+  contactNumber: string
+) => {
+  console.log('🔹 Starting OTP verification for email:', email);
+
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token: otpCode,
+    type: 'signup',
+  });
+
+  if (error) {
+    console.error('❌ OTP verification error:', error);
+    throw new Error(error?.message || 'Invalid OTP');
+  }
+
+  if (!data?.session) {
+    console.warn(
+      '⚠️ OTP verification succeeded but no session returned:',
+      data
+    );
+    throw new Error('Invalid OTP: no session returned');
+  }
+
+  const user = data.user;
+  console.log('✅ OTP verified successfully. Supabase user object:', user);
+
+  // 🧾 Insert user details into users-list
+  const userData = {
+    id: user?.id,
+    user_email: email,
+    user_first_name: userFirstName,
+    user_last_name: userLastName,
+    contact_number: contactNumber,
+    role: 'superadmin' as 'superadmin',
+  };
+
+  const { error: insertError } = await supabase
+    .from('users-list')
+    .insert([userData]);
+
+  if (insertError) {
+    console.error('❌ Failed to insert new OTP user:', insertError);
+    throw new Error(
+      insertError.message || 'Failed to create user in users-list'
+    );
+  }
+
+  // 🧩 Update user metadata
+  const { error: metadataError } = await supabase.auth.updateUser({
+    data: {
+      password_setup_complete: true,
+      ...userData,
+    },
+  });
+
+  if (metadataError) {
+    console.error('❌ Failed to set user metadata:', metadataError);
+    throw new Error(
+      metadataError.message || 'Failed to initialize user metadata'
+    );
+  }
+
+  console.log('✅ OTP verification completed and user profile created.');
+
+  return userData; // <-- Return user data (including role)
 };
 
 export { signup, login, logout, resendEmailConfirmation };

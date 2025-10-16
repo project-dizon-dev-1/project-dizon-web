@@ -370,12 +370,26 @@ const Homepage = () => {
             viewport={{ once: true }}
           >
             <MotionCard
-              className="overflow-hidden border-none shadow-2xl bg-gradient-to-br from-white to-blue-50"
+              className="overflow-hidden border-none shadow-2xl bg-gradient-to-br from-white to-blue-50 relative"
               whileHover={{
                 y: -5,
                 boxShadow: '0 12px 30px rgba(0, 0, 0, 0.12)',
               }}
             >
+              {/* Special Offer Badge */}
+              <motion.div
+                className="absolute top-4 right-4 z-10"
+                initial={{ scale: 0, rotate: -180 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                viewport={{ once: true }}
+              >
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+                  <Icon icon="mingcute:gift-fill" className="w-4 h-4" />1 Month
+                  FREE
+                </div>
+              </motion.div>
+
               <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
               <CardContent className="p-8 text-center">
                 <motion.div
@@ -394,7 +408,7 @@ const Homepage = () => {
                 </motion.div>
 
                 <motion.div
-                  className="mb-8"
+                  className="mb-6"
                   initial={{ scale: 0.9, opacity: 0 }}
                   whileInView={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.3, type: 'spring' }}
@@ -408,6 +422,22 @@ const Homepage = () => {
                       /month
                     </span>
                   </div>
+                  <motion.div
+                    className="mt-3 inline-block bg-green-50 border border-green-200 rounded-lg px-4 py-2"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    viewport={{ once: true }}
+                  >
+                    <p className="text-sm font-medium text-green-700 flex items-center gap-2">
+                      <Icon
+                        icon="mingcute:check-circle-fill"
+                        className="w-5 h-5"
+                      />
+                      New villages get 1 month free after successful
+                      registration
+                    </p>
+                  </motion.div>
                 </motion.div>
 
                 <div className="space-y-4 mb-8 text-left">
@@ -424,7 +454,7 @@ const Homepage = () => {
                       className="flex items-center gap-3"
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 + index * 0.1 }}
+                      transition={{ delay: 0.6 + index * 0.1 }}
                       viewport={{ once: true }}
                     >
                       <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
@@ -602,20 +632,6 @@ const Homepage = () => {
               >
                 Contact
               </Button>
-              {/* <Button
-                variant="link"
-                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
-                onClick={(e) => handleNavigation("/privacy", e)}
-              >
-                Privacy
-              </Button>
-              <Button
-                variant="link"
-                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
-                onClick={(e) => handleNavigation("/terms", e)}
-              >
-                Terms
-              </Button> */}
             </motion.div>
           </div>
         </MotionDiv>
