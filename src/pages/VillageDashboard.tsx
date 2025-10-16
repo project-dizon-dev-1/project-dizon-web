@@ -95,9 +95,6 @@ const VillageDashboard = () => {
           // Xendit response contains invoice_url
           const invoiceUrl = response?.data?.invoice_url;
 
-          console.log('Full response:', response);
-          console.log('Invoice URL:', invoiceUrl);
-
           if (invoiceUrl) {
             window.open(invoiceUrl, '_blank', 'width=800,height=600');
             toast({

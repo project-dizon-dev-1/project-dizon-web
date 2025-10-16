@@ -42,6 +42,16 @@ export interface FormattedDuePayment {
 }
 
 // ---------- API Calls ----------
+export interface XenditInvoiceResponse {
+  message: string;
+  data: {
+    id: string;
+    invoice_url: string;
+    status: string;
+    amount: number;
+    [key: string]: any; // optional catch-all for other fields
+  };
+}
 
 export const createInvoiceApi = async ({
   village_id,
@@ -51,16 +61,7 @@ export const createInvoiceApi = async ({
   payer_email,
   description,
 }: CreateInvoicePayload) => {
-  console.log('=== CREATE INVOICE API PARAMS ===');
-  console.log('village_id:', village_id);
-  console.log('purpose:', purpose);
-  console.log('user_id:', user_id);
-  console.log('amount:', amount);
-  console.log('payer_email:', payer_email);
-  console.log('description:', description);
-  console.log('================================');
-
-  return await axiosPost('/xendit/create-invoice', {
+  const response = await axiosPost('/xendit/create-invoice', {
     amount,
     purpose,
     payer_email,
@@ -68,7 +69,10 @@ export const createInvoiceApi = async ({
     village_id,
     user_id,
   });
+
+  return response as unknown as XenditInvoiceResponse;
 };
+
 export const createDueInvoiceApi = async ({
   village_id,
   house_id,
