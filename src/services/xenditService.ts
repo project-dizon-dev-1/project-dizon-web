@@ -61,16 +61,46 @@ export const createInvoiceApi = async ({
   payer_email,
   description,
 }: CreateInvoicePayload) => {
-  const response = await axiosPost('/xendit/create-invoice', {
-    amount,
+  console.log('🧾 [createInvoiceApi] Starting invoice creation with data:', {
+    village_id,
     purpose,
+    user_id,
+    amount,
     payer_email,
     description,
-    village_id,
-    user_id,
   });
 
-  return response as unknown as XenditInvoiceResponse;
+  try {
+    const response = await axiosPost('/xendit/create-invoice', {
+      amount,
+      purpose,
+      payer_email,
+      description,
+      village_id,
+      user_id,
+    });
+
+    console.log(
+      '✅ [createInvoiceApi] Invoice created successfully:',
+      response
+    );
+    return response as unknown as XenditInvoiceResponse;
+  } catch (error: any) {
+    console.error('❌ [createInvoiceApi] Failed to create invoice.');
+
+    if (error.response) {
+      console.error('🚨 Server responded with:', error.response.data);
+      console.error('📦 Status:', error.response.status);
+      console.error('📩 Headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('📭 No response received:', error.request);
+    } else {
+      console.error('⚙️ Error setting up request:', error.message);
+    }
+
+    console.error('🔍 Full error object:', error);
+    throw new Error(error?.message || 'Failed to create invoice.');
+  }
 };
 
 export const createDueInvoiceApi = async ({

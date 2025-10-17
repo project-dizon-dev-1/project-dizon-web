@@ -32,7 +32,7 @@ export const useSubmitVillageRequest = () => {
         village_address: data.formData.villageAddress,
         requester_email: data.userEmail,
         user_id: data.userId,
-        status: 'pending',
+        status: 'PENDING',
         // address is optional, add if you have it in formData
         // address: data.formData.address,
       }),

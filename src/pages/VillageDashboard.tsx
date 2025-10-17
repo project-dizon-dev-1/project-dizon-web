@@ -1,7 +1,7 @@
 // VillageDashboard.tsx
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useVillageByAdmin } from '@/hooks/use-village-admin';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getHouses } from '@/services/houseServices';
 import {
   fetchBlocksByPhase,
@@ -18,21 +18,25 @@ import {
 } from '@/hooks/useVillageRequest';
 import { VillageForm, VillageFormType } from '@/components/VillageForm';
 import { toast } from '@/hooks/use-toast';
-import { useCreateInvoice } from '@/hooks/useXendit';
+import { useCreateInvoice, usePollInvoiceStatus } from '@/hooks/useXendit';
+import { useState, useEffect } from 'react';
 
 const VillageDashboard = () => {
   const { user } = useUserContext();
-
   const { phases } = usePhaseContext();
+  const queryClient = useQueryClient();
+  const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(null);
 
   const { data: villageData, isLoading: villageLoading } = useVillageByAdmin();
   const { data: villageRequest, isLoading: requestLoading } =
     useVillageRequestByEmail(user?.user_email);
 
-  // Add the submit mutation hook
   const { mutate: submitRequest } = useSubmitVillageRequest();
   const { mutate: createInvoice, isPending: isCreatingInvoice } =
     useCreateInvoice();
+
+  // Poll invoice status
+  const { data: invoiceStatus } = usePollInvoiceStatus(currentInvoiceId);
 
   const villageId = villageData?.id;
 
@@ -63,7 +67,36 @@ const VillageDashboard = () => {
     blocksLoading ||
     requestLoading;
 
-  // Handle form submission
+  // Monitor invoice status changes
+  useEffect(() => {
+    if (invoiceStatus) {
+      if (
+        invoiceStatus.status === 'PAID' ||
+        invoiceStatus.status === 'SETTLED'
+      ) {
+        toast({
+          title: 'Payment Successful',
+          description: 'Your subscription has been renewed!',
+        });
+
+        // Invalidate village data to refresh subscription date
+        queryClient.invalidateQueries({
+          queryKey: ['village-by-admin', user?.id],
+        });
+
+        // Clear the invoice ID to stop polling
+        setCurrentInvoiceId(null);
+      } else if (invoiceStatus.status === 'EXPIRED') {
+        toast({
+          title: 'Payment Expired',
+          description: 'The payment window has expired. Please try again.',
+          variant: 'destructive',
+        });
+        setCurrentInvoiceId(null);
+      }
+    }
+  }, [invoiceStatus, queryClient, user?.id]);
+
   const handleVillageRequestSubmit = (formData: VillageFormType) => {
     if (!user?.user_email || !user?.id) {
       toast({
@@ -81,26 +114,25 @@ const VillageDashboard = () => {
     });
   };
 
-  // Handle subscription payment
   const handleSubscriptionPayment = () => {
     createInvoice(
       {
-        amount: 1000, // Adjust amount as needed
+        amount: 1000,
         description: 'Village Subscription Renewal',
         purpose: 'subscription',
       },
       {
         onSuccess: (response) => {
-          // Backend returns { message, data: { ...xenditResponse } }
-          // Xendit response contains invoice_url
           const invoiceUrl = response?.data?.invoice_url;
+          const invoiceId = response?.data?.id;
 
-          if (invoiceUrl) {
+          if (invoiceUrl && invoiceId) {
+            setCurrentInvoiceId(invoiceId);
             window.open(invoiceUrl, '_blank', 'width=800,height=600');
             toast({
               title: 'Success',
               description:
-                'Payment window opened. Please complete your payment.',
+                'Payment window opened. We will notify you when payment is complete.',
             });
           } else {
             console.error('Invoice response:', response);
@@ -111,14 +143,15 @@ const VillageDashboard = () => {
             });
           }
         },
-        onError: (error) => {
-          console.error('Invoice creation error:', error);
+        onError: (error: any) => {
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to create invoice.';
+
           toast({
             title: 'Payment Error',
-            description:
-              error instanceof Error
-                ? error.message
-                : 'Failed to create invoice.',
+            description: errorMessage,
             variant: 'destructive',
           });
         },
@@ -136,7 +169,6 @@ const VillageDashboard = () => {
     );
   }
 
-  // Village exists
   if (villageData) {
     return (
       <div className="w-full p-6 space-y-8 overflow-y-auto no-scrollbar">
@@ -184,16 +216,16 @@ const VillageDashboard = () => {
                 </p>
                 <button
                   onClick={handleSubscriptionPayment}
-                  disabled={isCreatingInvoice}
+                  disabled={isCreatingInvoice || !!currentInvoiceId}
                   className="px-3 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg transition-colors flex items-center gap-1"
                 >
-                  {isCreatingInvoice ? (
+                  {isCreatingInvoice || currentInvoiceId ? (
                     <>
                       <Icon
                         icon="mdi:loading"
                         className="h-4 w-4 animate-spin"
                       />
-                      Processing...
+                      {currentInvoiceId ? 'Processing...' : 'Creating...'}
                     </>
                   ) : (
                     <>
@@ -205,6 +237,14 @@ const VillageDashboard = () => {
                     </>
                   )}
                 </button>
+              </div>
+            )}
+            {currentInvoiceId && invoiceStatus && (
+              <div className="mt-2 p-2 bg-blue-50 rounded-lg text-xs">
+                <p className="text-blue-700">
+                  Payment Status:{' '}
+                  <span className="font-medium">{invoiceStatus.status}</span>
+                </p>
               </div>
             )}
           </CardContent>
@@ -240,7 +280,6 @@ const VillageDashboard = () => {
     );
   }
 
-  // Pending request
   if (villageRequest) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] text-gray-500 space-y-4">
@@ -256,7 +295,6 @@ const VillageDashboard = () => {
     );
   }
 
-  // No village/request → show form
   return (
     <div className="flex items-center justify-center min-h-[70vh] w-full">
       <VillageForm onSubmit={handleVillageRequestSubmit} />
@@ -266,7 +304,6 @@ const VillageDashboard = () => {
 
 export default VillageDashboard;
 
-// Reusable Stat Card
 const DashboardStat = ({
   icon,
   title,

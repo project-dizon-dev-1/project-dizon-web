@@ -101,6 +101,111 @@ const signup = async (userData: signupType) => {
   }
 };
 
+export const requestResidentOtp = async (email: string, password: string) => {
+  const existingEmail = await checkUserEmailExists(email);
+  if (existingEmail) {
+    throw new Error(`Email ${existingEmail} is already registered.`);
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  if (error) {
+    throw new Error(error.message || 'Failed to send OTP');
+  }
+
+  return { success: true, email };
+};
+
+export const verifyResidentOtp = async (
+  email: string,
+  otpCode: string,
+  userFirstName: string,
+  userLastName: string,
+  userContact: string | undefined, // ✅ Made optional
+  houseCode: string
+) => {
+  console.log('🔹 Verifying resident OTP for:', email);
+
+  // Step 1: Verify OTP with Supabase
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token: otpCode,
+    type: 'signup',
+  });
+
+  if (error) throw new Error(error.message || 'Invalid OTP');
+  if (!data?.user) throw new Error('OTP verified, but no user data returned');
+
+  const user = data.user;
+
+  // Step 2: Validate house code
+  const { data: houseData, error: houseError } = await supabase
+    .from('house-code')
+    .select('house_id')
+    .eq('code', houseCode)
+    .single();
+
+  if (houseError || !houseData) {
+    throw new Error('Invalid house code. Please check and try again.');
+  }
+
+  // Step 3: Create resident profile
+  const { error: insertError } = await supabase.from('users-list').insert([
+    {
+      id: user.id,
+      user_first_name: userFirstName,
+      user_last_name: userLastName,
+      user_email: email,
+      contact_number: userContact || null, // ✅ Handle undefined
+      role: 'resident',
+    },
+  ]);
+
+  if (insertError) {
+    throw new Error(insertError.message || 'Failed to create user profile');
+  }
+
+  // Step 4: Link to house
+  const { error: linkError } = await supabase
+    .from('house-list')
+    .update({
+      house_main_poc: user.id,
+      house_family_name: userLastName,
+    })
+    .eq('id', houseData.house_id);
+
+  if (linkError) {
+    throw new Error(linkError.message || 'Failed to link user to house');
+  }
+
+  // Step 5: Delete house code
+  const { error: deleteError } = await supabase
+    .from('house-code')
+    .delete()
+    .eq('code', houseCode);
+
+  if (deleteError) {
+    throw new Error(deleteError.message || 'Failed to delete used house code');
+  }
+
+  // Step 6: Update user metadata
+  await supabase.auth.updateUser({
+    data: {
+      role: 'resident',
+      user_first_name: userFirstName,
+      user_last_name: userLastName,
+      contact_number: userContact || null, // ✅ Handle undefined
+      house_id: houseData.house_id,
+    },
+  });
+
+  console.log('✅ Resident verified & registered successfully');
+  return { ...user, role: 'resident' };
+};
+
 // ✅ Login (existing, unchanged)
 const login = async (userData: loginType) => {
   const validationResult = loginSchema.safeParse(userData);
@@ -162,8 +267,30 @@ const login = async (userData: loginType) => {
 };
 
 // ✅ Logout (existing, unchanged)
+// ✅ Full logout for web
 const logout = async () => {
-  await supabase.auth.signOut();
+  try {
+    // 1️⃣ Sign out of Supabase (revokes refresh tokens & clears internal session)
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+
+    // 2️⃣ Clear any local browser storage related to Supabase or your app
+    localStorage.removeItem('supabase.auth.token');
+    localStorage.removeItem('userProfile');
+    sessionStorage.clear();
+
+    // 3️⃣ Optional: clear app caches if using TanStack Query
+    // import { queryClient } from '@/lib/queryClient';
+    // queryClient.clear();
+
+    // 4️⃣ Optionally redirect to login page
+    window.location.href = '/login';
+
+    console.log('✅ User fully logged out and session cleared.');
+  } catch (err) {
+    console.error('❌ Error during logout:', err);
+    throw new Error('Logout failed. Please try again.');
+  }
 };
 
 // ✅ Resend Email Confirmation (existing, unchanged)

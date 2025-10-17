@@ -35,6 +35,7 @@ type paginatedAnnouncementQueryParams = {
   page: string;
   pageSize: string;
   phase: string | null | undefined;
+  village_id: string | null | undefined;
 };
 export type {
   Announcement,

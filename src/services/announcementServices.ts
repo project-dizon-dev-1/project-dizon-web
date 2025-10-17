@@ -1,9 +1,9 @@
-import { axiosDelete, axiosGet, axiosPost, axiosPut } from "@/lib/axios";
+import { axiosDelete, axiosGet, axiosPost, axiosPut } from '@/lib/axios';
 import {
   Announcement,
   paginatedAnnouncementQueryParams,
-} from "@/types/announcementTypes";
-import { PaginatedDataType } from "@/types/paginatedType";
+} from '@/types/announcementTypes';
+import { PaginatedDataType } from '@/types/paginatedType';
 
 const addAnnouncement = async ({
   userId,
@@ -19,11 +19,12 @@ const fetchAnnouncements = async ({
   page,
   pageSize,
   phase,
+  village_id,
 }: paginatedAnnouncementQueryParams): Promise<
   PaginatedDataType<Announcement>
 > => {
   return await axiosGet(`/announcements/`, {
-    params: { page, pageSize, phase },
+    params: { page, pageSize, phase, village_id },
   });
 };
 

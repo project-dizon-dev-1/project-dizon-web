@@ -13,13 +13,16 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Icon } from '@iconify/react/dist/iconify.js';
 import { Button } from '@/components/ui/button';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const Announcements = () => {
   const { isMobile } = useSidebar();
   const [searchParams] = useSearchParams();
   const { user } = useUserContext();
   const announcementsContainerRef = useRef<HTMLDivElement>(null);
+  const { data: villageData } = useVillageByAdmin();
 
+  console.log(villageData?.id);
   const {
     data,
     isError,
@@ -31,6 +34,7 @@ const Announcements = () => {
     queryKey: [
       'announcements',
       user?.role === 'resident' ? user.house_phase : searchParams.get('phase'),
+      villageData?.id,
     ],
     queryFn: async ({ pageParam }) => {
       const page = pageParam.toString();
@@ -41,15 +45,15 @@ const Announcements = () => {
           user?.role === 'resident'
             ? user.house_phase
             : searchParams.get('phase'),
+        village_id: villageData?.id,
       });
     },
     initialPageParam: 1,
-
     getNextPageParam: (lastPage) => {
       if (!lastPage || !lastPage.hasNextPage) return undefined;
       return lastPage.currentPage + 1;
     },
-    enabled: !!user,
+    enabled: !!user && !!villageData?.id,
   });
 
   // Create callback for intersection observer
