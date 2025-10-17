@@ -28,8 +28,12 @@ const VillageDashboard = () => {
   const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(null);
 
   const { data: villageData, isLoading: villageLoading } = useVillageByAdmin();
+
+  // Only fetch village request if no village exists
   const { data: villageRequest, isLoading: requestLoading } =
-    useVillageRequestByEmail(user?.user_email);
+    useVillageRequestByEmail(user?.user_email, {
+      enabled: !villageLoading && !villageData,
+    });
 
   const { mutate: submitRequest } = useSubmitVillageRequest();
   const { mutate: createInvoice, isPending: isCreatingInvoice } =
@@ -43,21 +47,21 @@ const VillageDashboard = () => {
   const { data: houseData, isLoading: housesLoading } = useQuery({
     queryKey: ['houses-summary', villageId],
     queryFn: async () => await getHouses({ page: '1', village: villageId }),
-    enabled: !!villageId,
+    enabled: !!villageId && !!villageData,
   });
 
   const { data: streetsData, isLoading: streetsLoading } = useQuery({
     queryKey: ['village-streets', villageId],
     queryFn: async () =>
       (await Promise.all(phases.map((p) => fetchStreetsByPhase(p.id)))).flat(),
-    enabled: !!villageId && phases.length > 0,
+    enabled: !!villageId && !!villageData && phases.length > 0,
   });
 
   const { data: blocksData, isLoading: blocksLoading } = useQuery({
     queryKey: ['village-blocks', villageId],
     queryFn: async () =>
       (await Promise.all(phases.map((p) => fetchBlocksByPhase(p.id)))).flat(),
-    enabled: !!villageId && phases.length > 0,
+    enabled: !!villageId && !!villageData && phases.length > 0,
   });
 
   const loading =

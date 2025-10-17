@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseQueryOptions,
+} from '@tanstack/react-query';
 import { Database } from '@/types/database';
 import {
   getVillageRequestByEmail,
@@ -9,12 +14,16 @@ import { VillageFormType } from '@/components/VillageForm';
 
 type VillageRequest = Database['public']['Tables']['village-requests']['Row'];
 
-export const useVillageRequestByEmail = (email?: string) => {
+export const useVillageRequestByEmail = (
+  email?: string,
+  options?: Omit<UseQueryOptions<VillageRequest | null>, 'queryKey' | 'queryFn'>
+) => {
   return useQuery<VillageRequest | null>({
     queryKey: ['village-request', email],
     queryFn: () => getVillageRequestByEmail(email!),
-    enabled: !!email, // only fetch if email exists
+    enabled: !!email && (options?.enabled ?? true), // combine email check with custom enabled option
     staleTime: 5 * 60 * 1000, // cache for 5 minutes
+    ...options, // spread any additional options
   });
 };
 
