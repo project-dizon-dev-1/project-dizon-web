@@ -1,12 +1,14 @@
 // src/services/villageServices.ts
-import { axiosGet, axiosPost } from '@/lib/axios';
+import { axiosGet, axiosPost, axiosPut } from '@/lib/axios';
 import { Database } from '@/types/database';
+
+// -------------------- TYPES --------------------
 
 // Full type returned by the backend
 export type VillageRequest =
   Database['public']['Tables']['village-requests']['Row'];
 
-// Type for frontend payload (fields required to create a request)
+// Payload for creating a village request
 export type VillageRequestPayload = {
   name: string;
   village_address: string;
@@ -16,7 +18,9 @@ export type VillageRequestPayload = {
   address?: string;
 };
 
-// Get a village request by email
+// -------------------- VILLAGE REQUESTS --------------------
+
+// ✅ Get a village request by email
 export const getVillageRequestByEmail = async (
   email: string
 ): Promise<VillageRequest | null> => {
@@ -27,7 +31,7 @@ export const getVillageRequestByEmail = async (
   return response;
 };
 
-// Create a new village request
+// ✅ Create a new village request
 export const createVillageRequest = async (
   payload: VillageRequestPayload
 ): Promise<VillageRequest> => {
@@ -44,5 +48,38 @@ export const createVillageRequest = async (
     throw new Error('No data returned from server');
   }
 
+  return response;
+};
+
+// -------------------- VILLAGE UPDATES --------------------
+
+/**
+ * ✅ Update a village (multipart/form-data)
+ *
+ * Frontend should create a `FormData` object before calling this function.
+ *
+ * @param villageId - The ID of the village to update
+ * @param data - FormData containing the update fields
+ *
+ * @example
+ * const formData = new FormData();
+ * formData.append('village_name', 'Dizon Estate');
+ * formData.append('village_description', 'Updated community info');
+ * formData.append('village_address', 'Blk 1, Lot 10');
+ * formData.append('village_logo', file); // optional image file
+ *
+ * await updateVillage('village-id-123', formData);
+ *
+ * Accepted FormData keys:
+ * - `village_name`: string (optional)
+ * - `village_description`: string (optional)
+ * - `village_address`: string (optional)
+ * - `village_logo`: File | Blob (optional)
+ */
+export const updateVillage = async (
+  villageId: string,
+  data: FormData
+): Promise<any> => {
+  const response = await axiosPut(`/village/update/${villageId}`, data);
   return response;
 };

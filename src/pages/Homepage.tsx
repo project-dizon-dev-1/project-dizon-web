@@ -120,7 +120,7 @@ const Homepage = () => {
               className="bg-primary-blue hover:bg-blue-700 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={(e) => handleNavigation('/login', e)}
+              onClick={(e) => handleNavigation('/admin-signup', e)}
             >
               Get Started
             </MotionButton>
@@ -311,19 +311,33 @@ const Homepage = () => {
                         />
                         Previous
                       </MotionButton>
-                      <MotionButton
-                        onClick={handleNext}
-                        disabled={index === steps.length - 1}
-                        className="bg-primary-blue hover:bg-blue-700 transition-colors gap-1"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Next
-                        <Icon
-                          icon="mingcute:arrow-right-line"
-                          className="w-4 h-4"
-                        />
-                      </MotionButton>
+                      {index === steps.length - 1 ? (
+                        <MotionButton
+                          onClick={(e) => handleNavigation('/admin-signup', e)}
+                          className="bg-primary-blue hover:bg-blue-700 transition-colors gap-1"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Start Now
+                          <Icon
+                            icon="mingcute:rocket-fill"
+                            className="w-4 h-4"
+                          />
+                        </MotionButton>
+                      ) : (
+                        <MotionButton
+                          onClick={handleNext}
+                          className="bg-primary-blue hover:bg-blue-700 transition-colors gap-1"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Next
+                          <Icon
+                            icon="mingcute:arrow-right-line"
+                            className="w-4 h-4"
+                          />
+                        </MotionButton>
+                      )}
                     </div>
                   </TabsContent>
                 ))}
@@ -522,9 +536,9 @@ const Homepage = () => {
                       className="bg-white text-primary-blue hover:bg-blue-50 transition-colors"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={(e) => handleNavigation('/signup', e)}
+                      onClick={(e) => handleNavigation('/admin-signup', e)}
                     >
-                      Sign Up
+                      Sign Up Now
                     </MotionButton>
 
                     <MotionButton
@@ -625,6 +639,13 @@ const Homepage = () => {
               transition={{ delay: 0.3 }}
               viewport={{ once: true }}
             >
+              <Button
+                variant="link"
+                className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"
+                onClick={(e) => handleNavigation('/login', e)}
+              >
+                Login
+              </Button>
               <Button
                 variant="link"
                 className="text-primary-blue hover:text-blue-700 p-0 h-auto text-sm"

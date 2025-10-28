@@ -1,8 +1,8 @@
-import { ReactNode, useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { addPhase, editPhase } from "@/services/subdivisionServices";
-import { Input } from "@/components/ui/input";
+import { ReactNode, useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { addPhase, editPhase } from '@/services/subdivisionServices';
+import { Input } from '@/components/ui/input';
 import {
   AlertDialog,
   AlertDialogActionNoClose,
@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   Form,
   FormControl,
@@ -23,10 +23,11 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { toast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PhaseFormValues, phaseSchema } from "@/validations/subdivisionSchema";
+} from '@/components/ui/form';
+import { toast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { PhaseFormValues, phaseSchema } from '@/validations/subdivisionSchema';
+import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 const PhaseForm = ({
   id,
@@ -39,18 +40,20 @@ const PhaseForm = ({
 }) => {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { data: village } = useVillageByAdmin();
+  const villageId = village?.id || '';
   const isEditing = !!id;
 
   const phaseForm = useForm<PhaseFormValues>({
     resolver: zodResolver(phaseSchema),
     defaultValues: {
-      name: name || "",
+      name: name || '',
     },
   });
 
   useEffect(() => {
     if (dialogOpen && isEditing) {
-      phaseForm.reset({ name: name || "" });
+      phaseForm.reset({ name: name || '' });
     }
   }, [dialogOpen, isEditing, name, phaseForm]);
 
@@ -58,18 +61,18 @@ const PhaseForm = ({
     mutationFn: addPhase,
     onSuccess: () => {
       toast({
-        title: "Phase created",
-        description: "Phase has been created successfully",
+        title: 'Phase created',
+        description: 'Phase has been created successfully',
       });
-      queryClient.invalidateQueries({ queryKey: ["phases"] });
+      queryClient.invalidateQueries({ queryKey: ['phases'] });
       phaseForm.reset();
       setDialogOpen(false);
     },
     onError: (error) => {
       toast({
-        title: "Failed to create phase",
+        title: 'Failed to create phase',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
@@ -78,35 +81,40 @@ const PhaseForm = ({
     mutationFn: editPhase,
     onSuccess: () => {
       toast({
-        title: "Phase updated",
-        description: "Phase has been updated successfully",
+        title: 'Phase updated',
+        description: 'Phase has been updated successfully',
       });
-      queryClient.invalidateQueries({ queryKey: ["phases"] });
+      queryClient.invalidateQueries({ queryKey: ['phases'] });
       phaseForm.reset();
       setDialogOpen(false);
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
     },
   });
 
   const onSubmit = async (data: PhaseFormValues) => {
+    const payload = {
+      ...data,
+      village_id: villageId, // include the current admin’s village
+    };
+
     if (isEditing) {
-      editPhaseMutation.mutate({ phaseId: id, data });
+      editPhaseMutation.mutate({ phaseId: id, data: payload });
     } else {
-      addPhaseMutation.mutate(data);
+      addPhaseMutation.mutate(payload);
     }
   };
 
   const handleOpenDialog = () => {
     if (isEditing) {
-      phaseForm.reset({ name: name || "" });
+      phaseForm.reset({ name: name || '' });
     } else {
-      phaseForm.reset({ name: "" });
+      phaseForm.reset({ name: '' });
     }
     setDialogOpen(true);
   };
@@ -126,12 +134,12 @@ const PhaseForm = ({
       <AlertDialogContent className="z-50">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {isEditing ? "Edit Phase" : "Add New Phase"}
+            {isEditing ? 'Edit Phase' : 'Add New Phase'}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {isEditing
-              ? "Update the details of this phase"
-              : "Add a new phase to your subdivision"}
+              ? 'Update the details of this phase'
+              : 'Add a new phase to your subdivision'}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -166,7 +174,7 @@ const PhaseForm = ({
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogActionNoClose type="submit">
-                {isEditing ? "Update" : "Add Phase"}
+                {isEditing ? 'Update' : 'Add Phase'}
               </AlertDialogActionNoClose>
             </AlertDialogFooter>
           </form>

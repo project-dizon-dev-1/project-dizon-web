@@ -4,6 +4,11 @@ const COMMON_LINKS = {
     link: '/village-dashboard',
     icon: 'mingcute:home-3-line',
   },
+  residentDashboard: {
+    label: 'Dashboard',
+    link: '/dashboard',
+    icon: 'mingcute:home-3-line',
+  },
   announcements: {
     label: 'Announcements',
     link: '/announcements',
@@ -57,16 +62,20 @@ const COMMON_LINKS = {
 };
 
 export const SIDEBAR_LINKS = Object.freeze({
-  resident: [COMMON_LINKS.announcements, COMMON_LINKS.paymentHistory],
+  resident: [
+    COMMON_LINKS.residentDashboard, // 🆕 Added
+    COMMON_LINKS.announcements,
+    COMMON_LINKS.paymentHistory,
+  ],
   admin: [
-    COMMON_LINKS.villageDashboard, // 🆕 Added here
+    COMMON_LINKS.villageDashboard,
     COMMON_LINKS.residents,
     COMMON_LINKS.announcements,
     COMMON_LINKS.paymentHistory,
     COMMON_LINKS.manageSubdivision,
   ],
   superadmin: [
-    COMMON_LINKS.villageDashboard, // 🆕 Added here
+    COMMON_LINKS.villageDashboard,
     COMMON_LINKS.residents,
     COMMON_LINKS.announcements,
     COMMON_LINKS.manageSubdivision,

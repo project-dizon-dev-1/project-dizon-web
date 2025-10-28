@@ -1,5 +1,5 @@
-import { fetchAudits } from "@/services/auditServices";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { fetchAudits } from '@/services/auditServices';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   Table,
   TableBody,
@@ -8,12 +8,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
-import Loading from "@/components/Loading";
-import { Skeleton } from "@/components/ui/skeleton";
-import useInterObserver from "@/hooks/useIntersectObserver";
-import { cn } from "@/lib/utils";
+} from '@/components/ui/table';
+import { Separator } from '@/components/ui/separator';
+import Loading from '@/components/Loading';
+import { Skeleton } from '@/components/ui/skeleton';
+import useInterObserver from '@/hooks/useIntersectObserver';
+import { cn } from '@/lib/utils';
 
 const AuditLogs = () => {
   const {
@@ -24,10 +24,10 @@ const AuditLogs = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ["auditLogs"],
+    queryKey: ['auditLogs'],
     queryFn: async ({ pageParam }) => {
       const page = pageParam.toString();
-      return await fetchAudits(page, "10");
+      return await fetchAudits(page, '10');
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
@@ -39,12 +39,12 @@ const AuditLogs = () => {
 
   // Format date to readable format
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-PH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(date).toLocaleDateString('en-PH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -83,24 +83,24 @@ const AuditLogs = () => {
                 page?.items?.map((audit, i) => (
                   <TableRow
                     className={cn(
-                      i % 2 === 0 ? "h-[45px] rounded-xl" : "bg-white/60"
+                      i % 2 === 0 ? 'h-[45px] rounded-xl' : 'bg-white/60'
                     )}
                     key={audit.id}
                   >
                     <TableCell
                       className={cn(
-                        i % 2 === 0 ? "font-medium" : "rounded-l-xl"
+                        i % 2 === 0 ? 'font-medium' : 'rounded-l-xl'
                       )}
                     >
                       {formatDate(audit.created_at)}
                     </TableCell>
                     <TableCell>
-                      {audit.users_list?.user_first_name}{" "}
+                      {audit.users_list?.user_first_name}{' '}
                       {audit.users_list?.user_last_name}
                     </TableCell>
                     <TableCell
-                      className={cn("md:text-wrap text-nowrap", {
-                        "rounded-r-xl": i % 2 === 0,
+                      className={cn('md:text-wrap text-nowrap', {
+                        'rounded-r-xl': i % 2 === 0,
                       })}
                     >
                       {audit.description}

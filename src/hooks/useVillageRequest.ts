@@ -42,8 +42,6 @@ export const useSubmitVillageRequest = () => {
         requester_email: data.userEmail,
         user_id: data.userId,
         status: 'PENDING',
-        // address is optional, add if you have it in formData
-        // address: data.formData.address,
       }),
     onSuccess: () => {
       toast({

@@ -34,7 +34,7 @@ const upsertFixedDue = async (data: configureCollectionSchemaType) => {
   return await axiosPut('/subdivision/collection/upsert', data);
 };
 
-const addPhase = async (data: { name: string }) => {
+const addPhase = async (data: { name: string; village_id: string }) => {
   return await axiosPost('/subdivision/phases', data);
 };
 

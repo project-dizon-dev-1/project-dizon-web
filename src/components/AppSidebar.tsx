@@ -31,6 +31,7 @@ import { useVillageByAdmin } from '@/hooks/use-village-admin';
 
 export const AppSidebar = () => {
   const { data: villageData, isLoading: villageLoading } = useVillageByAdmin();
+  console.log(villageData);
   const { isMobile } = useSidebar();
   const { user, setUser } = useUserContext();
   const url = useLocation();
@@ -89,11 +90,30 @@ export const AppSidebar = () => {
               className="p-0 cursor-pointer mx-auto mt-[10px] mb-[20px] text-center"
             >
               {villageLoading ? (
-                <Skeleton className="h-7 w-40 mx-auto" />
+                <div className="flex flex-col items-center gap-2">
+                  <Skeleton className="h-12 w-12 rounded-lg" />
+                  <Skeleton className="h-5 w-32" />
+                </div>
               ) : villageData ? (
-                <h2 className="text-xl font-bold text-[#45495A]">
-                  {villageData.village_name}
-                </h2>
+                <div className="flex flex-col items-center gap-2">
+                  {villageData.village_logo_signed_url ? (
+                    <img
+                      src={villageData.village_logo_signed_url}
+                      alt={`${villageData.village_name} logo`}
+                      className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+                      <Icon
+                        icon="mdi:image-off-outline"
+                        className="h-6 w-6 text-gray-400"
+                      />
+                    </div>
+                  )}
+                  <h2 className="text-lg font-bold text-[#45495A]">
+                    {villageData.village_name}
+                  </h2>
+                </div>
               ) : (
                 <div className="flex flex-col items-center justify-center text-gray-500 space-y-2">
                   <Icon icon="mdi:home-off-outline" className="w-8 h-8" />
@@ -206,7 +226,7 @@ export const AppSidebar = () => {
                 <div className="flex flex-col items-center text-center mt-10 text-gray-500 space-y-3">
                   <Icon icon="mdi:village-outline" className="h-10 w-10" />
                   <p className="text-sm">
-                    You don’t have a village yet. Create one to access all
+                    You do not have a village yet. Create one to access all
                     features.
                   </p>
                 </div>
